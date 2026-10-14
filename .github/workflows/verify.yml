@@ -1,0 +1,28 @@
+name: verify
+
+# Runs on pushes to main only (and by hand), and not for changes to the
+# README, LICENSE or the README's pictures.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**"
+      - "!README*.md"
+      - "!LICENSE"
+      - "!docs/*.png"
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - run: ./scripts/verify.sh

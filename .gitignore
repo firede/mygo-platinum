@@ -1,0 +1,6 @@
+# Build products: binaries built from the examples, test binaries.
+/desktop
+/gallery
+/verify
+*.test
+*.out

@@ -7,12 +7,13 @@ cd "$(dirname "$0")/.." || exit 2
 total=$(grep -cv '^#' scripts/checks.txt 2>/dev/null || echo 1)
 tmp=$(mktemp -d 2>/dev/null || mktemp -d -t verify)
 trap 'rm -rf "$tmp"' EXIT
-if ! go build -o "$tmp/verify" ./internal/verify; then
+verify="$tmp/verify$(go env GOEXE)" # verify.exe on Windows
+if ! go build -o "$verify" ./internal/verify; then
 	echo "the verifier did not build"
 	echo "PASSED 0/$total"
 	exit 1
 fi
-"$tmp/verify" "$@"
+"$verify" "$@"
 status=$?
 if [ $status -gt 1 ]; then
 	# The verifier crashed before reporting: nothing passed.

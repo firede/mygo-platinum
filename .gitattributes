@@ -1,0 +1,4 @@
+# Text in LF everywhere, Windows checkouts too: the bitmap faces, the spec
+# and the checks' manifest are read line by line.
+* text=auto eol=lf
+*.png binary

@@ -18,8 +18,15 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-go@v6

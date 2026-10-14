@@ -27,7 +27,7 @@ tables, layout),
 > [!WARNING]
 > **An early, personal project.** It was made for its author's own use and
 > is shared as it is, with no promise of support. Its API may change in any
-> 0.x release, it is tested on macOS only, and it is built on MyGo v0.4.8,
+> 0.x release, it is tested on macOS only, and it is built on MyGo v0.5.1,
 > itself young and changing. Pin a version, and expect to adapt.
 
 ## What is in it
@@ -78,7 +78,7 @@ of your own that look like them.
 
 ## Using it
 
-It needs macOS, Go 1.27.1 or later and MyGo v0.4.8.
+It needs macOS, Go 1.27.1 or later and MyGo v0.5.1.
 
 ```sh
 go get github.com/firede/mygo-platinum@v0.1.0

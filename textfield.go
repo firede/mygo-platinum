@@ -84,6 +84,10 @@ func newTextWidgetWith(c *ui.Context, value *string, multi bool, ed *editor) *Te
 		st.ed = ed
 	}
 	st.ed.noCopy = false // until Password says otherwise
+	if st.changed {
+		// An edit made between builds, for a value of the view bound anew.
+		*value = st.ed.String()
+	}
 	if st.ed.String() != *value {
 		st.ed.set(*value)
 	}

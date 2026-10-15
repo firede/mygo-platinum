@@ -16,6 +16,21 @@ import (
 	"github.com/firede/mygo-platinum/examples/desktop/locales"
 )
 
+// formatLocale returns the locale dates and times are written in for a
+// reader of lang with the regional formats r: the user's first day of the
+// week and hour cycle, or where the system says nothing of them, those
+// CLDR gives the language, as the controls do.
+func formatLocale(lang string, r i18n.Region) string {
+	if lang == "" {
+		lang = "en"
+	}
+	if r.HourCycle != 12 && r.HourCycle != 24 {
+		r = i18n.RegionFor(lang)
+		r.Locale = ""
+	}
+	return r.FormatLocale(lang)
+}
+
 // say returns the desk's messages in the language of its window.
 func (d *desk) say() locales.Messages { return locales.In(d.lang) }
 

@@ -201,6 +201,12 @@ Its last line is `PASSED x/y`.
   Characters no face draws — East Asian ones before that call, Greek,
   other accented letters — draw in the system's font on the same baseline,
   so any text can be typed.
+- The controls' own words — buttons, dialogs, labels and the names screen
+  readers read — come in English, Simplified and Traditional Chinese,
+  Japanese and Korean, in the language of the window; an app changes them
+  with keys `platinum.<key>` of its catalogs. Calendars, date pickers and
+  time fields write dates as the language does, and start weeks and count
+  hours as the user's regional formats do, as MyGo's own controls do.
 - Every focus stop has a name for screen readers, Tab goes round every
   page and window without being trapped, and news the focus does not bring
   (a banner, what a search found) is read out; tests check all three.

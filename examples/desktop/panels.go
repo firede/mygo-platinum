@@ -46,7 +46,7 @@ func dateTimeView(c *ui.Context, d *desk) {
 				ui.Column(c).Gap(8).Children(func() {
 					pt.Label(c, m.TimeLabel())
 					pt.TimeField(c, &day, 1)
-					pt.TextIn(c, i18n.FormatDate(d.lang, now, i18n.DateOptions{Skeleton: "MMMEd"}), pt.AppFont, pt.Black)
+					pt.TextIn(c, i18n.FormatDate(d.formats, now, i18n.DateOptions{Skeleton: "MMMEd"}), pt.AppFont, pt.Black)
 				})
 			})
 		})

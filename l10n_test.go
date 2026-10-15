@@ -142,24 +142,64 @@ func TestSnapshotSaveDialogChinese(t *testing.T) {
 	compareGolden(t, "save-dialog-replace-zh-hans", tt.Image())
 }
 
-// TestTimeOrder checks the order of the parts of a time field in each
-// language: the half of the day after the minutes in English, before the
-// hours in Chinese, Japanese and Korean.
-func TestTimeOrder(t *testing.T) {
+// TestTimeLayout checks how each language writes a time in a cycle of 12
+// hours — the half of the day after the minutes in English, before the
+// hours in Chinese, Japanese and Korean — and of 24.
+func TestTimeLayout(t *testing.T) {
 	for _, tc := range []struct {
 		locale string
-		order  [3]int
-		seps   [2]string
+		twelve bool
+		order  []int
+		seps   []string
+		pad    bool
 	}{
-		{"en", [3]int{0, 1, 2}, [2]string{":", " "}},
-		{"zh-Hans", [3]int{2, 0, 1}, [2]string{"", ":"}},
-		{"zh-Hant", [3]int{2, 0, 1}, [2]string{"", ":"}},
-		{"ja", [3]int{2, 0, 1}, [2]string{"", ":"}},
-		{"ko", [3]int{2, 0, 1}, [2]string{" ", ":"}},
+		{"en", true, []int{0, 1, 2}, []string{":", " "}, false},
+		{"en", false, []int{0, 1}, []string{":"}, true},
+		{"zh-Hans", true, []int{2, 0, 1}, []string{"", ":"}, false},
+		{"zh-Hans", false, []int{0, 1}, []string{":"}, false},
+		{"zh-Hant", true, []int{2, 0, 1}, []string{"", ":"}, false},
+		{"ja", true, []int{2, 0, 1}, []string{"", ":"}, false},
+		{"ja", false, []int{0, 1}, []string{":"}, false},
+		{"ko", true, []int{2, 0, 1}, []string{" ", ":"}, false},
+		{"ko", false, []int{0, 1}, []string{":"}, true},
 	} {
-		order, seps := timeOrder(tc.locale)
-		if order != tc.order || seps != tc.seps {
-			t.Errorf("%s: order %v, separators %q; want %v, %q", tc.locale, order, seps, tc.order, tc.seps)
+		l := timeLayoutOf(tc.locale, tc.twelve)
+		if !slices.Equal(l.order, tc.order) || !slices.Equal(l.seps, tc.seps) || l.pad != tc.pad {
+			t.Errorf("%s (12 hours %v): order %v, separators %q, two digits %v; want %v, %q, %v",
+				tc.locale, tc.twelve, l.order, l.seps, l.pad, tc.order, tc.seps, tc.pad)
 		}
+	}
+}
+
+// TestSnapshotRegions draws the controls of dates and times with regional
+// formats the user set apart from the language: English with Monday first
+// and 24 hours, Chinese with Sunday first and 12.
+func TestSnapshotRegions(t *testing.T) {
+	freeze(t)
+	t.Cleanup(func() { SetEastAsian(nil, nil) })
+	SetEastAsian(zhhans.Regular, zhhans.Bold)
+	day := time.Date(2026, 10, 15, 21, 41, 0, 0, time.UTC)
+	view := func(c *ui.Context) {
+		Use(c, nil)
+		ui.Row(c).Fill().Padding(10).Gap(12).AlignItems(ui.Start).Children(func() {
+			Calendar(c, &day)
+			ui.Column(c).Gap(10).AlignItems(ui.Start).Children(func() {
+				DatePicker(c, &day)
+				TimeField(c, &day, 1)
+			})
+		})
+	}
+	for _, tc := range []struct {
+		tag, golden string
+		region      i18n.Region
+	}{
+		{"en", "region-en-monday-24", i18n.Region{Locale: "en-GB", FirstWeekday: time.Monday, HourCycle: 24}},
+		{"zh-Hans", "region-zh-hans-sunday-12", i18n.Region{FirstWeekday: time.Sunday, HourCycle: 12}},
+	} {
+		tt := ui.NewTester(view, 400, 180)
+		tt.SetLocale(tc.tag)
+		tt.SetRegion(tc.region)
+		tt.Frame()
+		compareGolden(t, tc.golden, tt.Image())
 	}
 }

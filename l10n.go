@@ -41,3 +41,21 @@ func sayWith(c *ui.Context, key string, args map[string]any) string {
 // sayApp returns the message of key in the language the app shows, for
 // what is made without a window, as menus.
 func sayApp(key string) string { return catalog().Format(i18n.Locale(), key, nil) }
+
+// formats returns the regional formats the controls of c write dates and
+// times in — the first day of the week and the hour cycle — and the
+// locale that puts them together with the window's language, as MyGo's
+// own controls do: the user's, or where the system says nothing of them,
+// as for a Tester, those CLDR gives the language.
+func formats(c *ui.Context) (i18n.Region, string) {
+	lang := c.Locale()
+	if lang == "" {
+		lang = "en"
+	}
+	r := c.Region()
+	if r.HourCycle != 12 && r.HourCycle != 24 {
+		r = i18n.RegionFor(lang)
+		r.Locale = ""
+	}
+	return r, r.FormatLocale(lang)
+}

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 	"github.com/firede/platinum-fonts/cjk12/ja"
 	"github.com/firede/platinum-fonts/cjk12/ko"
@@ -141,5 +142,24 @@ func TestWordCount(t *testing.T) {
 		if got := wordCount(locales.In(tc.lang), tc.text); got != tc.want {
 			t.Errorf("%s %q: %q, want %q", tc.lang, tc.text, got, tc.want)
 		}
+	}
+}
+
+// TestDesktopClockRegion checks that the menu bar's clock follows the
+// user's regional formats: 12 hours in English by default, 24 with British
+// formats.
+func TestDesktopClockRegion(t *testing.T) {
+	defer pt.SetClock(pt.SetClock(func() time.Time { return sceneTime }))
+	t.Cleanup(func() { pt.SetEastAsian(nil, nil) })
+	d := newDesk(func() time.Time { return sceneTime })
+	tt := ui.NewTester(d.view, width, height)
+	tt.Frame()
+	if !tt.HasText("9:41 AM") {
+		t.Fatalf("no 9:41 AM by default: %q", tt.Texts())
+	}
+	tt.SetRegion(i18n.Region{Locale: "en-GB", FirstWeekday: time.Monday, HourCycle: 24})
+	tt.Frame()
+	if !tt.HasText("09:41") {
+		t.Errorf("no 09:41 with British formats: %q", tt.Texts())
 	}
 }

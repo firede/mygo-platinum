@@ -18,6 +18,7 @@ test:/examples/desktop:TestDesktopApplicationMenu
 test:/examples/desktop:TestDesktopAsButtons
 test:/examples/desktop:TestDesktopClickAfterResize
 test:/examples/desktop:TestDesktopClock
+test:/examples/desktop:TestDesktopClockRegion
 test:/examples/desktop:TestDesktopCloseButtonRedraws
 test:/examples/desktop:TestDesktopColumns
 test:/examples/desktop:TestDesktopControlPanels
@@ -227,6 +228,7 @@ test::TestSnapshotMenuOpen
 test::TestSnapshotPopupStates
 test::TestSnapshotProgress
 test::TestSnapshotRadio
+test::TestSnapshotRegions
 test::TestSnapshotSaveDialogChinese
 test::TestSnapshotScrollBar
 test::TestSnapshotSlider
@@ -261,7 +263,7 @@ test::TestTextCompositionCaret
 test::TestTextFieldEditing
 test::TestTextWholePixelsAt2x
 test::TestTimeField
-test::TestTimeOrder
+test::TestTimeLayout
 test::TestToolbarOverflow
 test::TestTreeViewKeys
 test::TestWindowBoxesUpdateGeometryImmediately

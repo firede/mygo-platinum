@@ -39,13 +39,14 @@ type CalendarWidget struct {
 
 // Calendar builds a month of days choosing *day: the month and year
 // between arrows that turn the month, the initials of the weekdays, and
-// the days in a grid of six weeks, the chosen one highlighted and today
-// outlined. A click chooses a day; with the keyboard focus, the arrows move
+// the days in a grid of six weeks from the first day of the user's week,
+// the chosen one highlighted and today outlined. A click chooses a day; with the keyboard focus, the arrows move
 // the choice by a day or a week, and Page Up and Down by a month.
 func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 	th := ThemeOf(c)
 	w := &CalendarWidget{}
-	locale := c.Locale()
+	region, locale := formats(c)
+	firstDay := region.FirstWeekday
 	w.el = ui.Box(c).Size(CalendarWidth, CalendarHeight).Focusable().FocusRing(false).
 		Role(ui.RoleGroup).Label(say(c, "calendar")).Value(i18n.FormatDate(locale, *day, i18n.DateOptions{Date: i18n.LongStyle}))
 	st := ui.Local(w.el, "calendar", func() calendarState { return calendarState{} })
@@ -98,7 +99,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 		if row < 0 || row > 5 || col < 0 || col > 6 || y < calendarHeader+calendarDays+2 {
 			return false
 		}
-		t := gridStart(month).AddDate(0, 0, row*7+col)
+		t := gridStart(month, firstDay).AddDate(0, 0, row*7+col)
 		t = time.Date(t.Year(), t.Month(), t.Day(), day.Hour(), day.Minute(), day.Second(), 0, day.Location())
 		if !t.Equal(*day) {
 			*day = t
@@ -114,7 +115,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 	dim := inactive(c)
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
 		pn := NewPen(p, r).Dimmed(dim)
-		DrawCalendar(pn, locale, month, chosen, today, focused, th.Accent)
+		DrawCalendar(pn, locale, firstDay, month, chosen, today, focused, th.Accent)
 		if focused {
 			DrawFocusRing(pn, 0, th.Accent.Dark)
 		}
@@ -122,9 +123,10 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 	return w
 }
 
-// gridStart returns the Sunday on or before the first of month.
-func gridStart(month time.Time) time.Time {
-	return month.AddDate(0, 0, -int(month.Weekday()))
+// gridStart returns the first day of the week, first, on or before the
+// first of month.
+func gridStart(month time.Time, first time.Weekday) time.Time {
+	return month.AddDate(0, 0, -((int(month.Weekday()) - int(first) + 7) % 7))
 }
 
 func sameDay(a, b time.Time) bool {
@@ -146,8 +148,9 @@ var (
 )
 
 // DrawCalendar draws the calendar of month in pn's box, in the language of
-// locale, chosen highlighted and today outlined.
-func DrawCalendar(pn Pen, locale string, month, chosen, today time.Time, focused bool, a Accent) {
+// locale, its weeks starting on first, chosen highlighted and today
+// outlined.
+func DrawCalendar(pn Pen, locale string, first time.Weekday, month, chosen, today time.Time, focused bool, a Accent) {
 	w, h := pn.W, pn.H
 	DrawContentRing(pn)
 	pn.Frame(1, 1, w-2, h-2, Black)
@@ -161,12 +164,13 @@ func DrawCalendar(pn Pen, locale string, month, chosen, today time.Time, focused
 	hd.Bitmap(hd.W-10, (hd.H-7)/2, monthNext, Black)
 	hd.TextCentered(0, 0, hd.W, hd.H, i18n.FormatDate(locale, month, i18n.DateOptions{Skeleton: "yMMMM"}), SystemFont, Black)
 	// The weekdays.
-	for i, d := range i18n.Weekdays(locale, i18n.Narrow, true) {
+	names := i18n.Weekdays(locale, i18n.Narrow, true)
+	for i := range 7 {
 		x := calendarPad + 2 + i*CalendarCellW
-		pn.TextCentered(x, calendarHeader+2, CalendarCellW, calendarDays, d, AppFont, Gray8)
+		pn.TextCentered(x, calendarHeader+2, CalendarCellW, calendarDays, names[(int(first)+i)%7], AppFont, Gray8)
 	}
 	pn.HLine(calendarPad+2, calendarHeader+calendarDays+1, 7*CalendarCellW, Gray4)
-	start := gridStart(month)
+	start := gridStart(month, first)
 	for i := 0; i < 42; i++ {
 		d := start.AddDate(0, 0, i)
 		x := calendarPad + 2 + i%7*CalendarCellW
@@ -205,7 +209,7 @@ type DatePickerWidget struct {
 func DatePicker(c *ui.Context, day *time.Time) *DatePickerWidget {
 	th := ThemeOf(c)
 	w := &DatePickerWidget{}
-	locale := c.Locale()
+	_, locale := formats(c)
 	date := func(d time.Time) string { return i18n.FormatDate(locale, d, i18n.DateOptions{Skeleton: "yMMMd"}) }
 	text := date(*day)
 	widest := 0
@@ -270,22 +274,74 @@ type timeState struct {
 	rect    ui.Rect
 }
 
-// timeParts returns the text of the parts of t, as "9", "41" and "AM", the
-// half of the day in the language of locale.
-func timeParts(t time.Time, locale string) [3]string {
-	h := t.Hour() % 12
-	if h == 0 {
-		h = 12
+// timeLayout is how the language of locale writes a time in an hour
+// cycle of 12 or 24: the order of its parts — 0 the hours, 1 the minutes,
+// 2 the half of the day, which a cycle of 24 has not — what is written
+// between them, and whether the hours take two digits.
+type timeLayout struct {
+	order []int
+	seps  []string
+	pad   bool
+}
+
+func timeLayoutOf(locale string, twelve bool) timeLayout {
+	cycle := 24
+	if twelve {
+		cycle = 12
+	}
+	p := i18n.NewDateFormatter(locale, i18n.DateOptions{Skeleton: "jmm", HourCycle: cycle}).Pattern()
+	h := strings.IndexAny(p, "hHkK")
+	m := strings.IndexByte(p, 'm')
+	l := timeLayout{order: []int{0, 1}, seps: []string{":"}}
+	if h < 0 || m < h {
+		return l
+	}
+	end := len(p) - len(strings.TrimLeft(p[h:], "hHkK")) // after the hours' letters
+	l.pad = end-h >= 2
+	if sep := strings.Trim(p[end:m], "'"); sep != "" {
+		l.seps[0] = sep
+	}
+	if !twelve {
+		return l
+	}
+	if a := strings.IndexByte(p, 'a'); a >= 0 && a < h {
+		l.order = []int{2, 0, 1}
+		l.seps = []string{strings.Trim(p[a+1:h], "'"), l.seps[0]}
+	} else {
+		l.order = []int{0, 1, 2}
+		l.seps = append(l.seps, " ")
+	}
+	return l
+}
+
+// timeParts returns the text of the parts of t, as "9", "41" and "AM", or
+// "09" and "41" in a cycle of 24 hours; the half of the day in the
+// language of locale.
+func timeParts(t time.Time, locale string, l timeLayout) [3]string {
+	twelve := len(l.order) == 3
+	h := t.Hour()
+	if twelve {
+		if h = h % 12; h == 0 {
+			h = 12
+		}
+	}
+	hours := fmt.Sprint(h)
+	if l.pad {
+		hours = fmt.Sprintf("%02d", h)
+	}
+	if !twelve {
+		return [3]string{hours, fmt.Sprintf("%02d", t.Minute()), ""}
 	}
 	ampm, pm := i18n.DayPeriods(locale, i18n.Abbreviated)
 	if t.Hour() >= 12 {
 		ampm = pm
 	}
-	return [3]string{fmt.Sprint(h), fmt.Sprintf("%02d", t.Minute()), ampm}
+	return [3]string{hours, fmt.Sprintf("%02d", t.Minute()), ampm}
 }
 
-// TimeField builds a field of the time of day of *t, as "9:41 AM", with
-// little arrows at its right. Its parts — hours, minutes, AM or PM — are
+// TimeField builds a field of the time of day of *t, as "9:41 AM" or
+// "21:41", in the hour cycle of the user's regional formats, with little
+// arrows at its right. Its parts — hours, minutes, and AM or PM — are
 // chosen one at a time, by a click or with Left and Right; Up, Down and the
 // arrows step the part chosen (minutes by step), digits type it, and A and
 // P set the half of the day.
@@ -302,6 +358,15 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 		*t = nt
 		st.picked, st.changed = nt, true
 	}
+	region, locale := formats(c)
+	twelve := region.HourCycle == 12
+	// The parts as the language writes them: the half of the day after the
+	// minutes, or before the hours, or none.
+	l := timeLayoutOf(locale, twelve)
+	n := len(l.order)
+	if st.seg >= n {
+		st.seg = 0 // the cycle changed under it
+	}
 	add := func(d int) {
 		switch st.seg {
 		case 0:
@@ -314,34 +379,39 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 			set(t.Add(12 * time.Hour))
 		}
 	}
-	locale := c.Locale()
-	parts := timeParts(*t, locale)
-	// The parts as the language writes them: the half of the day after the
-	// minutes, or before the hours.
-	order, seps := timeOrder(locale)
-	var shown [3]string
-	for i, p := range order {
+	join := func(parts [3]string) string {
+		s := ""
+		for i, p := range l.order {
+			s += parts[p]
+			if i < len(l.seps) {
+				s += l.seps[i]
+			}
+		}
+		return s
+	}
+	parts := timeParts(*t, locale, l)
+	shown := make([]string, n)
+	for i, p := range l.order {
 		shown[i] = parts[p]
 	}
-	text := shown[0] + seps[0] + shown[1] + seps[1] + shown[2]
+	text := join(parts)
 	// As wide as the widest time.
-	width := 0
 	am, pm := i18n.DayPeriods(locale, i18n.Abbreviated)
+	width := 0
 	for _, period := range []string{am, pm} {
-		widest := [3]string{"12", "59", period}
-		width = max(width, AppFont.Measure(widest[order[0]]+seps[0]+widest[order[1]]+seps[1]+widest[order[2]]))
+		width = max(width, AppFont.Measure(join([3]string{"23", "59", period})))
 	}
 	width += 2*textInset + 10
-	at := func(seg int) int { return slices.Index(order[:], seg) }
+	at := func(seg int) int { return slices.Index(l.order, seg) }
 	row.Role(ui.RoleGroup).Label(say(c, "time")).Value(text)
 	row.Children(func() {
 		field := ui.Box(c).Size(float32(width), TextFieldHeight).Focusable().FocusRing(false).
 			Role(ui.RoleTextField).Label(say(c, "time")).Value(text)
 		if field.Shortcut(0, ui.KeyLeft) {
-			st.seg, st.typed = order[max(at(st.seg)-1, 0)], ""
+			st.seg, st.typed = l.order[max(at(st.seg)-1, 0)], ""
 		}
 		if field.Shortcut(0, ui.KeyRight) {
-			st.seg, st.typed = order[min(at(st.seg)+1, 2)], ""
+			st.seg, st.typed = l.order[min(at(st.seg)+1, n-1)], ""
 		}
 		if field.Shortcut(0, ui.KeyUp) {
 			add(1)
@@ -350,21 +420,22 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 			add(-1)
 		}
 		// Where each part shown starts, for the pointer and the highlight.
-		xs := [4]int{textInset + 1}
-		for i := range 3 {
+		xs := make([]int, n+1)
+		xs[0] = textInset + 1
+		for i := range n {
 			sep := ""
-			if i < 2 {
-				sep = seps[i]
+			if i < len(l.seps) {
+				sep = l.seps[i]
 			}
 			xs[i+1] = xs[i] + AppFont.Measure(shown[i]+sep) + 1
 		}
 		field.HandleInput(func(ev ui.InputEvent) bool {
 			switch ev.Kind {
 			case ui.InputPointerDown:
-				st.seg, st.typed = order[0], ""
-				for i := 1; i < 3; i++ {
+				st.seg, st.typed = l.order[0], ""
+				for i := 1; i < n; i++ {
 					if int(ev.X) >= xs[i]-2 {
-						st.seg = order[i]
+						st.seg = l.order[i]
 					}
 				}
 				return false // and take the focus
@@ -374,24 +445,29 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 					return true
 				}
 				switch {
-				case st.seg == 2 && (r[0] == 'a' || r[0] == 'A') && t.Hour() >= 12,
-					st.seg == 2 && (r[0] == 'p' || r[0] == 'P') && t.Hour() < 12:
+				case twelve && st.seg == 2 && (r[0] == 'a' || r[0] == 'A') && t.Hour() >= 12,
+					twelve && st.seg == 2 && (r[0] == 'p' || r[0] == 'P') && t.Hour() < 12:
 					set(t.Add(12 * time.Hour))
 				case r[0] >= '0' && r[0] <= '9' && st.seg < 2:
 					st.typed += string(r)
-					n := 0
-					fmt.Sscan(st.typed, &n)
+					v := 0
+					fmt.Sscan(st.typed, &v)
 					if st.seg == 0 {
-						h := n % 12
-						if n > 12 || n == 0 {
-							h, st.typed = int(r[0]-'0')%12, string(r)
-						}
-						if t.Hour() >= 12 {
-							h += 12
+						h := v
+						if twelve {
+							h = v % 12
+							if v > 12 || v == 0 {
+								h, st.typed = int(r[0]-'0')%12, string(r)
+							}
+							if t.Hour() >= 12 {
+								h += 12
+							}
+						} else if v > 23 {
+							h, st.typed = int(r[0]-'0'), string(r)
 						}
 						set(time.Date(t.Year(), t.Month(), t.Day(), h, t.Minute(), t.Second(), 0, t.Location()))
 					} else {
-						m := n
+						m := v
 						if m > 59 {
 							m, st.typed = int(r[0]-'0'), string(r)
 						}
@@ -400,7 +476,7 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 					if len(st.typed) >= 2 && st.seg == 0 {
 						st.seg, st.typed = 1, ""
 					} else if len(st.typed) >= 2 {
-						st.seg, st.typed = order[min(at(st.seg)+1, 2)], ""
+						st.seg, st.typed = l.order[min(at(st.seg)+1, n-1)], ""
 					}
 				}
 				return true
@@ -413,7 +489,7 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 		inact := inactive(c)
 		field.Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := NewPen(p, r)
-			DrawTimeField(pn, shown, seps, xs, at(seg), focused, inact, th.Accent)
+			DrawTimeField(pn, shown, l.seps, xs, at(seg), focused, inact, th.Accent)
 			if focused {
 				DrawFocusRing(pn, 0, th.Accent.Dark)
 			}
@@ -427,34 +503,23 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 }
 
 // DrawTimeField draws a time field showing parts — the hours, minutes and
-// half of the day, in the order the language writes them, seps after the
-// first two — from xs, part seg chosen while focused, in pn's box.
-func DrawTimeField(pn Pen, parts [3]string, seps [2]string, xs [4]int, seg int, focused, inactive bool, a Accent) {
+// half of the day if the time has one, in the order the language writes
+// them, seps between them — from xs, part seg chosen while focused, in
+// pn's box.
+func DrawTimeField(pn Pen, parts, seps []string, xs []int, seg int, focused, inactive bool, a Accent) {
 	DrawTextFrame(pn, false)
 	if inactive {
 		pn.Frame(1, 1, pn.W-2, pn.H-2, Gray8)
 		pn = pn.Dimmed(true) // its text gray as well
 	}
 	y := (pn.H-AppFont.CapHeight())/2 - (AppFont.Ascent() - AppFont.CapHeight())
-	if focused {
+	if focused && seg >= 0 && seg+1 < len(xs) {
 		pn.Rect(xs[seg]-1, 4, xs[seg+1]-xs[seg]-1, pn.H-8, a.Light)
 	}
 	for i, part := range parts {
 		x := pn.Text(xs[i], y, part, AppFont, Black)
-		if i < 2 {
+		if i < len(seps) {
 			pn.Text(x, y, seps[i], AppFont, Black)
 		}
 	}
-}
-
-// timeOrder returns the order the parts of a time — 0 the hours, 1 the
-// minutes, 2 the half of the day — are written in the language of locale,
-// and what is written after the first two.
-func timeOrder(locale string) (order [3]int, seps [2]string) {
-	p := i18n.NewDateFormatter(locale, i18n.DateOptions{Skeleton: "hm"}).Pattern()
-	a, h := strings.IndexByte(p, 'a'), strings.IndexAny(p, "hK")
-	if a >= 0 && h > a {
-		return [3]int{2, 0, 1}, [2]string{strings.Trim(p[a+1:h], "'"), ":"}
-	}
-	return [3]int{0, 1, 2}, [2]string{":", " "}
 }

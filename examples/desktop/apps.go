@@ -533,7 +533,7 @@ func clockView(c *ui.Context, w *win, d *desk) {
 	c.After(time.Second - time.Duration(now.Nanosecond()))
 	ui.Column(c).FillWidth().Padding(10).Gap(8).AlignItems(ui.Stretch).Children(func() {
 		t := now.Format("15:04:05")
-		date := i18n.FormatDate(d.lang, now, i18n.DateOptions{Date: i18n.FullStyle})
+		date := i18n.FormatDate(d.formats, now, i18n.DateOptions{Date: i18n.FullStyle})
 		ui.Box(c).Height(40).Role(ui.RoleStatus).Label(m.Time()).Value(t).Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := pt.NewPen(p, r)
 			// A sunken gray face with black figures.

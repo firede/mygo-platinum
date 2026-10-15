@@ -77,7 +77,7 @@ func infoView(c *ui.Context, d *desk, n *node) {
 			{m.KindLabel(), n.kindName(m)},
 			{m.SizeLabel(), size},
 			{m.WhereLabel(), where},
-			{m.ModifiedLabel(), i18n.FormatDate(d.lang, n.modified, i18n.DateOptions{Skeleton: "yMMMEdjm"})},
+			{m.ModifiedLabel(), i18n.FormatDate(d.formats, n.modified, i18n.DateOptions{Skeleton: "yMMMEdjm"})},
 		} {
 			ui.Row(c).Gap(8).AlignItems(ui.Start).Children(func() {
 				ui.Box(c).Width(62).Children(func() { pt.Label(c, row[0]) })

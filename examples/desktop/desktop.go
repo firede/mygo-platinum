@@ -146,9 +146,11 @@ type desk struct {
 	zoomTo    ui.Rect
 	zoomStart time.Time
 	quit      func()
-	// The language of the desk's window, as of this frame, and the one its
-	// items were last named in.
+	// The language of the desk's window, as of this frame, the locale it
+	// writes dates and times in, and the language its items were last
+	// named in.
 	lang       string
+	formats    string
 	labelled   bool
 	labelledIn string
 	// The language chosen in the Language control panel, "" to follow the
@@ -306,6 +308,7 @@ func (d *desk) view(c *ui.Context) {
 	}
 	d.later = d.later[:0]
 	d.lang = c.Locale()
+	d.formats = formatLocale(d.lang, c.Region())
 	d.followLanguage()
 	m := d.say()
 	// A drag seen in the last frame lets the windows in the background

@@ -254,7 +254,7 @@ func (d *desk) rightMenus() []pt.Menu {
 // date, which a click on it shows instead, as the classic clock did.
 func (d *desk) clockTitle() string {
 	if d.showDate {
-		return i18n.FormatDate(d.lang, d.now(), i18n.DateOptions{Skeleton: "yMMMEd"})
+		return i18n.FormatDate(d.formats, d.now(), i18n.DateOptions{Skeleton: "yMMMEd"})
 	}
-	return i18n.FormatDate(d.lang, d.now(), i18n.DateOptions{Skeleton: "jm"})
+	return i18n.FormatDate(d.formats, d.now(), i18n.DateOptions{Skeleton: "jm"})
 }

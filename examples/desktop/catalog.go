@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/egoist/mygo/ui"
@@ -16,6 +17,7 @@ type catalog struct {
 	chosen int
 	// What the controls show and change.
 	on, off, mixed bool
+	mixedShown     bool // the third check box shows mixed, until clicked
 	radio          string
 	slider         float64
 	open           bool
@@ -23,13 +25,15 @@ type catalog struct {
 	text, area     string
 	list           int
 	scroll         float64
-	front, back    pt.WindowState
+	windows        []*pt.WindowState // back to front
 	alert, dialog  bool
 	toggle         bool
 	segment        int
 	number, steps  float64
 	query          string
 	tree           *pt.TreeNode
+	disk           []*pt.TreeNode // the disk's tree, as the views show it
+	diskIn         string         // and the language it was made in
 	table          *pt.TableState
 	icon           int
 	split          float64
@@ -38,6 +42,7 @@ type catalog struct {
 	combo          string
 	color          ui.Color
 	sheet          *pt.SheetState
+	sheetIn        string // the language of the sheet's words
 	find           bool
 	findState      pt.FindState
 	ruler          pt.RulerState
@@ -67,9 +72,9 @@ type catalogPage struct {
 
 func newCatalogWindow(d *desk) *win {
 	k := &catalog{
-		on: true, mixed: true, radio: "two", slider: 40, open: true,
-		front: pt.WindowState{X: 30, Y: 8, W: 170, H: 90}, back: pt.WindowState{X: 6, Y: 30, W: 150, H: 80},
-		toggle: true, segment: 1, number: 2, steps: 4,
+		on: true, mixed: true, mixedShown: true, radio: "two", slider: 40, open: true,
+		windows: []*pt.WindowState{{X: 6, Y: 30, W: 150, H: 80}, {X: 30, Y: 8, W: 170, H: 90}},
+		toggle:  true, segment: 1, number: 2, steps: 4,
 		table: pt.NewTableState(), icon: 1, split: 120,
 		day: d.now(), color: pt.Lavender.Mid,
 		sheet: pt.NewSheetState(), ruler: pt.RulerState{Left: 9, Right: 270},
@@ -83,7 +88,7 @@ func newCatalogWindow(d *desk) *win {
 		}
 	}
 	w := &win{app: appCatalog, catalog: k}
-	w.frame = pt.WindowState{W: 600, H: 380}
+	w.frame = pt.WindowState{W: 620, H: 380}
 	w.content = func(c *ui.Context, w *win) { catalogView(c, d, w.catalog) }
 	return w
 }
@@ -96,7 +101,7 @@ func catalogView(c *ui.Context, d *desk, k *catalog) {
 		names[i] = p.name
 	}
 	ui.Row(c).Fill().Children(func() {
-		ui.Column(c).Width(170).AlignSelf(ui.Stretch).AlignItems(ui.Stretch).Children(func() {
+		ui.Column(c).Width(190).AlignSelf(ui.Stretch).AlignItems(ui.Stretch).Children(func() {
 			pt.ListBox(c, &k.chosen, names).Label(d.appTitle(appCatalog)).Element().Grow(1)
 		})
 		p := pages[k.chosen]
@@ -108,6 +113,24 @@ func catalogView(c *ui.Context, d *desk, k *catalog) {
 			})
 		})
 	})
+}
+
+// fileTree returns the disk's tree as the tree and column views show it,
+// made once for each language the desk speaks, for what they keep — the
+// folders open, the item chosen — to stay.
+func (k *catalog) fileTree(d *desk) []*pt.TreeNode {
+	if k.disk == nil || k.diskIn != d.lang {
+		k.disk, k.diskIn = d.fileTree(), d.lang
+		k.disk[0].Open = true
+		k.tree, k.columns = nil, nil
+	}
+	return k.disk
+}
+
+// modal reports whether a dialog or alert of the catalog shows, in front
+// of the desk's windows.
+func (k *catalog) modal() bool {
+	return k.alert || k.dialog || k.find || k.pageSetup || k.progress || k.opening || k.saving
 }
 
 // row lays out fn's controls side by side.
@@ -135,7 +158,13 @@ func catalogPages() []catalogPage {
 		{"Checkbox", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			pt.Checkbox(c, &k.on, m.CatOne())
 			pt.Checkbox(c, &k.off, m.CatTwo())
-			pt.Checkbox(c, &k.mixed, m.CatThree()).Mixed()
+			third := pt.Checkbox(c, &k.mixed, m.CatThree())
+			if k.mixedShown {
+				third.Mixed()
+			}
+			if third.Changed() {
+				k.mixedShown = false // chosen, it is checked or not
+			}
 			pt.Checkbox(c, &k.on, m.CatDisabled()).Disabled(true)
 		}},
 		{"Radio, RadioGroup", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
@@ -193,8 +222,15 @@ func catalogPages() []catalogPage {
 		}},
 		{"Window", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			box(c, 300, 140, func() {
-				pt.Window(c.Key("back"), &k.back, m.Untitled(), pt.WindowOptions{}, func() {})
-				pt.Window(c.Key("front"), &k.front, m.CatWindow(), pt.WindowOptions{Active: true}, func() {})
+				titles := []string{m.Untitled(), m.CatWindow()}
+				for i, st := range k.windows {
+					front := i == len(k.windows)-1
+					w := pt.Window(c.Key(st), st, titles[i], pt.WindowOptions{Active: front, ZoomTo: [4]int{4, 4, 292, 132}}, func() {})
+					if w.Activated() && !front {
+						k.windows = append(append(append([]*pt.WindowState{}, k.windows[:i]...), k.windows[i+1:]...), st)
+						titles = append(append(append([]string{}, titles[:i]...), titles[i+1:]...), titles[i])
+					}
+				}
 			})
 		}},
 		{"MenuBar", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
@@ -257,7 +293,10 @@ func catalogPages() []catalogPage {
 			})
 		}},
 		{"Stepper, NumberField", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			pt.Stepper(c, &k.steps, 0, 10, 1)
+			row(c, func() {
+				pt.Stepper(c, &k.steps, 0, 10, 1)
+				pt.TextIn(c, fmt.Sprint(int(k.steps)), pt.AppFont, pt.Black)
+			})
 			pt.NumberField(c, &k.number, 1, 99, 1, 0)
 		}},
 		{"SearchField", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
@@ -297,9 +336,7 @@ func catalogPages() []catalogPage {
 			pt.ContextMenu(c, target, []pt.MenuItem{{Title: m.Cut()}, {Title: m.Copy()}, {Title: m.Paste(), Disabled: true}})
 		}},
 		{"TreeView", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			tree := d.fileTree()
-			tree[0].Open = true
-			pt.TreeView(c, tree, &k.tree).Element().Size(240, 120)
+			pt.TreeView(c, k.fileTree(d), &k.tree).Element().Size(240, 120)
 		}},
 		{"Table", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			items := []string{m.Rent(), m.Groceries(), m.LampOil(), m.Books()}
@@ -346,12 +383,17 @@ func catalogPages() []catalogPage {
 			pt.ComboBox(c, &k.combo, []string{m.Slow(), m.Medium(), m.Fast()})
 		}},
 		{"ColorWell", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			pt.ColorWell(c, &k.color, m.HighlightColor())
+			pt.ColorWell(c, &k.color, strings.TrimRight(m.HighlightColor(), ":："))
 		}},
 		{"Sheet, FormulaBar", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			ui.Column(c).Width(300).AlignItems(ui.Stretch).Gap(4).Children(func() {
-				for r, s := range []string{m.Rent(), m.Groceries(), m.Books(), m.Total()} {
-					k.sheet.Cells[pt.Cell{Col: 0, Row: r}] = s
+				if k.sheetIn != d.lang {
+					// The words of its first column, in the desk's language
+					// as it changes; what the user wrote stays otherwise.
+					k.sheetIn = d.lang
+					for r, s := range []string{m.Rent(), m.Groceries(), m.Books(), m.Total()} {
+						k.sheet.Cells[pt.Cell{Col: 0, Row: r}] = s
+					}
 				}
 				pt.FormulaBar(c, k.sheet)
 				pt.Sheet(c, k.sheet, 20, 6).Element().Size(300, 110)
@@ -369,7 +411,7 @@ func catalogPages() []catalogPage {
 			})
 		}},
 		{"ColumnView", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			pt.ColumnView(c, d.fileTree(), &k.columns).Element().Size(330, 110)
+			pt.ColumnView(c, k.fileTree(d), &k.columns).Element().Size(330, 110)
 		}},
 		{"DocumentTabs", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			docs := []string{m.Letter(), m.Recipes(), m.ToDo()}

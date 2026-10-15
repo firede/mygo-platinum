@@ -85,3 +85,62 @@ func TestCatalogPages(t *testing.T) {
 		}
 	}
 }
+
+// TestCatalogKeepsState works the controls of a few pages, which keep what
+// the user did — a folder of the tree opened, a window brought forward, the
+// mixed check box chosen — and shows an alert, in front of every window.
+func TestCatalogKeepsState(t *testing.T) {
+	d := newDeskIn(func() time.Time { return sceneTime }, "en")
+	d.windows = nil
+	w := d.launch(appCatalog)
+	w.frame.X, w.frame.Y = 4, 4
+	k := w.catalog
+	tt := ui.NewTester(d.view, 900, 620)
+	page := func(name string) {
+		for i, p := range catalogPages() {
+			if p.name == name {
+				k.chosen = i
+			}
+		}
+		tt.Frame()
+	}
+
+	page("TreeView")
+	if err := tt.Click("Documents"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Key(0, ui.KeyRight) // opens it
+	tt.Frame()
+	tt.Frame()
+	if !tt.HasText("Letter") {
+		t.Error("the Documents folder did not stay open")
+	}
+
+	page("Window")
+	front := k.windows[len(k.windows)-1]
+	r, _ := tt.Find("untitled") // the window behind, its left edge clear
+	tt.ClickAt(r.X+8, r.Y+r.H/2)
+	tt.Frame()
+	if k.windows[0] != front {
+		t.Error("a click on the window behind did not bring it forward")
+	}
+
+	page("Checkbox")
+	if err := tt.Click("Three"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if k.mixedShown {
+		t.Error("the mixed check box stayed mixed when chosen")
+	}
+
+	// An alert of the Controls is in front of the desk's windows too.
+	page("Alert")
+	if err := tt.Click("Show"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if !d.modalUp() {
+		t.Error("the Controls' alert left the windows active")
+	}
+}

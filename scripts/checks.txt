@@ -13,10 +13,12 @@ package:/internal/verify
 test:/examples/desktop:TestAboutSourceLink
 test:/examples/desktop:TestCalculatorCopyPaste
 test:/examples/desktop:TestCalculatorPhysicalOperators
+test:/examples/desktop:TestCatalogKeepsState
 test:/examples/desktop:TestCatalogNames
 test:/examples/desktop:TestCatalogPages
 test:/examples/desktop:TestChosenLanguage
 test:/examples/desktop:TestDeskFramesShowInput
+test:/examples/desktop:TestDeskIconsFollowEdge
 test:/examples/desktop:TestDesktopAlarm
 test:/examples/desktop:TestDesktopApplicationMenu
 test:/examples/desktop:TestDesktopAsButtons

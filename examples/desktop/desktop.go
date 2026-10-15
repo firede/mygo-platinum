@@ -103,6 +103,7 @@ type deskIcon struct {
 	help     string // what its help balloon says
 	grab     [2]float32
 	dragging bool
+	placed   bool // the user moved it: it stays where it is
 }
 
 // desk is the whole desktop: the menu bar, the icons, the windows and what
@@ -504,7 +505,8 @@ const (
 func (d *desk) iconsView(c *ui.Context) {
 	cw, _ := c.Size()
 	for i, di := range d.icons {
-		if di.x == 0 && di.y == 0 {
+		if !di.placed {
+			// Down the right edge, wherever it is, until the user moves it.
 			di.x = max(int(cw)-deskIconW-12, 0)
 			di.y = 12 + i*64
 		}
@@ -545,7 +547,7 @@ func (d *desk) iconsView(c *ui.Context) {
 		pt.ContextMenu(c, e, []pt.MenuItem{{Title: d.say().Open(), Action: di.open}, pt.Divider(),
 			{Title: d.say().CleanUpDesktop(), Action: func() {
 				for _, o := range d.icons {
-					o.x, o.y = 0, 0
+					o.placed = false
 				}
 			}}})
 		if d.balloons {
@@ -565,7 +567,7 @@ func (d *desk) iconsView(c *ui.Context) {
 				return false
 			case ui.InputPointerMove:
 				if ev.Button == 0 && (di.dragging || abs(int(ev.X-di.grab[0]))+abs(int(ev.Y-di.grab[1])) > 3) {
-					di.dragging = true
+					di.dragging, di.placed = true, true
 					di.x += int(ev.X - di.grab[0])
 					di.y += int(ev.Y - di.grab[1])
 					return true
@@ -618,7 +620,7 @@ func (d *desk) modalUp() bool {
 		return true
 	}
 	for _, w := range d.windows {
-		if w.doc != nil && w.doc.finding {
+		if w.doc != nil && w.doc.finding || w.catalog != nil && w.catalog.modal() {
 			return true
 		}
 	}
@@ -786,7 +788,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 		{Title: m.MenuSpecial(), Items: []pt.MenuItem{
 			{Title: m.CleanUpDesktop(), Action: func() {
 				for _, di := range d.icons {
-					di.x, di.y = 0, 0
+					di.placed = false
 				}
 			}},
 			{Title: m.EmptyWastebasketMenu(), Disabled: len(d.trash) == 0, Action: func() { d.emptying = true }},

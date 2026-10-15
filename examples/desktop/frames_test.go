@@ -56,3 +56,37 @@ func TestDeskFramesShowInput(t *testing.T) {
 	settled(t, tt, "the window raised")
 	tt.Release(60, 120)
 }
+
+// TestDeskIconsFollowEdge checks the desktop's icons as the window grows:
+// those the user has not moved stay down its right edge, one moved stays
+// where it was put, until Clean Up Desktop.
+func TestDeskIconsFollowEdge(t *testing.T) {
+	d := newDeskIn(func() time.Time { return sceneTime }, "en")
+	tt := ui.NewTester(d.view, width, height)
+	tt.Frame()
+	disk, trash := d.icons[0], d.icons[1]
+	tt.SetSize(width+200, height)
+	tt.Frame()
+	if disk.x+deskIconW != width+200-12 || trash.x != disk.x {
+		t.Fatalf("after growing 200, the icons stand at %d and %d", disk.x, trash.x)
+	}
+	x, y := center(t, tt, "Wastebasket")
+	tt.Press(x, y-20)
+	tt.Move(x-60, y)
+	tt.Move(x-100, y+40)
+	tt.Release(x-100, y+40)
+	tt.Frame()
+	moved := trash.x
+	tt.SetSize(width+300, height)
+	tt.Frame()
+	if trash.x != moved || disk.x+deskIconW != width+300-12 {
+		t.Fatalf("after growing again, the moved icon at %d (was %d), the disk at %d", trash.x, moved, disk.x)
+	}
+	for _, di := range d.icons {
+		di.placed = false // as Clean Up Desktop does
+	}
+	tt.Frame()
+	if trash.x != disk.x {
+		t.Fatal("cleaning up did not put the moved icon back on the edge")
+	}
+}

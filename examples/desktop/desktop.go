@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"time"
 
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 	pt "github.com/firede/mygo-platinum"
 )
@@ -26,6 +27,7 @@ const (
 	appDateTime
 	appSound
 	appMouse
+	appLanguage
 	appFind
 	appInfo
 )
@@ -54,6 +56,8 @@ func appIcon(a appKind) *icon {
 		return iconSound
 	case appMouse:
 		return iconMouse
+	case appLanguage:
+		return iconLanguage
 	}
 	return iconFolder
 }
@@ -142,19 +146,31 @@ type desk struct {
 	zoomTo    ui.Rect
 	zoomStart time.Time
 	quit      func()
+	// The language of the desk's window, as of this frame, and the one its
+	// items were last named in.
+	lang       string
+	labelled   bool
+	labelledIn string
+	// The language chosen in the Language control panel, "" to follow the
+	// system's, and what makes the app show it.
+	chosenLang string
+	setLocale  func(tag string)
 }
 
-func newDesk(now func() time.Time) *desk {
+// newDesk returns a desk, its documents written in the language the app
+// shows as it starts.
+func newDesk(now func() time.Time) *desk { return newDeskIn(now, i18n.Locale()) }
+
+// newDeskIn returns a desk, its documents written in the language of lang.
+func newDeskIn(now func() time.Time, lang string) *desk {
 	d := &desk{theme: pt.DefaultTheme(), selIcon: -1}
 	d.settings = settings{volume: 4, tracking: 3, doubleHit: "medium", alert: 2}
 	// The desk's clock is the computer's, moved as Date & Time sets it.
 	d.now = func() time.Time { return now().Add(d.settings.offset) }
-	d.disk = newDisk(now())
+	d.disk = newDisk(now(), lang)
 	d.icons = []*deskIcon{
-		{name: d.disk.name, icon: iconDisk, open: func() { d.openFolder(d.disk) },
-			help: "This is the desk's disk. Double-click it to see what is on it."},
-		{name: "Wastebasket", icon: iconTrash, open: func() { d.openTrash() },
-			help: "Things you throw away wait here until you empty the Wastebasket."},
+		{icon: iconDisk, open: func() { d.openFolder(d.disk) }},
+		{icon: iconTrash, open: func() { d.openTrash() }},
 	}
 	return d
 }
@@ -243,7 +259,7 @@ func (d *desk) launch(app appKind) *win {
 	case appCalculator:
 		return d.open(newCalculatorWindow())
 	case appJotter:
-		return d.open(newJotterWindow())
+		return d.open(newJotterWindow(d))
 	case appScribe:
 		return d.open(newScribeWindow(d, nil))
 	case appPuzzle:
@@ -255,9 +271,11 @@ func (d *desk) launch(app appKind) *win {
 	case appAbout:
 		return d.open(newAboutWindow(d))
 	case appLedger:
-		return d.open(newLedgerWindow())
+		return d.open(newLedgerWindow(d))
 	case appDateTime, appSound, appMouse:
 		return d.open(newPanelWindow(d, app))
+	case appLanguage:
+		return d.open(newLanguageWindow(d))
 	case appFind:
 		return d.open(newFindWindow(d))
 	}
@@ -287,6 +305,9 @@ func (d *desk) view(c *ui.Context) {
 		f()
 	}
 	d.later = d.later[:0]
+	d.lang = c.Locale()
+	d.followLanguage()
+	m := d.say()
 	// A drag seen in the last frame lets the windows in the background
 	// take its drop.
 	d.dragging, d.dragSeen = d.dragSeen, false
@@ -330,7 +351,7 @@ func (d *desk) view(c *ui.Context) {
 	d.fileDialogs(c)
 	if w := d.asking; w != nil {
 		open := true
-		switch pt.Alert(c, &open, pt.AlertCaution, "Save changes to the document “"+w.title+"” before closing?", "", "Don’t Save", "Cancel", "Save") {
+		switch pt.Alert(c, &open, pt.AlertCaution, m.SaveChanges(w.title), "", m.DontSave(), m.Cancel(), m.Save()) {
 		case 0: // close, the changes lost
 			w.doc.closing = true
 			d.later = append(d.later, func() { d.close(w) })
@@ -344,14 +365,10 @@ func (d *desk) view(c *ui.Context) {
 			d.asking = nil
 		}
 	}
-	what := fmt.Sprintf("%d items. Are you sure you want to remove them", len(d.trash))
-	if len(d.trash) == 1 {
-		what = "1 item. Are you sure you want to remove it"
-	}
-	if pt.Alert(c, &d.emptying, pt.AlertCaution, "The Wastebasket contains "+what+" permanently?", "", "Cancel", "OK") == 1 {
+	if pt.Alert(c, &d.emptying, pt.AlertCaution, m.EmptyWastebasket(len(d.trash)), "", m.Cancel(), m.Ok()) == 1 {
 		d.trash = nil
 	}
-	if pt.Alert(c, &d.ringing, pt.AlertNote, "It is time!", "The alarm you set has gone off.", "OK") >= 0 {
+	if pt.Alert(c, &d.ringing, pt.AlertNote, m.ItIsTime(), m.AlarmGoneOff(), m.Ok()) >= 0 {
 		if w := d.find(appClock); w != nil {
 			w.clock.armed = false
 		}
@@ -366,7 +383,7 @@ func (d *desk) windowView(c *ui.Context, w *win) {
 	opts.ZoomTo = [4]int{4, 4, d.size[0] - 8, d.size[1] - 8}
 	w.active = opts.Active
 	if w.popup {
-		pw := pt.PopupWindow(c.Key(w.id), &w.dock, w.title, opts, func() {
+		pw := pt.PopupWindow(c.Key(w.id), &w.dock, d.titleOf(w), opts, func() {
 			w.content(c, w)
 		})
 		pt.SpringOpen[*node](c, pw, &w.dock) // an icon dragged on the tab opens it
@@ -397,7 +414,7 @@ func (d *desk) windowView(c *ui.Context, w *win) {
 			opts.Path = append(opts.Path, n.name)
 		}
 	}
-	ww := pt.Window(c.Key(w.id), &w.frame, w.title, opts, func() {
+	ww := pt.Window(c.Key(w.id), &w.frame, d.titleOf(w), opts, func() {
 		w.content(c, w)
 	})
 	if i := ww.PathChosen(); i >= 0 && i < len(outer) {
@@ -413,17 +430,18 @@ func (d *desk) windowView(c *ui.Context, w *win) {
 	}
 }
 
-// The desktop patterns, 8×8, one bit a pixel.
+// The desktop patterns, 8×8, one bit a pixel, and the messages of their
+// names.
 var patterns = []struct {
-	name   string
+	key    string
 	bits   [8]byte
 	fg, bg color.RGBA
 }{
-	{"Lavender Weave", [8]byte{0x88, 0x54, 0x22, 0x45, 0x88, 0x15, 0x22, 0x51}, color.RGBA{0x77, 0x77, 0xAA, 255}, color.RGBA{0x99, 0x99, 0xCC, 255}},
-	{"Gray Tweed", [8]byte{0x80, 0x10, 0x02, 0x20, 0x01, 0x08, 0x40, 0x04}, color.RGBA{0x88, 0x88, 0x88, 255}, color.RGBA{0xAA, 0xAA, 0xAA, 255}},
-	{"Teal Bricks", [8]byte{0xFF, 0x80, 0x80, 0x80, 0xFF, 0x08, 0x08, 0x08}, color.RGBA{0x33, 0x77, 0x77, 255}, color.RGBA{0x55, 0x99, 0x99, 255}},
-	{"Rose Waves", [8]byte{0x00, 0x18, 0x24, 0xC3, 0x00, 0x18, 0x24, 0xC3}, color.RGBA{0xAA, 0x66, 0x77, 255}, color.RGBA{0xCC, 0x99, 0xAA, 255}},
-	{"Plain Slate", [8]byte{}, color.RGBA{}, color.RGBA{0x66, 0x77, 0x88, 255}},
+	{"patternLavenderWeave", [8]byte{0x88, 0x54, 0x22, 0x45, 0x88, 0x15, 0x22, 0x51}, color.RGBA{0x77, 0x77, 0xAA, 255}, color.RGBA{0x99, 0x99, 0xCC, 255}},
+	{"patternGrayTweed", [8]byte{0x80, 0x10, 0x02, 0x20, 0x01, 0x08, 0x40, 0x04}, color.RGBA{0x88, 0x88, 0x88, 255}, color.RGBA{0xAA, 0xAA, 0xAA, 255}},
+	{"patternTealBricks", [8]byte{0xFF, 0x80, 0x80, 0x80, 0xFF, 0x08, 0x08, 0x08}, color.RGBA{0x33, 0x77, 0x77, 255}, color.RGBA{0x55, 0x99, 0x99, 255}},
+	{"patternRoseWaves", [8]byte{0x00, 0x18, 0x24, 0xC3, 0x00, 0x18, 0x24, 0xC3}, color.RGBA{0xAA, 0x66, 0x77, 255}, color.RGBA{0xCC, 0x99, 0xAA, 255}},
+	{"patternPlainSlate", [8]byte{}, color.RGBA{}, color.RGBA{0x66, 0x77, 0x88, 255}},
 }
 
 // drawPattern tiles the desktop's pattern under everything, from a bitmap
@@ -471,7 +489,7 @@ func (d *desk) iconsView(c *ui.Context) {
 			di.x = max(int(cw)-deskIconW-12, 0)
 			di.y = 12 + i*64
 		}
-		e := ui.Box(c.Key(di.name)).Absolute().Left(float32(di.x)).Top(float32(di.y)).Size(deskIconW, deskIconH).
+		e := ui.Box(c.Key(fmt.Sprint("icon", i))).Absolute().Left(float32(di.x)).Top(float32(di.y)).Size(deskIconW, deskIconH).
 			Focusable().FocusRing(false).Role(ui.RoleButton).Label(di.name)
 		sel := d.selIcon == i
 		from := ui.Rect{X: float32(di.x + (deskIconW-32)/2), Y: float32(di.y + pt.MenuBarHeight), W: 32, H: 32}
@@ -502,8 +520,8 @@ func (d *desk) iconsView(c *ui.Context) {
 				d.springAt(c, d.disk)
 			}
 		}
-		pt.ContextMenu(c, e, []pt.MenuItem{{Title: "Open", Action: di.open}, pt.Divider(),
-			{Title: "Clean Up Desktop", Action: func() {
+		pt.ContextMenu(c, e, []pt.MenuItem{{Title: d.say().Open(), Action: di.open}, pt.Divider(),
+			{Title: d.say().CleanUpDesktop(), Action: func() {
 				for _, o := range d.icons {
 					o.x, o.y = 0, 0
 				}
@@ -620,7 +638,7 @@ func (d *desk) putAway(w *win, n *node) {
 }
 
 func (d *desk) openTrash() {
-	t := &node{name: "Wastebasket", kind: kindFolder}
+	t := &node{key: "wastebasket", name: d.say().Wastebasket(), kind: kindFolder}
 	for _, n := range d.trash {
 		t.children = append(t.children, n)
 	}
@@ -644,6 +662,7 @@ func (d *desk) alarmCheck(c *ui.Context) {
 }
 
 func (d *desk) menus(c *ui.Context) []pt.Menu {
+	m := d.say()
 	front := d.front()
 	frontApp := appKind(-1)
 	if front != nil {
@@ -655,43 +674,44 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 		selected = front.folder.selected()
 	}
 	menus := []pt.Menu{
-		{Title: "Desk", Icon: deskLogo, Items: []pt.MenuItem{
-			{Title: "About This Desk…", Action: func() { d.launch(appAbout) }},
+		{Title: m.Desk(), Icon: deskLogo, Items: []pt.MenuItem{
+			{Title: m.AboutThisDeskMenu(), Action: func() { d.launch(appAbout) }},
 			pt.Divider(),
-			{Title: "Alarm Clock", Action: func() { d.launch(appClock) }},
-			{Title: "Calculator", Action: func() { d.launch(appCalculator) }},
-			{Title: "Jotter", Action: func() { d.launch(appJotter) }},
-			{Title: "Ledger", Action: func() { d.launch(appLedger) }},
-			{Title: "Puzzle", Action: func() { d.launch(appPuzzle) }},
-			{Title: "Scribe", Action: func() { d.launch(appScribe) }},
+			{Title: m.AlarmClock(), Action: func() { d.launch(appClock) }},
+			{Title: m.Calculator(), Action: func() { d.launch(appCalculator) }},
+			{Title: m.Jotter(), Action: func() { d.launch(appJotter) }},
+			{Title: m.Ledger(), Action: func() { d.launch(appLedger) }},
+			{Title: m.Puzzle(), Action: func() { d.launch(appPuzzle) }},
+			{Title: m.Scribe(), Action: func() { d.launch(appScribe) }},
 			pt.Divider(),
-			{Title: "Control Panels", Submenu: []pt.MenuItem{
-				{Title: "Appearance", Action: func() { d.launch(appAppearance) }},
-				{Title: "Date & Time", Action: func() { d.launch(appDateTime) }},
-				{Title: "Mouse", Action: func() { d.launch(appMouse) }},
-				{Title: "Sound", Action: func() { d.launch(appSound) }},
+			{Title: m.ControlPanels(), Submenu: []pt.MenuItem{
+				{Title: m.Appearance(), Action: func() { d.launch(appAppearance) }},
+				{Title: m.DateTime(), Action: func() { d.launch(appDateTime) }},
+				{Title: m.Language(), Action: func() { d.launch(appLanguage) }},
+				{Title: m.Mouse(), Action: func() { d.launch(appMouse) }},
+				{Title: m.Sound(), Action: func() { d.launch(appSound) }},
 			}},
 		}},
-		{Title: "File", Items: []pt.MenuItem{
-			{Title: "New Folder", Key: ui.KeyN, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.newFolder() }},
-			{Title: "Open", Key: ui.KeyO, Disabled: selected == nil, Action: func() { d.openNode(selected) }},
-			{Title: "Close Window", Key: ui.KeyW, Disabled: front == nil, Action: func() { d.close(front) }},
+		{Title: m.MenuFile(), Items: []pt.MenuItem{
+			{Title: m.NewFolder(), Key: ui.KeyN, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.newFolder() }},
+			{Title: m.Open(), Key: ui.KeyO, Disabled: selected == nil, Action: func() { d.openNode(selected) }},
+			{Title: m.CloseWindow(), Key: ui.KeyW, Disabled: front == nil, Action: func() { d.close(front) }},
 			pt.Divider(),
-			{Title: "Find File…", Action: func() { d.launch(appFind) }},
+			{Title: m.FindFileMenu(), Action: func() { d.launch(appFind) }},
 			pt.Divider(),
-			{Title: "Move to Wastebasket", Key: ui.KeyBackspace, Disabled: selected == nil || front.folder.trash || selected.kind != kindDocument && selected.kind != kindFolder, Action: func() {
+			{Title: m.MoveToWastebasket(), Key: ui.KeyBackspace, Disabled: selected == nil || front.folder.trash || selected.kind != kindDocument && selected.kind != kindFolder, Action: func() {
 				d.toTrash(selected)
 			}},
-			{Title: "Put Away", Key: ui.KeyY, Disabled: selected == nil || !front.folder.trash, Action: func() {
+			{Title: m.PutAway(), Key: ui.KeyY, Disabled: selected == nil || !front.folder.trash, Action: func() {
 				d.putAway(front, selected)
 			}},
-			{Title: "Get Info", Key: ui.KeyI, Disabled: d.infoTarget(selected) == nil, Action: func() { d.getInfo(d.infoTarget(selected)) }},
-			{Title: "Duplicate", Key: ui.KeyD, Disabled: selected == nil || front.folder.trash || selected.kind != kindDocument && selected.kind != kindFolder, Action: func() {
+			{Title: m.GetInfo(), Key: ui.KeyI, Disabled: d.infoTarget(selected) == nil, Action: func() { d.getInfo(d.infoTarget(selected)) }},
+			{Title: m.Duplicate(), Key: ui.KeyD, Disabled: selected == nil || front.folder.trash || selected.kind != kindDocument && selected.kind != kindFolder, Action: func() {
 				n := selected
 				d.later = append(d.later, func() { d.duplicate(n) }) // not while the folder is built
 			}},
 			pt.Divider(),
-			{Title: "Quit", Key: ui.KeyQ, Disabled: d.quit == nil, Action: func() {
+			{Title: m.Quit(), Key: ui.KeyQ, Disabled: d.quit == nil, Action: func() {
 				// A document with changes asks first, as closing it does.
 				for _, w := range d.windows {
 					if w.doc != nil && w.doc.changed() {
@@ -703,17 +723,17 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 				d.quit()
 			}},
 		}},
-		{Title: "Edit", Items: []pt.MenuItem{
-			{Title: "Undo", Key: ui.KeyZ, Action: func() { pt.EditCommand(c, "undo") }},
+		{Title: m.MenuEdit(), Items: []pt.MenuItem{
+			{Title: m.Undo(), Key: ui.KeyZ, Action: func() { pt.EditCommand(c, "undo") }},
 			pt.Divider(),
-			{Title: "Cut", Key: ui.KeyX, Action: func() { pt.EditCommand(c, "cut") }},
-			{Title: "Copy", Key: ui.KeyC, Action: func() {
+			{Title: m.Cut(), Key: ui.KeyX, Action: func() { pt.EditCommand(c, "cut") }},
+			{Title: m.Copy(), Key: ui.KeyC, Action: func() {
 				// With no text to copy, the Calculator copies its display.
 				if !pt.EditCommand(c, "copy") && front != nil && front.calc != nil {
 					c.Services().WriteClipboard(front.calc.shown)
 				}
 			}},
-			{Title: "Paste", Key: ui.KeyV, Action: func() {
+			{Title: m.Paste(), Key: ui.KeyV, Action: func() {
 				// And types the clipboard's number.
 				if !pt.EditCommand(c, "paste") && front != nil && front.calc != nil {
 					for _, r := range c.Services().ReadClipboard() {
@@ -723,16 +743,16 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 					}
 				}
 			}},
-			{Title: "Select All", Key: ui.KeyA, Action: func() { pt.EditCommand(c, "selectAll") }},
+			{Title: m.SelectAll(), Key: ui.KeyA, Action: func() { pt.EditCommand(c, "selectAll") }},
 		}},
-		{Title: "View", Items: []pt.MenuItem{
-			{Title: "as Icons", Checked: inCabinet && !front.folder.list && !front.folder.columns && !front.folder.buttons, Disabled: !inCabinet, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, false, false }},
-			{Title: "as Buttons", Checked: inCabinet && front.folder.buttons, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, false, true }},
-			{Title: "as List", Checked: inCabinet && front.folder.list, Disabled: !inCabinet, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = true, false, false }},
-			{Title: "as Columns", Checked: inCabinet && front.folder.columns, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, true, false }},
-			{Title: "Sort List", Disabled: !inCabinet || !front.folder.list || front.folder.table == nil, Submenu: d.sortItems(front)},
+		{Title: m.MenuView(), Items: []pt.MenuItem{
+			{Title: m.AsIcons(), Checked: inCabinet && !front.folder.list && !front.folder.columns && !front.folder.buttons, Disabled: !inCabinet, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, false, false }},
+			{Title: m.AsButtons(), Checked: inCabinet && front.folder.buttons, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, false, true }},
+			{Title: m.AsList(), Checked: inCabinet && front.folder.list, Disabled: !inCabinet, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = true, false, false }},
+			{Title: m.AsColumns(), Checked: inCabinet && front.folder.columns, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, true, false }},
+			{Title: m.SortList(), Disabled: !inCabinet || !front.folder.list || front.folder.table == nil, Submenu: d.sortItems(front)},
 			pt.Divider(),
-			{Title: "as Pop-up Window", Checked: inCabinet && front.popup, Disabled: !inCabinet, Action: func() {
+			{Title: m.AsPopupWindow(), Checked: inCabinet && front.popup, Disabled: !inCabinet, Action: func() {
 				if front.popup {
 					d.undock(front)
 				} else {
@@ -740,49 +760,49 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 				}
 			}},
 		}},
-		{Title: "Special", Items: []pt.MenuItem{
-			{Title: "Clean Up Desktop", Action: func() {
+		{Title: m.MenuSpecial(), Items: []pt.MenuItem{
+			{Title: m.CleanUpDesktop(), Action: func() {
 				for _, di := range d.icons {
 					di.x, di.y = 0, 0
 				}
 			}},
-			{Title: "Empty Wastebasket…", Disabled: len(d.trash) == 0, Action: func() { d.emptying = true }},
+			{Title: m.EmptyWastebasketMenu(), Disabled: len(d.trash) == 0, Action: func() { d.emptying = true }},
 			pt.Divider(),
-			{Title: "Restart", Disabled: true},
-			{Title: "Shut Down", Disabled: true},
+			{Title: m.Restart(), Disabled: true},
+			{Title: m.ShutDown(), Disabled: true},
 		}},
 	}
 	switch frontApp {
 	case appPuzzle:
-		menus = append(menus, pt.Menu{Title: "Puzzle", Items: []pt.MenuItem{
-			{Title: "Shuffle", Key: ui.KeyR, Action: func() { front.puzzle.shuffle(d.now().UnixNano()) }},
-			{Title: "Solve", Action: func() { front.puzzle.reset() }},
+		menus = append(menus, pt.Menu{Title: m.Puzzle(), Items: []pt.MenuItem{
+			{Title: m.Shuffle(), Key: ui.KeyR, Action: func() { front.puzzle.shuffle(d.now().UnixNano()) }},
+			{Title: m.Solve(), Action: func() { front.puzzle.reset() }},
 		}})
 	case appJotter:
-		menus = append(menus, pt.Menu{Title: "Page", Items: []pt.MenuItem{
-			{Title: "Next Page", Key: ui.KeyBracketRight, Action: func() { front.jot.turn(1) }},
-			{Title: "Previous Page", Key: ui.KeyBracketLeft, Action: func() { front.jot.turn(-1) }},
+		menus = append(menus, pt.Menu{Title: m.MenuPage(), Items: []pt.MenuItem{
+			{Title: m.NextPage(), Key: ui.KeyBracketRight, Action: func() { front.jot.turn(1) }},
+			{Title: m.PreviousPage(), Key: ui.KeyBracketLeft, Action: func() { front.jot.turn(-1) }},
 		}})
 	case appScribe:
 		menus[2].Items = append(menus[2].Items, pt.Divider(),
-			pt.MenuItem{Title: "Find…", Key: ui.KeyF, Action: func() { front.doc.finding = true }})
+			pt.MenuItem{Title: m.FindMenu(), Key: ui.KeyF, Action: func() { front.doc.finding = true }})
 		for i, it := range menus[1].Items {
-			if it.Title == "Open" { // documents, from the open dialog
-				menus[1].Items[i] = pt.MenuItem{Title: "Open…", Key: ui.KeyO, Action: func() { d.opening = true }}
+			if it.Title == m.Open() { // documents, from the open dialog
+				menus[1].Items[i] = pt.MenuItem{Title: m.OpenMenu(), Key: ui.KeyO, Action: func() { d.opening = true }}
 			}
 		}
 		menus[1].Items = append([]pt.MenuItem{
-			{Title: "Save", Key: ui.KeyS, Action: func() { front.doc.save(d) }},
-			{Title: "Save As…", Key: ui.KeyS, Mods: ui.Cmd | ui.Shift, Action: func() { front.doc.saveAsDialog(d) }},
+			{Title: m.Save(), Key: ui.KeyS, Action: func() { front.doc.save(d) }},
+			{Title: m.SaveAsMenu(), Key: ui.KeyS, Mods: ui.Cmd | ui.Shift, Action: func() { front.doc.saveAsDialog(d) }},
 			pt.Divider(),
 		}, menus[1].Items...)
 		menus = append(menus, pt.SizeMenu(front.doc.doc))
 	}
-	help := "Show Balloons"
+	help := m.ShowBalloons()
 	if d.balloons {
-		help = "Hide Balloons"
+		help = m.HideBalloons()
 	}
-	menus = append(menus, pt.Menu{Title: "Help", Items: []pt.MenuItem{
+	menus = append(menus, pt.Menu{Title: m.MenuHelp(), Items: []pt.MenuItem{
 		{Title: help, Action: func() { d.balloons = !d.balloons }},
 	}})
 	return append(menus, d.rightMenus()...)
@@ -811,15 +831,15 @@ func (d *desk) fileDialogs(c *ui.Context) {
 			if in != nil {
 				dir = in.Data.(*node)
 			}
-			name := "untitled folder"
+			name := d.say().UntitledFolder()
 			for i := 2; dir.has(name); i++ {
-				name = fmt.Sprintf("untitled folder %d", i)
+				name = d.say().UntitledFolderN(i)
 			}
 			dir.add(&node{name: name, kind: kindFolder})
 			return name
 		}
 		open := true
-		if pt.SaveDialog(c, &open, &d.saveDlg, d.fileTree(), "Save as:") {
+		if pt.SaveDialog(c, &open, &d.saveDlg, d.fileTree(), d.say().SaveAsLabel()) {
 			dir := d.disk
 			if p := d.saveDlg.Path; len(p) > 0 {
 				dir = p[len(p)-1].Data.(*node)
@@ -875,7 +895,7 @@ func (d *desk) treePath(dir *node) []*pt.TreeNode {
 // documents is the Documents folder, or the disk where it has none.
 func (d *desk) documents() *node {
 	for _, c := range d.disk.children {
-		if c.name == "Documents" && c.kind == kindFolder {
+		if c.key == "documents" && c.kind == kindFolder {
 			return c
 		}
 	}
@@ -892,7 +912,8 @@ func (d *desk) copying(c *ui.Context) bool {
 // by each of its columns, the one it is sorted by checked.
 func (d *desk) sortItems(w *win) []pt.MenuItem {
 	var items []pt.MenuItem
-	for i, by := range []string{"by Name", "by Size", "by Kind"} {
+	m := d.say()
+	for i, by := range []string{m.ByName(), m.BySize(), m.ByKind()} {
 		checked := w != nil && w.folder != nil && w.folder.table != nil && w.folder.table.SortColumn == i
 		items = append(items, pt.MenuItem{Title: by, Checked: checked, Action: func() {
 			if w != nil && w.folder != nil && w.folder.table != nil {

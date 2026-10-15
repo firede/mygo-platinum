@@ -12,7 +12,7 @@ import (
 // windows open, without a window.
 func BenchmarkDesktopFrame(b *testing.B) {
 	defer pt.SetClock(pt.SetClock(nil))
-	d := scene()
+	d := scene("")
 	pt.SetClock(func() time.Time { return sceneTime })
 	tt := ui.NewTester(d.view, width, height)
 	for b.Loop() {

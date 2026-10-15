@@ -2,10 +2,13 @@
 // menu bar, icons, windows that move, resize and roll up, a browser of the
 // desk's own little disk, and a few small applications — a calculator, a
 // note pad, a text editor, a sliding puzzle, an alarm clock, an appearance
-// control panel and an about box.
+// control panel and an about box. It speaks English, Simplified and
+// Traditional Chinese, Japanese and Korean, as its Language control panel
+// chooses.
 //
 //	go run ./examples/desktop
-//	go run ./examples/desktop -png desktop.png   # a picture, without a window
+//	go run ./examples/desktop -png desktop.png               # a picture, without a window
+//	go run ./examples/desktop -png desktop.png -lang zh-Hans # the same, in Chinese
 package main
 
 import (
@@ -19,6 +22,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	pt "github.com/firede/mygo-platinum"
+	"github.com/firede/mygo-platinum/examples/desktop/locales"
 )
 
 // The size of the desk, in DIPs.
@@ -28,9 +32,10 @@ func main() {
 	out := flag.String("png", "", "render a scene of the desk to this PNG file and exit")
 	capture := flag.String("capture", "", "open the scene in a window, save what the window shows to this PNG file and exit")
 	scale := flag.Float64("scale", 1, "the scale of the PNG")
+	lang := flag.String("lang", "", "the language of the PNG, as zh-Hans")
 	flag.Parse()
 	if *out != "" {
-		img := renderScene(float32(*scale))
+		img := renderScene(float32(*scale), *lang)
 		f, err := os.Create(*out)
 		if err != nil {
 			log.Fatal(err)
@@ -45,18 +50,21 @@ func main() {
 	}
 	d := newDesk(time.Now)
 	if *capture != "" {
-		d = scene()
+		d = scene("")
 	}
+	d.setLocale = func(tag string) { mygo.App.SetLocale(tag) }
 	// The desk draws its own menus. Native menu accelerators would close
 	// the host window before its documents can ask to save their changes.
 	mygo.App.SetMenu(nil)
 	mygo.App.WhenReady(func() {
+		d.chosenLang = chosenLanguage(mygo.App.Locale(), mygo.App.PreferredLanguages(), mygo.App.Languages())
 		w := mygo.NewWindow(mygo.WindowOptions{
-			Title:   "Platinum Desk",
+			Title:   locales.PlatinumDesk(),
 			Width:   width,
 			Height:  height,
 			Content: ui.View(d.view),
 		})
+		mygo.App.OnLocaleChanged(func(string) { w.SetTitle(locales.PlatinumDesk()) })
 		if *capture != "" {
 			go func() {
 				// Let the window show, then take what it drew.
@@ -82,10 +90,12 @@ func main() {
 // tests that come out the same every time.
 var sceneTime = time.Date(2026, 10, 14, 9, 41, 0, 0, time.UTC)
 
-// scene returns a desk with a few windows open, at sceneTime.
-func scene() *desk {
+// scene returns a desk with a few windows open, at sceneTime, its
+// documents written in the language of lang.
+func scene(lang string) *desk {
 	pt.SetClock(func() time.Time { return sceneTime })
-	d := newDesk(func() time.Time { return sceneTime })
+	d := newDeskIn(func() time.Time { return sceneTime }, lang)
+	d.lang = lang
 	d.size = [2]int{width, height - pt.MenuBarHeight}
 	f := d.openFolder(d.disk)
 	f.frame = pt.WindowState{X: 24, Y: 20, W: 360, H: 220}
@@ -98,13 +108,13 @@ func scene() *desk {
 	}
 	// Two folders docked at the bottom as pop-up windows, one open.
 	for _, c := range d.disk.children {
-		switch c.name {
-		case "Documents":
+		switch c.key {
+		case "documents":
 			w := d.openFolder(c)
 			w.frame.W = 250
 			d.dock(w)
 			w.dock.X, w.dock.H = 610, 104
-		case "Applications":
+		case "applications":
 			w := d.openFolder(c)
 			w.frame.W = 200
 			d.dock(w)
@@ -116,9 +126,10 @@ func scene() *desk {
 	return d
 }
 
-func renderScene(scale float32) *image.RGBA {
-	d := scene()
+func renderScene(scale float32, lang string) *image.RGBA {
+	d := scene(lang)
 	tt := ui.NewTester(d.view, width, height)
+	tt.SetLocale(lang)
 	tt.SetScale(scale)
 	tt.Frame()
 	return tt.Image()

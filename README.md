@@ -131,8 +131,14 @@ title) with Find File, and applications built from the controls —
 Calculator, Jotter (a note pad), Scribe (a rich text editor with styles,
 sizes, a ruler, find and replace, and the standard open and save dialogs),
 Ledger (a spreadsheet), Puzzle, Alarm Clock, and the Appearance, Date &
-Time, Sound and Mouse control panels. All of its names and pictures are
-its own.
+Time, Language, Sound and Mouse control panels. All of its names and
+pictures are its own.
+
+It speaks English, Simplified and Traditional Chinese, Japanese and
+Korean, the language of the system or the one its Language control panel
+chooses: its words, dates and times, and the forms of East Asian
+characters, drawn with the faces of platinum-fonts' `cjk12`. Its catalogs
+are in `examples/desktop/locales`.
 
 ## Running the examples
 
@@ -140,6 +146,7 @@ its own.
 go run ./examples/gallery                    # every control, in a window
 go run ./examples/gallery -png gallery.png   # the same, rendered without one
 go run ./examples/desktop                    # the classic desktop
+go run ./examples/desktop -png desk.png -lang ja   # a picture of it, in Japanese
 ```
 
 ## Testing
@@ -166,7 +173,11 @@ Its last line is `PASSED x/y`.
 - The gallery's golden images are in `examples/gallery/testdata/golden`;
   the pictures in `docs` are rendered at twice the scale, as
   `go run ./examples/gallery -png docs/gallery-2@2x.png -scale 2 -page 2`
-  and `go run ./examples/desktop -png docs/desktop@2x.png -scale 2`.
+  and `go run ./examples/desktop -png docs/desktop@2x.png -scale 2`
+  (`-lang zh-Hans` for `docs/desktop-zh-hans@2x.png`).
+- After changing a catalog of `examples/desktop/locales`,
+  `go run github.com/egoist/mygo/cmd/mygo generate` in `examples/desktop`
+  writes its Go functions anew.
 
 ## Notes
 

@@ -112,20 +112,23 @@ func (app *state) view(c *ui.Context) {
 
 ## 经典桌面
 
-![桌面示例](docs/desktop@2x.png)
+![桌面示例](docs/desktop-zh-hans@2x.png)
 
 `examples/desktop` 在一个窗口里实现了一整套桌面：
 
 - 带时钟和应用菜单的菜单栏；
-- 可以打开、也可以拖进废纸篓（Wastebasket）的桌面图标；
+- 可以打开、也可以拖进废纸篓的桌面图标；
 - 可以移动、缩放、卷起、最大化，以及停靠到底边成为弹出窗口的窗口；
 - 一个浏览自带小磁盘的文件浏览器：支持图标、按钮、列表、分栏四种视图，以及
   弹簧文件夹、按住 Option 拖动复制、显示简介、复制、放回原处、标题栏路径菜单，
   还有"查找文件"；
-- 用这些控件搭出来的应用：Calculator（计算器）、Jotter（便签本）、Scribe
-  （富文本编辑器，带样式、字号、标尺、查找替换和标准的打开/保存对话框）、
-  Ledger（电子表格）、Puzzle（拼图）、Alarm Clock（闹钟），以及外观、日期与
-  时间、声音、鼠标四个控制面板。
+- 用这些控件搭出来的应用：计算器、便笺本、写字板（富文本编辑器，带样式、字号、
+  标尺、查找替换和标准的打开/存储对话框）、账簿（电子表格）、拼图、闹钟，以及
+  外观、日期与时间、语言、声音、鼠标五个控制面板。
+
+桌面支持英文、简体中文、繁体中文、日文和韩文，跟随系统语言，也可以在"语言"控制
+面板中选择。文字、日期与时间，以及东亚文字的地区字形都会随之切换，东亚文字使用
+platinum-fonts 中 `cjk12` 的像素字体绘制。消息目录在 `examples/desktop/locales`。
 
 桌面里所有的名称和图片都是原创的。
 
@@ -135,6 +138,7 @@ func (app *state) view(c *ui.Context) {
 go run ./examples/gallery                    # 在窗口中展示所有控件
 go run ./examples/gallery -png gallery.png   # 不开窗口，直接渲染成图片
 go run ./examples/desktop                    # 经典桌面
+go run ./examples/desktop -png desk.png -lang ja   # 不开窗口渲染成图片，日文界面
 ```
 
 ## 测试
@@ -164,7 +168,10 @@ go run ./examples/desktop                    # 经典桌面
 - gallery 的 golden 图放在 `examples/gallery/testdata/golden`；`docs` 里的配图
   是两倍缩放渲染的，例如
   `go run ./examples/gallery -png docs/gallery-2@2x.png -scale 2 -page 2` 和
-  `go run ./examples/desktop -png docs/desktop@2x.png -scale 2`。
+  `go run ./examples/desktop -png docs/desktop@2x.png -scale 2`（加上
+  `-lang zh-Hans` 生成 `docs/desktop-zh-hans@2x.png`）。
+- 修改 `examples/desktop/locales` 中的消息目录后，在 `examples/desktop` 目录运行
+  `go run github.com/egoist/mygo/cmd/mygo generate` 重新生成 Go 函数。
 
 ## 说明
 

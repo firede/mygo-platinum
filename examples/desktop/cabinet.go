@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/egoist/mygo/ui"
 	pt "github.com/firede/mygo-platinum"
+	"github.com/firede/mygo-platinum/examples/desktop/locales"
 )
 
 // cabinet is a window browsing a folder of the disk, as icons or as a
@@ -27,6 +27,7 @@ type cabinet struct {
 	active  bool // its window is in front, as of this build
 	rect    ui.Rect
 	typed   string
+	desk    *desk
 }
 
 const (
@@ -42,9 +43,10 @@ func (cb *cabinet) selected() *node {
 }
 
 func (cb *cabinet) newFolder() {
-	name := "untitled folder"
+	m := cb.desk.say()
+	name := m.UntitledFolder()
 	for i := 2; cb.dir.has(name); i++ {
-		name = fmt.Sprintf("untitled folder %d", i)
+		name = m.UntitledFolderN(i)
 	}
 	n := cb.dir.add(&node{name: name, kind: kindFolder})
 	for i, c := range cb.dir.children {
@@ -72,20 +74,20 @@ func (d *desk) openFolder(n *node) *win {
 			return w
 		}
 	}
-	w := &win{app: appCabinet, title: n.name, folder: &cabinet{dir: n, sel: -1}}
+	w := &win{app: appCabinet, folder: &cabinet{dir: n, sel: -1, desk: d}}
 	w.frame = pt.WindowState{W: 340, H: 230}
 	w.content = func(c *ui.Context, w *win) { d.cabinetView(c, w) }
 	return d.open(w)
 }
 
-func humanSize(b int) string {
+func humanSize(m locales.Messages, b int) string {
 	switch {
 	case b >= 1<<20:
-		return fmt.Sprintf("%.1f MB", float64(b)/(1<<20))
+		return m.SizeMB(float64(b) / (1 << 20))
 	case b >= 1<<10:
-		return fmt.Sprintf("%d K", (b+1023)>>10)
+		return m.SizeK((b + 1023) >> 10)
 	}
-	return fmt.Sprintf("%d bytes", b)
+	return m.Bytes(b)
 }
 
 func (d *desk) cabinetView(c *ui.Context, w *win) {
@@ -99,11 +101,9 @@ func (d *desk) cabinetView(c *ui.Context, w *win) {
 	}
 	ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
 		// The header: how many items, and how much room is left.
-		count := fmt.Sprintf("%d items", n)
-		if n == 1 {
-			count = "1 item"
-		}
-		free := fmt.Sprintf("%s available", humanSize(48<<20-d.disk.size()))
+		m := d.say()
+		count := m.Items(n)
+		free := m.Available(humanSize(m, 48<<20-d.disk.size()))
 		pt.WindowHeader(c, count, free)
 		if cb.list {
 			d.cabinetTable(c, cb)
@@ -132,14 +132,14 @@ func (d *desk) cabinetView(c *ui.Context, w *win) {
 			d.cabinetKeys(c, body, cb, cols)
 			if !cb.trash {
 				pt.ContextMenu(c, body, []pt.MenuItem{
-					{Title: "Open", Disabled: cb.selected() == nil, Action: func() { d.openNode(cb.selected()) }},
-					{Title: "Move to Wastebasket", Disabled: cb.selected() == nil || cb.selected().kind == kindApp || cb.selected().kind == kindPanel, Action: func() {
+					{Title: d.say().Open(), Disabled: cb.selected() == nil, Action: func() { d.openNode(cb.selected()) }},
+					{Title: d.say().MoveToWastebasket(), Disabled: cb.selected() == nil || cb.selected().kind == kindApp || cb.selected().kind == kindPanel, Action: func() {
 						if it := cb.selected(); it != nil {
 							d.toTrash(it)
 						}
 					}},
 					pt.Divider(),
-					{Title: "New Folder", Action: cb.newFolder},
+					{Title: d.say().NewFolder(), Action: cb.newFolder},
 				})
 			}
 			// Items dropped on the window's empty space move into its folder.
@@ -324,14 +324,15 @@ func (d *desk) cabinetTable(c *ui.Context, cb *cabinet) {
 	if cb.sel >= 0 && cb.sel < len(items) {
 		cb.table.Selected[cb.sel] = true
 	}
-	cols := []pt.Column{{Title: "Name", Icon: func(r int) []string { return smallIcon(items[r]) }}, {Title: "Size", Right: true, Less: func(a, b int) bool {
+	m := d.say()
+	cols := []pt.Column{{Title: m.ColumnName(), Icon: func(r int) []string { return smallIcon(items[r]) }}, {Title: m.ColumnSize(), Right: true, Less: func(a, b int) bool {
 		// Folders, which show no size, after documents; documents by bytes.
 		sa, sb := items[a].size(), items[b].size()
 		if fa, fb := items[a].kind == kindFolder, items[b].kind == kindFolder; fa != fb {
 			return fb
 		}
 		return sa < sb
-	}}, {Title: "Kind"}}
+	}}, {Title: m.ColumnKind()}}
 	tw := pt.Table(c, cb.table, cols, len(items), func(r, col int) string {
 		it := items[r]
 		switch col {
@@ -341,9 +342,9 @@ func (d *desk) cabinetTable(c *ui.Context, cb *cabinet) {
 			if it.kind == kindFolder {
 				return "—"
 			}
-			return humanSize(it.size())
+			return humanSize(m, it.size())
 		}
-		return it.kindName()
+		return it.kindName(m)
 	})
 	tw.Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize-2, 0).Label(cb.dir.name)
 	if tw.Changed() {

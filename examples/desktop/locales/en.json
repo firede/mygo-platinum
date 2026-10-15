@@ -1,0 +1,366 @@
+{
+  "@@locale": "en",
+  "desk": "Desk",
+  "aboutThisDesk": "About This Desk",
+  "aboutThisDeskMenu": "About This Desk…",
+  "alarmClock": "Alarm Clock",
+  "calculator": "Calculator",
+  "jotter": "Jotter",
+  "ledger": "Ledger",
+  "puzzle": "Puzzle",
+  "scribe": "Scribe",
+  "findFile": "Find File",
+  "controlPanels": "Control Panels",
+  "appearance": "Appearance",
+  "dateTime": "Date & Time",
+  "mouse": "Mouse",
+  "sound": "Sound",
+  "language": "Language",
+  "menuFile": "File",
+  "newFolder": "New Folder",
+  "open": "Open",
+  "openMenu": "Open…",
+  "closeWindow": "Close Window",
+  "findFileMenu": "Find File…",
+  "moveToWastebasket": "Move to Wastebasket",
+  "putAway": "Put Away",
+  "getInfo": "Get Info",
+  "duplicate": "Duplicate",
+  "quit": "Quit",
+  "save": "Save",
+  "saveAsMenu": "Save As…",
+  "menuEdit": "Edit",
+  "undo": "Undo",
+  "cut": "Cut",
+  "copy": "Copy",
+  "paste": "Paste",
+  "selectAll": "Select All",
+  "menuView": "View",
+  "asIcons": "as Icons",
+  "asButtons": "as Buttons",
+  "asList": "as List",
+  "asColumns": "as Columns",
+  "sortList": "Sort List",
+  "asPopupWindow": "as Pop-up Window",
+  "byName": "by Name",
+  "bySize": "by Size",
+  "byKind": "by Kind",
+  "menuSpecial": "Special",
+  "cleanUpDesktop": "Clean Up Desktop",
+  "emptyWastebasketMenu": "Empty Wastebasket…",
+  "restart": "Restart",
+  "shutDown": "Shut Down",
+  "shuffle": "Shuffle",
+  "solve": "Solve",
+  "menuPage": "Page",
+  "nextPage": "Next Page",
+  "previousPage": "Previous Page",
+  "findMenu": "Find…",
+  "menuHelp": "Help",
+  "showBalloons": "Show Balloons",
+  "hideBalloons": "Hide Balloons",
+  "hideApp": "Hide {name}",
+  "@hideApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hideOthers": "Hide Others",
+  "showAll": "Show All",
+  "saveChanges": "Save changes to the document “{name}” before closing?",
+  "@saveChanges": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dontSave": "Don’t Save",
+  "cancel": "Cancel",
+  "ok": "OK",
+  "emptyWastebasket": "The Wastebasket contains {count, plural, one {# item. Are you sure you want to remove it} other {# items. Are you sure you want to remove them}} permanently?",
+  "@emptyWastebasket": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itIsTime": "It is time!",
+  "alarmGoneOff": "The alarm you set has gone off.",
+  "wastebasket": "Wastebasket",
+  "diskHelp": "This is the desk's disk. Double-click it to see what is on it.",
+  "wastebasketHelp": "Things you throw away wait here until you empty the Wastebasket.",
+  "patternLavenderWeave": "Lavender Weave",
+  "patternGrayTweed": "Gray Tweed",
+  "patternTealBricks": "Teal Bricks",
+  "patternRoseWaves": "Rose Waves",
+  "patternPlainSlate": "Plain Slate",
+  "accentLavender": "Lavender",
+  "accentGraphite": "Graphite",
+  "accentHarbor": "Harbor",
+  "accentMoss": "Moss",
+  "accentEmber": "Ember",
+  "accentOrchid": "Orchid",
+  "saveAsLabel": "Save as:",
+  "untitled": "untitled",
+  "untitledN": "untitled {n}",
+  "@untitledN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "untitledFolder": "untitled folder",
+  "untitledFolderN": "untitled folder {n}",
+  "@untitledFolderN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "platinumDisk": "Platinum Disk",
+  "applications": "Applications",
+  "documents": "Documents",
+  "systemFolder": "System Folder",
+  "letter": "Letter",
+  "letterText": "Dear Ada,\n\nThe new desk is up and running. Every window has a striped title bar again, and the buttons press in when you click them.\n\nWrite soon,\nGrace",
+  "recipes": "Recipes",
+  "recipesText": "Pancakes\n- 2 cups flour\n- 2 eggs\n- 1 1/2 cups milk\n- a pinch of salt\n\nWhisk, rest ten minutes, fry in butter.",
+  "toDo": "To Do",
+  "toDoText": "- Water the plants\n- Back up the disk\n- Finish the puzzle",
+  "readMe": "Read Me",
+  "readMeText": "Welcome to the Platinum desk.\n\nDouble-click an icon to open it. Drag windows by their title bars, resize them from the bottom right corner, and roll them up with the box at the right of the title bar.\n\nThe Appearance control panel changes the accent color and the desktop pattern.",
+  "kindFolder": "folder",
+  "kindDocument": "text document",
+  "kindApp": "application",
+  "kindDisk": "disk",
+  "kindPanel": "control panel",
+  "items": "{count, plural, one {# item} other {# items}}",
+  "@items": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "available": "{size} available",
+  "@available": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeMB": "{size, number, ::.0} MB",
+  "@sizeMB": {
+    "placeholders": {
+      "size": {
+        "type": "double"
+      }
+    }
+  },
+  "sizeK": "{size, number, ::group-off} K",
+  "@sizeK": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "bytes": "{count, plural, one {# byte} other {# bytes}}",
+  "@bytes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "columnName": "Name",
+  "columnSize": "Size",
+  "columnKind": "Kind",
+  "columnWhere": "Where",
+  "findItems": "Find items",
+  "whose": "whose",
+  "onLocalDisks": "on local disks",
+  "onDisk": "on “{name}”",
+  "@onDisk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "findName": "name",
+  "findKind": "kind",
+  "contains": "contains",
+  "startsWith": "starts with",
+  "endsWith": "ends with",
+  "isExactly": "is",
+  "find": "Find",
+  "where": "Where",
+  "what": "What",
+  "how": "How",
+  "searchFor": "Search for",
+  "chooseWhatToFind": "Choose what to find, and click Find.",
+  "itemsFound": "Items found",
+  "foundCount": "{count, plural, one {# item found} other {# items found}}",
+  "@foundCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "infoTitle": "{name} Info",
+  "@infoTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onDiskK": "{k}K on disk ({used} used)",
+  "@onDiskK": {
+    "placeholders": {
+      "k": {
+        "type": "int"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "zeroKOnDisk": "zero K on disk ({used} used)",
+  "@zeroKOnDisk": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "theDesktop": "the desktop",
+  "kindLabel": "Kind:",
+  "sizeLabel": "Size:",
+  "whereLabel": "Where:",
+  "modifiedLabel": "Modified:",
+  "commentsLabel": "Comments:",
+  "comments": "Comments",
+  "copyName": "{name} copy",
+  "@copyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameN": "{name} copy {n}",
+  "@copyNameN": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "jotterNotes": "Notes to self:\n\nThe page corner at the bottom left turns the page; Shift turns it back.",
+  "page": "Page",
+  "turnPage": "Turn page",
+  "pageOf": "Page {page} of {pages}",
+  "@pageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "ruler": "Ruler",
+  "document": "Document",
+  "notFound": "Not found.",
+  "replaced": "{count} replaced.",
+  "@replaced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordsLines": "{words, plural, one {# word} other {# words}}, {lines, plural, one {# line} other {# lines}}",
+  "@wordsLines": {
+    "placeholders": {
+      "words": {
+        "type": "int"
+      },
+      "lines": {
+        "type": "int"
+      }
+    }
+  },
+  "item": "Item",
+  "cost": "Cost",
+  "rent": "Rent",
+  "groceries": "Groceries",
+  "lampOil": "Lamp oil",
+  "books": "Books",
+  "total": "Total",
+  "average": "Average",
+  "tiles": "Tiles",
+  "moves": "{count, plural, one {# move} other {# moves}}",
+  "@moves": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "solved": "Solved!",
+  "time": "Time",
+  "alarmAt": "Alarm at",
+  "colors": "Colors",
+  "desktopTab": "Desktop",
+  "highlightColor": "Highlight color:",
+  "preview": "Preview",
+  "platinumDesk": "Platinum Desk",
+  "version": "Version 1.0 — built with MyGo",
+  "memory": "Total memory: {total}, largest unused block: {free}",
+  "@memory": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
+  "timeLabel": "Time:",
+  "useComputersClock": "Use the Computer’s Clock",
+  "volumeLabel": "Volume:",
+  "volume": "Volume",
+  "mute": "Mute",
+  "alertSound": "Alert sound",
+  "trackingSpeed": "Tracking speed",
+  "slow": "Slow",
+  "fast": "Fast",
+  "medium": "Medium",
+  "doubleClickSpeed": "Double-click speed",
+  "soundChime": "Chime",
+  "soundClick": "Click",
+  "soundDroplet": "Droplet",
+  "soundGlass": "Glass",
+  "soundWhistle": "Whistle",
+  "languageLabel": "The desk speaks:",
+  "languageSystem": "The system’s language",
+  "languageNote": "Words, dates and the forms of East Asian characters follow the language chosen.",
+  "error": "Error",
+  "display": "Display"
+}

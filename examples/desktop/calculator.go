@@ -18,7 +18,7 @@ type calculator struct {
 }
 
 func newCalculatorWindow() *win {
-	w := &win{app: appCalculator, title: "Calculator", calc: &calculator{shown: "0"}}
+	w := &win{app: appCalculator, calc: &calculator{shown: "0"}}
 	w.frame = pt.WindowState{W: 156, H: 196}
 	w.opts = pt.WindowOptions{NoGrow: true, NoZoom: true}
 	w.content = calculatorView
@@ -32,6 +32,10 @@ func format(v float64) string {
 	}
 	return s
 }
+
+// calcError is what the calculator shows after a division by zero, said
+// in the desk's language.
+const calcError = "Error"
 
 // press acts on a key of the calculator: a digit, ".", an operator, "=",
 // "C" or "←".
@@ -89,7 +93,7 @@ func (k *calculator) apply() {
 		k.acc *= v
 	case "÷":
 		if v == 0 {
-			k.shown, k.acc, k.entry = "Error", 0, ""
+			k.shown, k.acc, k.entry = calcError, 0, ""
 			return
 		}
 		k.acc /= v
@@ -178,8 +182,12 @@ func calculatorView(c *ui.Context, w *win) {
 	}
 	body.Children(func() {
 		// The display: a sunken panel with the number at its right.
+		m := w.desk.say()
 		shown := k.shown
-		ui.Box(c).Height(24).Role(ui.RoleStatus).Label("Display").Value(shown).Draw(func(p *ui.Painter, r ui.Rect) {
+		if shown == calcError {
+			shown = m.Error()
+		}
+		ui.Box(c).Height(24).Role(ui.RoleStatus).Label(m.Display()).Value(shown).Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := pt.NewPen(p, r)
 			pn.Bevel(0, 0, pn.W, pn.H, pt.Gray7, pt.White)
 			pn.Frame(1, 1, pn.W-2, pn.H-2, pt.Black)

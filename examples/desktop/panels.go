@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 	pt "github.com/firede/mygo-platinum"
 )
@@ -17,22 +18,17 @@ type settings struct {
 	doubleHit string
 }
 
-var alertSounds = []string{"Chime", "Click", "Droplet", "Glass", "Whistle"}
-
 func newPanelWindow(d *desk, app appKind) *win {
 	w := &win{app: app}
 	w.opts = pt.WindowOptions{NoGrow: true, NoZoom: true}
 	switch app {
 	case appDateTime:
-		w.title = "Date & Time"
 		w.frame = pt.WindowState{W: 390}
 		w.content = func(c *ui.Context, w *win) { dateTimeView(c, d) }
 	case appSound:
-		w.title = "Sound"
 		w.frame = pt.WindowState{W: 300}
 		w.content = func(c *ui.Context, w *win) { soundView(c, d) }
 	case appMouse:
-		w.title = "Mouse"
 		w.frame = pt.WindowState{W: 300}
 		w.content = func(c *ui.Context, w *win) { mouseView(c, d) }
 	}
@@ -40,6 +36,7 @@ func newPanelWindow(d *desk, app appKind) *win {
 }
 
 func dateTimeView(c *ui.Context, d *desk) {
+	m := d.say()
 	now := d.now()
 	day := now
 	ui.Column(c).FillWidth().Padding(10).Gap(10).AlignItems(ui.Stretch).Children(func() {
@@ -47,14 +44,14 @@ func dateTimeView(c *ui.Context, d *desk) {
 			ui.Row(c).Gap(12).AlignItems(ui.Start).Children(func() {
 				pt.Calendar(c, &day)
 				ui.Column(c).Gap(8).Children(func() {
-					pt.Label(c, "Time:")
+					pt.Label(c, m.TimeLabel())
 					pt.TimeField(c, &day, 1)
-					pt.TextIn(c, now.Format("Mon, Jan 2"), pt.AppFont, pt.Black)
+					pt.TextIn(c, i18n.FormatDate(d.lang, now, i18n.DateOptions{Skeleton: "MMMEd"}), pt.AppFont, pt.Black)
 				})
 			})
 		})
 		ui.Row(c).Justify(ui.End).Children(func() {
-			if pt.Button(c, "Use the Computer’s Clock").Clicked() {
+			if pt.Button(c, m.UseComputersClock()).Clicked() {
 				d.settings.offset = 0
 				day = d.now()
 			}
@@ -67,38 +64,41 @@ func dateTimeView(c *ui.Context, d *desk) {
 }
 
 func soundView(c *ui.Context, d *desk) {
+	m := d.say()
 	s := &d.settings
 	ui.Column(c).FillWidth().Padding(10).Gap(10).AlignItems(ui.Stretch).Children(func() {
 		pt.Card(c, func() {
 			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				pt.Label(c, "Volume:")
-				pt.Slider(c, &s.volume, 0, 7).Width(150).Ticks(8).Step(1).Disabled(s.muted).Label("Volume")
+				pt.Label(c, m.VolumeLabel())
+				pt.Slider(c, &s.volume, 0, 7).Width(150).Ticks(8).Step(1).Disabled(s.muted).Label(m.Volume())
 			})
-			pt.Checkbox(c, &s.muted, "Mute")
+			pt.Checkbox(c, &s.muted, m.Mute())
 		})
-		pt.GroupBox(c, "Alert sound", func() {
-			pt.ListBox(c, &s.alert, alertSounds).Element().Size(250, 66).Label("Alert sound")
+		pt.GroupBox(c, m.AlertSound(), func() {
+			sounds := []string{m.SoundChime(), m.SoundClick(), m.SoundDroplet(), m.SoundGlass(), m.SoundWhistle()}
+			pt.ListBox(c, &s.alert, sounds).Element().Size(250, 66).Label(m.AlertSound())
 		})
 	})
 }
 
 func mouseView(c *ui.Context, d *desk) {
+	m := d.say()
 	s := &d.settings
 	ui.Column(c).FillWidth().Padding(10).Gap(10).AlignItems(ui.Stretch).Children(func() {
-		pt.GroupBox(c, "Tracking speed", func() {
-			pt.Slider(c, &s.tracking, 0, 6).Width(240).Ticks(7).Step(1).Label("Tracking speed")
+		pt.GroupBox(c, m.TrackingSpeed(), func() {
+			pt.Slider(c, &s.tracking, 0, 6).Width(240).Ticks(7).Step(1).Label(m.TrackingSpeed())
 			ui.Row(c).Gap(150).Children(func() {
-				pt.TextIn(c, "Slow", pt.AppFont, pt.Black)
-				pt.TextIn(c, "Fast", pt.AppFont, pt.Black)
+				pt.TextIn(c, m.Slow(), pt.AppFont, pt.Black)
+				pt.TextIn(c, m.Fast(), pt.AppFont, pt.Black)
 			})
 		})
-		pt.GroupBox(c, "Double-click speed", func() {
+		pt.GroupBox(c, m.DoubleClickSpeed(), func() {
 			ui.Row(c).Gap(16).Children(func() {
 				pt.RadioGroup(c, func() {
 					ui.Row(c).Gap(14).Children(func() {
-						pt.Radio(c, &s.doubleHit, "slow", "Slow")
-						pt.Radio(c, &s.doubleHit, "medium", "Medium")
-						pt.Radio(c, &s.doubleHit, "fast", "Fast")
+						pt.Radio(c, &s.doubleHit, "slow", m.Slow())
+						pt.Radio(c, &s.doubleHit, "medium", m.Medium())
+						pt.Radio(c, &s.doubleHit, "fast", m.Fast())
 					})
 				})
 			})

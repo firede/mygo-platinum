@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pt "github.com/firede/mygo-platinum"
+	"github.com/firede/mygo-platinum/examples/desktop/locales"
 )
 
 // node is a file or folder of the desk's own little file system, which
@@ -13,6 +14,7 @@ import (
 // writes its documents.
 type node struct {
 	name     string
+	key      string // the message of its name, for the desk's own items, which follow the language
 	kind     kind
 	text     string   // a document's contents
 	runs     []pt.Run // and its styles and alignments, as Scribe saved them
@@ -35,20 +37,32 @@ const (
 	kindPanel // a control panel
 )
 
-func (n *node) kindName() string {
+func (n *node) kindName(m locales.Messages) string {
 	switch n.kind {
 	case kindFolder:
-		return "folder"
+		return m.KindFolder()
 	case kindDocument:
-		return "text document"
+		return m.KindDocument()
 	case kindApp:
-		return "application"
+		return m.KindApp()
 	case kindDisk:
-		return "disk"
+		return m.KindDisk()
 	case kindPanel:
-		return "control panel"
+		return m.KindPanel()
 	}
 	return ""
+}
+
+// relabel names the desk's own items of n, and n, in the language of
+// locale, and sorts the folders by the new names.
+func (n *node) relabel(locale string) {
+	if n.key != "" {
+		n.name = locales.Catalog.Format(locale, n.key, nil)
+	}
+	for _, c := range n.children {
+		c.relabel(locale)
+	}
+	n.sort()
 }
 
 // size returns the bytes a node takes, as the browser shows them.
@@ -101,27 +115,33 @@ func (n *node) remove() {
 }
 
 // newDisk returns the desk's disk, filled with its folders, applications
-// and a few documents.
-func newDisk(now time.Time) *node {
-	d := &node{name: "Platinum Disk", kind: kindDisk, modified: now}
-	apps := d.add(&node{name: "Applications", kind: kindFolder, modified: now})
-	for _, a := range []struct {
-		name string
-		app  appKind
-	}{{"Calculator", appCalculator}, {"Jotter", appJotter}, {"Ledger", appLedger}, {"Scribe", appScribe}, {"Puzzle", appPuzzle}, {"Alarm Clock", appClock}} {
-		apps.add(&node{name: a.name, kind: kindApp, app: a.app, modified: now})
+// and a few documents, in the language of locale. The documents are the
+// user's: they keep their names and words when the language changes.
+func newDisk(now time.Time, locale string) *node {
+	m := locales.In(locale)
+	own := func(key string, k kind, app appKind) *node {
+		return &node{key: key, name: locales.Catalog.Format(locale, key, nil), kind: k, app: app, modified: now}
 	}
-	docs := d.add(&node{name: "Documents", kind: kindFolder, modified: now})
-	docs.add(&node{name: "Letter", kind: kindDocument, modified: now, text: "Dear Ada,\n\nThe new desk is up and running. Every window has a striped title bar again, and the buttons press in when you click them.\n\nWrite soon,\nGrace"})
-	docs.add(&node{name: "Recipes", kind: kindDocument, modified: now, text: "Pancakes\n- 2 cups flour\n- 2 eggs\n- 1 1/2 cups milk\n- a pinch of salt\n\nWhisk, rest ten minutes, fry in butter."})
-	docs.add(&node{name: "To Do", kind: kindDocument, modified: now, text: "- Water the plants\n- Back up the disk\n- Finish the puzzle"})
-	sys := d.add(&node{name: "System Folder", kind: kindFolder, modified: now})
-	cp := sys.add(&node{name: "Control Panels", kind: kindFolder, modified: now})
-	cp.add(&node{name: "Appearance", kind: kindPanel, app: appAppearance, modified: now})
-	cp.add(&node{name: "Date & Time", kind: kindPanel, app: appDateTime, modified: now})
-	cp.add(&node{name: "Mouse", kind: kindPanel, app: appMouse, modified: now})
-	cp.add(&node{name: "Sound", kind: kindPanel, app: appSound, modified: now})
-	d.add(&node{name: "Read Me", kind: kindDocument, modified: now, text: "Welcome to the Platinum desk.\n\nDouble-click an icon to open it. Drag windows by their title bars, resize them from the bottom right corner, and roll them up with the box at the right of the title bar.\n\nThe Appearance control panel changes the accent color and the desktop pattern."})
+	d := own("platinumDisk", kindDisk, 0)
+	apps := d.add(own("applications", kindFolder, 0))
+	for _, a := range []struct {
+		key string
+		app appKind
+	}{{"calculator", appCalculator}, {"jotter", appJotter}, {"ledger", appLedger}, {"scribe", appScribe}, {"puzzle", appPuzzle}, {"alarmClock", appClock}} {
+		apps.add(own(a.key, kindApp, a.app))
+	}
+	docs := d.add(own("documents", kindFolder, 0))
+	docs.add(&node{name: m.Letter(), kind: kindDocument, modified: now, text: m.LetterText()})
+	docs.add(&node{name: m.Recipes(), kind: kindDocument, modified: now, text: m.RecipesText()})
+	docs.add(&node{name: m.ToDo(), kind: kindDocument, modified: now, text: m.ToDoText()})
+	sys := d.add(own("systemFolder", kindFolder, 0))
+	cp := sys.add(own("controlPanels", kindFolder, 0))
+	cp.add(own("appearance", kindPanel, appAppearance))
+	cp.add(own("dateTime", kindPanel, appDateTime))
+	cp.add(own("language", kindPanel, appLanguage))
+	cp.add(own("mouse", kindPanel, appMouse))
+	cp.add(own("sound", kindPanel, appSound))
+	d.add(&node{name: m.ReadMe(), kind: kindDocument, modified: now, text: m.ReadMeText()})
 	return d
 }
 
@@ -137,6 +157,7 @@ func (n *node) root() *node {
 func (n *node) clone() *node {
 	c := *n
 	c.parent, c.from, c.children = nil, nil, nil
+	c.key = "" // a copy is the user's: its name stays as it is
 	c.runs = append([]pt.Run(nil), n.runs...)
 	c.aligns = append([]pt.Align(nil), n.aligns...)
 	for _, ch := range n.children {

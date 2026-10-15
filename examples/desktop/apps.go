@@ -5,9 +5,12 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"unicode"
 
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 	pt "github.com/firede/mygo-platinum"
+	"github.com/firede/mygo-platinum/examples/desktop/locales"
 )
 
 // jotter is a pad of notes, a page at a time.
@@ -18,10 +21,12 @@ type jotter struct {
 
 const jotterPages = 8
 
-func newJotterWindow() *win {
+// newJotterWindow opens the pad, its first note written in the desk's
+// language: the user's words from then on.
+func newJotterWindow(d *desk) *win {
 	j := &jotter{pages: make([]string, jotterPages)}
-	j.pages[0] = "Notes to self:\n\nThe page corner at the bottom left turns the page; Shift turns it back."
-	w := &win{app: appJotter, title: "Jotter", jot: j}
+	j.pages[0] = d.say().JotterNotes()
+	w := &win{app: appJotter, jot: j}
 	w.frame = pt.WindowState{W: 240, H: 220}
 	w.content = jotterView
 	return w
@@ -51,12 +56,13 @@ var dogEar = []string{
 }
 
 func jotterView(c *ui.Context, w *win) {
+	m := w.desk.say()
 	j := w.jot
 	th := pt.ThemeOf(c)
 	ui.Column(c).Fill().AlignItems(ui.Stretch).Background(ui.RGB(0xFF, 0xF6, 0xC8)).Children(func() {
-		pt.TextArea(c.Key(fmt.Sprint("page", j.page)), &j.pages[j.page]).Label("Page").Element().Grow(1).FillWidth()
+		pt.TextArea(c.Key(fmt.Sprint("page", j.page)), &j.pages[j.page]).Label(m.Page()).Element().Grow(1).FillWidth()
 		ui.Row(c).Height(20).Padding(0, 8, 0, 4).Gap(8).AlignItems(ui.Center).Children(func() {
-			corner := ui.Box(c).Size(16, 16).Role(ui.RoleButton).Label("Turn page").Focusable().FocusRing(false)
+			corner := ui.Box(c).Size(16, 16).Role(ui.RoleButton).Label(m.TurnPage()).Focusable().FocusRing(false)
 			if corner.Clicked() {
 				if corner.ClickModifiers()&ui.Shift != 0 {
 					j.turn(-1)
@@ -82,7 +88,7 @@ func jotterView(c *ui.Context, w *win) {
 					}
 				}
 			})
-			pt.TextIn(c, fmt.Sprintf("Page %d of %d", j.page+1, len(j.pages)), pt.AppFont, pt.Black)
+			pt.TextIn(c, m.PageOf(j.page+1, len(j.pages)), pt.AppFont, pt.Black)
 		})
 	})
 }
@@ -113,7 +119,7 @@ func (s *scribe) changed() bool { return s.fingerprint() != s.saved }
 
 func newScribeWindow(d *desk, f *node) *win {
 	s := &scribe{file: f, doc: pt.NewRichText("")}
-	title := "untitled"
+	title := d.say().Untitled()
 	if f != nil {
 		s.doc = pt.NewRichText(f.text)
 		if f.runs != nil {
@@ -125,7 +131,7 @@ func newScribeWindow(d *desk, f *node) *win {
 		d.untitled++
 		s.n = d.untitled
 		if s.n > 1 {
-			title = fmt.Sprintf("untitled %d", s.n)
+			title = d.say().UntitledN(s.n)
 		}
 	}
 	s.saved = s.fingerprint()
@@ -140,9 +146,9 @@ func newScribeWindow(d *desk, f *node) *win {
 func (s *scribe) save(d *desk) {
 	if s.file == nil {
 		d.saving = s
-		d.saveDlg.Name = "untitled"
+		d.saveDlg.Name = d.say().Untitled()
 		if s.n > 1 {
-			d.saveDlg.Name = fmt.Sprintf("untitled %d", s.n)
+			d.saveDlg.Name = d.say().UntitledN(s.n)
 		}
 		if len(d.saveDlg.Path) == 0 {
 			d.saveDlg.Path = d.treePath(d.documents())
@@ -200,14 +206,15 @@ func (s *scribe) write(d *desk) {
 }
 
 func scribeView(c *ui.Context, w *win) {
+	m := w.desk.say()
 	s := w.doc
 	showRuler := !s.noRuler
 	ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
 		items := []pt.ToolItem{
-			{Label: "Save", Icon: iconSave, IconOnly: true, Action: func() { s.save(w.desk) }},
+			{Label: m.Save(), Icon: iconSave, IconOnly: true, Action: func() { s.save(w.desk) }},
 			{Separator: true},
-			{Label: "Find", Icon: iconFind, IconOnly: true, Action: func() { s.finding = true }},
-			{Label: "Ruler", Icon: iconRuler, IconOnly: true, On: &showRuler},
+			{Label: m.Find(), Icon: iconFind, IconOnly: true, Action: func() { s.finding = true }},
+			{Label: m.Ruler(), Icon: iconRuler, IconOnly: true, On: &showRuler},
 			{Separator: true},
 		}
 		pt.Toolbar(c, append(items, pt.FormatItems(s.doc)...))
@@ -220,7 +227,7 @@ func scribeView(c *ui.Context, w *win) {
 		}
 		// The document fills the window, its scroll bar against the
 		// window's right side, down to the row of the resize corner.
-		area := pt.RichTextArea(c, s.doc).Label("Document")
+		area := pt.RichTextArea(c, s.doc).Label(m.Document())
 		left, wrap := 8, 0
 		if !s.noRuler {
 			left, wrap = s.ruler.Left, s.ruler.Right-s.ruler.Left
@@ -230,7 +237,7 @@ func scribeView(c *ui.Context, w *win) {
 			area.Indent(s.ruler.First)
 		}
 		ui.Row(c).Height(pt.GrowBoxSize).AlignItems(ui.Stretch).Children(func() {
-			pt.Placard(c, wordCount(s.doc.Text)).Grow(1).Height(pt.GrowBoxSize)
+			pt.Placard(c, wordCount(m, s.doc.Text)).Grow(1).Height(pt.GrowBoxSize)
 			ui.Box(c).Width(pt.GrowBoxSize)
 		})
 		switch pt.FindReplace(c, &s.finding, &s.find) {
@@ -240,7 +247,7 @@ func scribeView(c *ui.Context, w *win) {
 				area.Select(a, b)
 				s.find.Note = ""
 			} else {
-				s.find.Note = "Not found."
+				s.find.Note = m.NotFound()
 			}
 		case pt.ReplaceOne:
 			a, b := area.Selection()
@@ -254,26 +261,33 @@ func scribeView(c *ui.Context, w *win) {
 		case pt.ReplaceEvery:
 			var n int
 			s.doc.Text, n = pt.ReplaceAll(s.doc.Text, s.find.Query, s.find.With, s.find.Options)
-			s.find.Note = fmt.Sprintf("%d replaced.", n)
+			s.find.Note = m.Replaced(n)
 		}
 	})
 }
 
-func wordCount(text string) string {
+// wordCount says how many words and lines text has, in the language of m:
+// words between spaces, and each Han character and kana a word of its own,
+// as Chinese and Japanese write no spaces.
+func wordCount(m locales.Messages, text string) string {
 	words, lines := 0, 1
 	inWord := false
 	for _, r := range text {
 		if r == '\n' {
 			lines++
 		}
-		if r == ' ' || r == '\n' || r == '\t' {
+		switch {
+		case unicode.In(r, unicode.Han, unicode.Hiragana, unicode.Katakana):
 			inWord = false
-		} else if !inWord {
+			words++
+		case r == ' ' || r == '\n' || r == '\t' || unicode.In(r, unicode.Punct) && r > 0x2FFF:
+			inWord = false
+		case !inWord:
 			inWord = true
 			words++
 		}
 	}
-	return plural(words, "word") + ", " + plural(lines, "line")
+	return m.WordsLines(words, lines)
 }
 
 // The 16×16 icons of Scribe's toolbar.
@@ -334,12 +348,14 @@ var (
 	}
 )
 
-// ledger is a sheet of figures.
-func newLedgerWindow() *win {
+// newLedgerWindow opens a sheet of figures, its labels written in the
+// desk's language: the user's from then on.
+func newLedgerWindow(d *desk) *win {
+	m := d.say()
 	st := pt.NewSheetState()
 	for r, row := range [][]string{
-		{"Item", "Cost"}, {"Rent", "800"}, {"Groceries", "245.5"}, {"Lamp oil", "12"}, {"Books", "38"},
-		{"", ""}, {"Total", "=SUM(B2:B5)"}, {"Average", "=AVERAGE(B2:B5)"},
+		{m.Item(), m.Cost()}, {m.Rent(), "800"}, {m.Groceries(), "245.5"}, {m.LampOil(), "12"}, {m.Books(), "38"},
+		{"", ""}, {m.Total(), "=SUM(B2:B5)"}, {m.Average(), "=AVERAGE(B2:B5)"},
 	} {
 		for col, v := range row {
 			if v != "" {
@@ -348,7 +364,7 @@ func newLedgerWindow() *win {
 		}
 	}
 	st.Cursor, st.Anchor = pt.Cell{Col: 1, Row: 6}, pt.Cell{Col: 1, Row: 6}
-	w := &win{app: appLedger, title: "Ledger", sheet: st}
+	w := &win{app: appLedger, sheet: st}
 	w.frame = pt.WindowState{W: 360, H: 240}
 	w.content = func(c *ui.Context, w *win) {
 		ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
@@ -370,7 +386,7 @@ func newPuzzleWindow() *win {
 	pz := &puzzle{}
 	pz.reset()
 	pz.shuffle(1)
-	w := &win{app: appPuzzle, title: "Puzzle", puzzle: pz}
+	w := &win{app: appPuzzle, puzzle: pz}
 	w.frame = pt.WindowState{W: 184, H: 214}
 	w.opts = pt.WindowOptions{NoGrow: true, NoZoom: true}
 	w.content = puzzleView
@@ -436,10 +452,11 @@ func (pz *puzzle) solved() bool {
 const tileSize = 36
 
 func puzzleView(c *ui.Context, w *win) {
+	m := w.desk.say()
 	pz := w.puzzle
 	th := pt.ThemeOf(c)
 	ui.Column(c).Fill().Padding(10).Gap(6).AlignItems(ui.Center).Children(func() {
-		board := ui.Box(c).Size(4*tileSize+4, 4*tileSize+4).Focusable().FocusRing(false).Role(ui.RoleGroup).Label("Tiles")
+		board := ui.Box(c).Size(4*tileSize+4, 4*tileSize+4).Focusable().FocusRing(false).Role(ui.RoleGroup).Label(m.Tiles())
 		// The arrows slide the tile on that side of the hole into it.
 		h := pz.hole()
 		for _, k := range []struct {
@@ -486,9 +503,9 @@ func puzzleView(c *ui.Context, w *win) {
 				tp.TextCentered(0, 0, tileSize, tileSize, fmt.Sprint(t), pt.SystemFont, pt.Black)
 			}
 		})
-		status := fmt.Sprintf("%d moves", pz.moves)
+		status := m.Moves(pz.moves)
 		if pz.solved() {
-			status = "Solved!"
+			status = m.Solved()
 		}
 		pt.TextIn(c, status, pt.SystemFont, pt.Black)
 	})
@@ -502,7 +519,7 @@ type alarmClock struct {
 
 func newClockWindow(d *desk) *win {
 	now := d.now()
-	w := &win{app: appClock, title: "Alarm Clock", clock: &alarmClock{hour: now.Hour(), minute: (now.Minute()/5*5 + 5) % 60}}
+	w := &win{app: appClock, clock: &alarmClock{hour: now.Hour(), minute: (now.Minute()/5*5 + 5) % 60}}
 	w.frame = pt.WindowState{W: 220}
 	w.opts = pt.WindowOptions{NoGrow: true, NoZoom: true}
 	w.content = func(c *ui.Context, w *win) { clockView(c, w, d) }
@@ -510,13 +527,14 @@ func newClockWindow(d *desk) *win {
 }
 
 func clockView(c *ui.Context, w *win, d *desk) {
+	m := d.say()
 	k := w.clock
 	now := d.now()
 	c.After(time.Second - time.Duration(now.Nanosecond()))
 	ui.Column(c).FillWidth().Padding(10).Gap(8).AlignItems(ui.Stretch).Children(func() {
 		t := now.Format("15:04:05")
-		date := now.Format("Monday, January 2, 2006")
-		ui.Box(c).Height(40).Role(ui.RoleStatus).Label("Time").Value(t).Draw(func(p *ui.Painter, r ui.Rect) {
+		date := i18n.FormatDate(d.lang, now, i18n.DateOptions{Date: i18n.FullStyle})
+		ui.Box(c).Height(40).Role(ui.RoleStatus).Label(m.Time()).Value(t).Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := pt.NewPen(p, r)
 			// A sunken gray face with black figures.
 			pt.DrawContentRing(pn)
@@ -528,7 +546,7 @@ func clockView(c *ui.Context, w *win, d *desk) {
 		ui.Row(c).Justify(ui.Center).Children(func() { pt.TextIn(c, date, pt.AppFont, pt.Black) })
 		pt.Separator(c)
 		ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-			pt.Checkbox(c, &k.armed, "Alarm at")
+			pt.Checkbox(c, &k.armed, m.AlarmAt())
 			hours := make([]string, 24)
 			for i := range hours {
 				hours[i] = fmt.Sprintf("%02d", i)
@@ -555,7 +573,7 @@ type appearance struct {
 
 func newAppearanceWindow(d *desk) *win {
 	a := &appearance{accent: d.theme.Accent.Name, pattern: d.pattern}
-	w := &win{app: appAppearance, title: "Appearance", appear: a}
+	w := &win{app: appAppearance, appear: a}
 	w.frame = pt.WindowState{W: 300, H: 250}
 	w.opts = pt.WindowOptions{NoGrow: true, NoZoom: true}
 	w.content = func(c *ui.Context, w *win) { appearanceView(c, w, d) }
@@ -563,12 +581,13 @@ func newAppearanceWindow(d *desk) *win {
 }
 
 func appearanceView(c *ui.Context, w *win, d *desk) {
+	m := d.say()
 	a := w.appear
 	ui.Column(c).Fill().Padding(10).AlignItems(ui.Stretch).Children(func() {
-		pt.TabControl(c, &a.tab, []string{"Colors", "Desktop"}, func(i int) {
+		pt.TabControl(c, &a.tab, []string{m.Colors(), m.DesktopTab()}, func(i int) {
 			switch i {
 			case 0:
-				pt.Label(c, "Highlight color:")
+				pt.Label(c, m.HighlightColor())
 				pt.RadioGroup(c, func() {
 					for _, acc := range pt.Accents() {
 						ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -579,7 +598,7 @@ func appearanceView(c *ui.Context, w *win, d *desk) {
 								pn.Rect(1, 1, 11, pn.H-2, swatch.Dark)
 								pn.Rect(12, 1, 11, pn.H-2, swatch.Light)
 							})
-							if pt.Radio(c, &a.accent, acc.Name, acc.Name).Changed() {
+							if pt.Radio(c, &a.accent, acc.Name, accentName(m, acc.Name)).Changed() {
 								d.theme.Accent = acc
 							}
 						})
@@ -588,14 +607,14 @@ func appearanceView(c *ui.Context, w *win, d *desk) {
 			case 1:
 				names := make([]string, len(patterns))
 				for i, p := range patterns {
-					names[i] = p.name
+					names[i] = locales.Catalog.Format(d.lang, p.key, nil)
 				}
 				ui.Row(c).Gap(10).Children(func() {
 					if pt.ListBox(c, &a.pattern, names).Changed() {
 						d.pattern = a.pattern
 					}
 					pat := patterns[a.pattern]
-					ui.Box(c).Size(64, 64).Role(ui.RoleImage).Label("Preview").Draw(func(p *ui.Painter, r ui.Rect) {
+					ui.Box(c).Size(64, 64).Role(ui.RoleImage).Label(m.Preview()).Draw(func(p *ui.Painter, r ui.Rect) {
 						pn := pt.NewPen(p, r)
 						pn.Frame(0, 0, pn.W, pn.H, pt.Black)
 						fg := ui.RGB(pat.fg.R, pat.fg.G, pat.fg.B)
@@ -609,7 +628,7 @@ func appearanceView(c *ui.Context, w *win, d *desk) {
 }
 
 func newAboutWindow(d *desk) *win {
-	w := &win{app: appAbout, title: "About This Desk"}
+	w := &win{app: appAbout}
 	w.frame = pt.WindowState{W: 330, H: 200}
 	w.opts = pt.WindowOptions{NoGrow: true, NoZoom: true}
 	w.content = func(c *ui.Context, w *win) { aboutView(c, d) }
@@ -617,12 +636,13 @@ func newAboutWindow(d *desk) *win {
 }
 
 func aboutView(c *ui.Context, d *desk) {
+	m := d.say()
 	ui.Column(c).Fill().Padding(12).Gap(10).AlignItems(ui.Stretch).Children(func() {
 		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
 			ui.Box(c).Size(32, 32).Draw(func(p *ui.Painter, r ui.Rect) { iconAbout.draw(p, r.X, r.Y, false) })
 			ui.Column(c).Gap(2).Children(func() {
-				pt.Label(c, "Platinum Desk")
-				pt.TextIn(c, "Version 1.0 — built with MyGo", pt.AppFont, pt.Black)
+				pt.Label(c, m.PlatinumDesk())
+				pt.TextIn(c, m.Version(), pt.AppFont, pt.Black)
 			})
 		})
 		pt.Separator(c)
@@ -632,20 +652,40 @@ func aboutView(c *ui.Context, d *desk) {
 			row := func(name string, size int) {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 					ui.Box(c).Width(100).Children(func() { pt.TextIn(c, name, pt.AppFont, pt.Black) })
-					ui.Box(c).Width(60).Children(func() { pt.TextIn(c, humanSize(size), pt.AppFont, pt.Black) })
+					ui.Box(c).Width(60).Children(func() { pt.TextIn(c, humanSize(m, size), pt.AppFont, pt.Black) })
 					pt.ProgressBar(c, float64(size)/float64(16<<20)).Width(120).Height(10).Label(name)
 				})
 			}
-			row("Desk", used)
+			row(m.Desk(), used)
 			for _, w := range d.windows {
 				if w.app == appAbout || w.app == appCabinet {
 					continue
 				}
-				size := 1<<20 + len(w.title)*96<<10
+				title := d.titleOf(w)
+				size := 1<<20 + len(title)*96<<10
 				used += size
-				row(w.title, size)
+				row(title, size)
 			}
 		})
-		pt.TextIn(c, fmt.Sprintf("Total memory: %s, largest unused block: %s", humanSize(total), humanSize(total-used)), pt.AppFont, pt.Black)
+		pt.TextIn(c, m.Memory(humanSize(m, total), humanSize(m, total-used)), pt.AppFont, pt.Black)
 	})
+}
+
+// accentName returns the name of an accent in the language of m.
+func accentName(m locales.Messages, name string) string {
+	switch name {
+	case pt.Lavender.Name:
+		return m.AccentLavender()
+	case pt.Graphite.Name:
+		return m.AccentGraphite()
+	case pt.Harbor.Name:
+		return m.AccentHarbor()
+	case pt.Moss.Name:
+		return m.AccentMoss()
+	case pt.Ember.Name:
+		return m.AccentEmber()
+	case pt.Orchid.Name:
+		return m.AccentOrchid()
+	}
+	return name
 }

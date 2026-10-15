@@ -90,7 +90,7 @@ func chooseMenu(t *testing.T, tt *ui.Tester, menu, item string) {
 // golden image.
 func TestDesktopScene(t *testing.T) {
 	defer pt.SetClock(pt.SetClock(nil))
-	golden(t, "scene", renderScene(1))
+	golden(t, "scene", renderScene(1, ""))
 }
 
 func TestDesktopCloseButtonRedraws(t *testing.T) {
@@ -481,7 +481,7 @@ func TestDesktopControlPanels(t *testing.T) {
 // at scale 1 with each pixel a 2×2 block.
 func TestDesktopScalesByWholePixels(t *testing.T) {
 	defer pt.SetClock(pt.SetClock(nil))
-	one, two := renderScene(1), renderScene(2)
+	one, two := renderScene(1, ""), renderScene(2, "")
 	bad := 0
 	for y := 0; y < 2*height; y++ {
 		for x := 0; x < 2*width; x++ {
@@ -743,8 +743,8 @@ func TestDesktopPopupWindow(t *testing.T) {
 // name for assistive technology, and Tab must come back to the first.
 func TestDesktopFocusNamed(t *testing.T) {
 	defer pt.SetClock(pt.SetClock(func() time.Time { return sceneTime }))
-	for _, app := range []appKind{appCalculator, appJotter, appScribe, appPuzzle, appClock, appAppearance, appAbout, appLedger, appDateTime, appSound, appMouse, appFind, appInfo} {
-		d := scene()
+	for _, app := range []appKind{appCalculator, appJotter, appScribe, appPuzzle, appClock, appAppearance, appAbout, appLedger, appDateTime, appSound, appMouse, appLanguage, appFind, appInfo} {
+		d := scene("")
 		if app == appInfo {
 			d.getInfo(d.disk) // Get Info is not launched, but asked of an item
 		} else {
@@ -787,11 +787,11 @@ func TestDesktopFocusNamed(t *testing.T) {
 func TestDesktopRandomInput(t *testing.T) {
 	defer pt.SetClock(pt.SetClock(func() time.Time { return sceneTime }))
 	rng := rand.New(rand.NewSource(1998))
-	d := scene()
+	d := scene("")
 	tt := ui.NewTester(d.view, width, height)
 	tt.Frame()
 	keys := []ui.Key{ui.KeyTab, ui.KeyEnter, ui.KeyEscape, ui.KeySpace, ui.KeyUp, ui.KeyDown, ui.KeyLeft, ui.KeyRight, ui.KeyBackspace, ui.KeyW, ui.KeyN, ui.KeyO, ui.KeyZ, ui.KeyA, ui.KeyD, ui.KeyY, ui.KeyI, ui.KeyS}
-	apps := []appKind{appCalculator, appJotter, appScribe, appPuzzle, appClock, appAppearance, appAbout, appLedger, appDateTime, appSound, appMouse, appFind}
+	apps := []appKind{appCalculator, appJotter, appScribe, appPuzzle, appClock, appAppearance, appAbout, appLedger, appDateTime, appSound, appMouse, appLanguage, appFind}
 	for i := 0; i < 250; i++ {
 		x, y := float32(rng.Intn(width)), float32(rng.Intn(height))
 		switch rng.Intn(7) {

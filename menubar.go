@@ -1,6 +1,8 @@
 package platinum
 
 import (
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/egoist/mygo/ui"
@@ -289,7 +291,8 @@ func DrawMenuBar(pn Pen, menus []Menu, hl int, a Accent) {
 		x := xs[i] + MenuTitlePadding
 		if m.Icon != nil {
 			ih := len(m.Icon)
-			DrawIcon(pn.Sub(x, (h-1-ih)/2, iconWidth(m.Icon), ih), m.Icon, a, i == hl)
+			top, n := iconInk(m.Icon)
+			DrawIcon(pn.Sub(x, (h-1-n)/2-top, iconWidth(m.Icon), ih), m.Icon, a, i == hl)
 			if !m.IconTitle {
 				continue
 			}
@@ -297,6 +300,21 @@ func DrawMenuBar(pn Pen, menus []Menu, hl int, a Accent) {
 		}
 		pn.TextMiddle(x, 0, h-1, m.Title, SystemFont, text)
 	}
+}
+
+// iconInk returns the first row of an icon that draws anything and how
+// many rows from it do: what centers it, its blank rows aside.
+func iconInk(rows []string) (top, n int) {
+	inked := func(row string) bool { return strings.ContainsAny(row, "#wo+:") }
+	top = slices.IndexFunc(rows, inked)
+	if top < 0 {
+		return 0, len(rows)
+	}
+	last := len(rows) - 1
+	for !inked(rows[last]) {
+		last--
+	}
+	return top, last - top + 1
 }
 
 // DrawIcon draws a small picture given as rows of '#' (black), 'o' (the

@@ -222,7 +222,8 @@ func (b *BevelWidget) draw(p *ui.Painter, r ui.Rect) {
 	}
 	if b.icon != nil {
 		ih := len(b.icon)
-		DrawIcon(pn.Sub(x, (pn.H-ih)/2+dy, iconWidth(b.icon), ih).Dimmed(s == StateInactive), b.icon, b.th.Accent, false)
+		top, n := iconInk(b.icon)
+		DrawIcon(pn.Sub(x, (pn.H-n)/2-top+dy, iconWidth(b.icon), ih).Dimmed(s == StateInactive), b.icon, b.th.Accent, false)
 		x += iconWidth(b.icon) + bevelGap
 	}
 	if b.label != "" {

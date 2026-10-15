@@ -37,10 +37,14 @@ func Split(c *ui.Context, pos *float64, vertical bool, first, second func()) ui.
 	}
 	*pos = clamp(*pos)
 	el.Draw(func(p *ui.Painter, r ui.Rect) {
-		st.size = r.W
+		size := r.W
 		if vertical {
-			st.size = r.H
+			size = r.H
 		}
+		if size != st.size {
+			c.Invalidate()
+		}
+		st.size = size
 	})
 	el.Children(func() {
 		one := ui.Column(c).AlignItems(ui.Stretch).Clip()
@@ -138,6 +142,9 @@ func ScrollView(c *ui.Context, st *ui.ScrollState, fn func()) ui.Element {
 		DrawContentRing(pn)
 		pn.Rect(2, 2, pn.W-4, pn.H-4, White)
 		pn.Frame(1, 1, pn.W-2, pn.H-2, Black)
+		if view.size != r.H-4 {
+			c.Invalidate()
+		}
 		view.size = r.H - 4
 	})
 	el.Children(func() {

@@ -333,7 +333,9 @@ The look has no hover state: nothing changes as the pointer passes over.
   one pixel deep along its right and bottom. Items **18** tall, titles **18**
   in from the outline, keyboard equivalents right-aligned **12** from the
   edge, separators **8** tall (an etched line at their middle). A check mark
-  ✓ sits **4** in.
+  ✓ sits **4** in. On a Mac, and in a browser on one, equivalents are
+  marked by symbols, as ↑⌘S; elsewhere by name, as Ctrl+Shift+S
+  (`MacKeys`).
 - Highlighted item: the accent's Dark, text White. Disabled items Gray8.
 - A chosen item blinks for **150 ms** before its action runs. Submenus open
   to the right, overlapping by 3 pixels, marked by a right-pointing triangle.

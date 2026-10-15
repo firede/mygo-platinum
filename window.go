@@ -181,6 +181,7 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 			if it.Action != nil {
 				it.Action()
 				w.pathChosen, d.pathChosen = d.pathChosen, -1
+				report(w.el, true)
 			}
 		} else if d.path.closed {
 			d.path = nil
@@ -217,11 +218,6 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 	if w.el.Shortcut(ui.Cmd, ui.KeyW) && !opts.NoClose {
 		w.closed = true
 	}
-	if w.closed {
-		// The caller handles Closed after this window has been built.
-		// Rebuild immediately to show its removal or changed front window.
-		c.Invalidate()
-	}
 	side := opts.side()
 	w.el.HandleInput(func(ev ui.InputEvent) bool {
 		return w.input(ev, st, opts)
@@ -232,6 +228,7 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 		pressed = d.part
 	}
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
+		resized(c, d.rect, r)
 		d.rect = r
 		d.parentX, d.parentY = r.X-float32(st.X), r.Y-float32(st.Y)
 		DrawWindowFrame(NewPen(p, r), title, opts, st.Collapsed, pressed)
@@ -265,6 +262,7 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 			}
 		})
 	}
+	report(w.el, w.closed || w.activate || w.pathChosen >= 0)
 	return w
 }
 
@@ -284,15 +282,18 @@ func toggleZoom(st *WindowState, to [4]int) {
 
 // Closed reports whether the user clicked the close box, or pressed
 // Command-W in the window, since the last frame.
-func (w *WindowWidget) Closed() bool { return w.closed }
+func (w *WindowWidget) Closed() bool { return report(w.el, w.closed) }
 
 // PathChosen returns the index in WindowOptions.Path of the folder the user
 // chose from the title's path menu since the last frame, or -1.
-func (w *WindowWidget) PathChosen() int { return w.pathChosen }
+func (w *WindowWidget) PathChosen() int {
+	report(w.el, w.pathChosen >= 0)
+	return w.pathChosen
+}
 
 // Activated reports whether the user pressed the window since the last
 // frame, which brings a window in the background to the front.
-func (w *WindowWidget) Activated() bool { return w.activate }
+func (w *WindowWidget) Activated() bool { return report(w.el, w.activate) }
 
 // Element returns the window's element.
 func (w *WindowWidget) Element() ui.Element { return w.el }

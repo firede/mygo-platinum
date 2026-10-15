@@ -110,6 +110,7 @@ func Stepper(c *ui.Context, value *float64, lo, hi, step float64) *StepperWidget
 			DrawFocusRing(pn, 1, s.th.Accent.Dark)
 		}
 	})
+	report(s.el, s.changed)
 	return s
 }
 
@@ -141,7 +142,7 @@ func (s *StepperWidget) Disabled(d bool) *StepperWidget {
 }
 
 // Changed reports whether the user changed the value since the last frame.
-func (s *StepperWidget) Changed() bool { return s.changed }
+func (s *StepperWidget) Changed() bool { return report(s.el, s.changed) }
 
 // Element returns the arrows' element.
 func (s *StepperWidget) Element() ui.Element { return s.el }
@@ -255,6 +256,7 @@ func numberField(c *ui.Context, value *float64, lo, hi, step float64, digits, pa
 			w.changed = true
 		}
 	})
+	report(w.el, w.changed)
 	return w
 }
 
@@ -268,7 +270,7 @@ func (w *NumberFieldWidget) Label(l string) *NumberFieldWidget {
 }
 
 // Changed reports whether the user changed the number since the last frame.
-func (w *NumberFieldWidget) Changed() bool { return w.changed }
+func (w *NumberFieldWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the field's element, its text field and arrows in a row.
 func (w *NumberFieldWidget) Element() ui.Element { return w.el }

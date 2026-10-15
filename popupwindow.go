@@ -80,6 +80,7 @@ func PopupWindow(c *ui.Context, st *PopupWindowState, title string, opts WindowO
 	}
 	pressed := d.down && !d.moved
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
+		resized(c, d.rect, r)
 		d.rect = r
 		d.parentX = r.X - float32(st.X)
 		DrawPopupWindow(NewPen(p, r), title, tabW, st.Open, active, pressed)
@@ -136,6 +137,7 @@ func PopupWindow(c *ui.Context, st *PopupWindowState, title string, opts WindowO
 			}
 		})
 	})
+	report(w.el, w.closed || w.tornOff || w.activate)
 	return w
 }
 
@@ -178,7 +180,7 @@ func (w *PopupWindowWidget) tabInput(ev ui.InputEvent, d *popupDrag, st *PopupWi
 
 // Closed reports whether the user pressed Command-W in the window since
 // the last frame.
-func (w *PopupWindowWidget) Closed() bool { return w.closed }
+func (w *PopupWindowWidget) Closed() bool { return report(w.el, w.closed) }
 
 // SpringDelay is how long a drag rests on a closed pop-up window's tab
 // before SpringOpen opens it.
@@ -201,6 +203,7 @@ func SpringOpen[T any](c *ui.Context, w *PopupWindowWidget, st *PopupWindowState
 	if now.Sub(*since) >= SpringDelay {
 		st.Open = true
 		*since = time.Time{}
+		report(w.el, true)
 		return
 	}
 	c.After(SpringDelay - now.Sub(*since))
@@ -208,11 +211,11 @@ func SpringOpen[T any](c *ui.Context, w *PopupWindowWidget, st *PopupWindowState
 
 // TornOff reports whether the user dragged the tab up, tearing the window
 // off the bottom edge, since the last frame.
-func (w *PopupWindowWidget) TornOff() bool { return w.tornOff }
+func (w *PopupWindowWidget) TornOff() bool { return report(w.el, w.tornOff) }
 
 // Activated reports whether the user pressed the window since the last
 // frame, which brings a window in the background to the front.
-func (w *PopupWindowWidget) Activated() bool { return w.activate }
+func (w *PopupWindowWidget) Activated() bool { return report(w.el, w.activate) }
 
 // Element returns the pop-up window's element.
 func (w *PopupWindowWidget) Element() ui.Element { return w.el }

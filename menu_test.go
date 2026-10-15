@@ -220,3 +220,30 @@ func TestContextMenu(t *testing.T) {
 		t.Fatalf("Shift-F10 and Return ran Rename %d times", renamed)
 	}
 }
+
+// TestShortcutText checks the keys of shortcuts as menus write them: by
+// the symbols of a Mac's keyboard, or by name, as other systems do.
+func TestShortcutText(t *testing.T) {
+	t.Cleanup(func() { MacKeys = true })
+	items := []MenuItem{
+		{Key: ui.KeyN},
+		{Key: ui.KeyS, Mods: ui.Cmd | ui.Shift},
+		{Key: ui.KeyBackspace},
+		{Key: ui.KeyEnter, Mods: ui.Cmd | ui.Alt},
+		{},
+	}
+	for _, tc := range []struct {
+		mac  bool
+		want []string
+	}{
+		{true, []string{"⌘N", "↑⌘S", "⌘⌫", "~⌘↵", ""}},
+		{false, []string{"Ctrl+N", "Ctrl+Shift+S", "Ctrl+Backspace", "Ctrl+Alt+Enter", ""}},
+	} {
+		MacKeys = tc.mac
+		for i, it := range items {
+			if got := it.shortcutText(); got != tc.want[i] {
+				t.Errorf("MacKeys %v: item %d shows %q, want %q", tc.mac, i, got, tc.want[i])
+			}
+		}
+	}
+}

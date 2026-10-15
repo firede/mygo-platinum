@@ -108,11 +108,12 @@ func FontPicker(c *ui.Context, ch *FontChoice, families []string) *FontPickerWid
 			})
 		})
 	})
+	report(w.el, w.changed)
 	return w
 }
 
 // Changed reports whether the user changed the choice since the last frame.
-func (w *FontPickerWidget) Changed() bool { return w.changed }
+func (w *FontPickerWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the picker's element.
 func (w *FontPickerWidget) Element() ui.Element { return w.el }

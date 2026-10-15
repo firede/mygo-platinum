@@ -30,7 +30,10 @@ func ComboBox(c *ui.Context, value *string, items []string) *ComboBoxWidget {
 	w.el = ui.Row(c).Gap(0).AlignItems(ui.Center).AlignSelf(ui.Start)
 	st := ui.Local(w.el, "combo", func() comboState { return comboState{} })
 	cw, ch := c.Size()
-	w.el.Draw(func(p *ui.Painter, r ui.Rect) { st.rect = r })
+	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
+		st.rect = r
+	})
 	open := func() {
 		var menu []MenuItem
 		for _, it := range items {
@@ -86,11 +89,12 @@ func ComboBox(c *ui.Context, value *string, items []string) *ComboBoxWidget {
 	if st.t != nil {
 		trackerOverlay(c, st.t, th.Accent, nil, nil)
 	}
+	report(w.el, w.changed)
 	return w
 }
 
 // Changed reports whether the text changed since the last frame.
-func (w *ComboBoxWidget) Changed() bool { return w.changed }
+func (w *ComboBoxWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the combo box's element.
 func (w *ComboBoxWidget) Element() ui.Element { return w.el }

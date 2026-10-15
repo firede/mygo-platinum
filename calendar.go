@@ -120,6 +120,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 			DrawFocusRing(pn, 0, th.Accent.Dark)
 		}
 	})
+	report(w.el, w.changed)
 	return w
 }
 
@@ -134,7 +135,7 @@ func sameDay(a, b time.Time) bool {
 }
 
 // Changed reports whether the user chose another day since the last frame.
-func (w *CalendarWidget) Changed() bool { return w.changed }
+func (w *CalendarWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the calendar's element.
 func (w *CalendarWidget) Element() ui.Element { return w.el }
@@ -257,11 +258,12 @@ func DatePicker(c *ui.Context, day *time.Time) *DatePickerWidget {
 			}
 		})
 	}
+	report(w.el, w.changed)
 	return w
 }
 
 // Changed reports whether the user chose another day since the last frame.
-func (w *DatePickerWidget) Changed() bool { return w.changed }
+func (w *DatePickerWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the picker's element.
 func (w *DatePickerWidget) Element() ui.Element { return w.el }

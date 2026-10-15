@@ -19,5 +19,6 @@ func TestMain(m *testing.M) {
 		}
 	}
 	pt.SetClock(func() time.Time { return now })
+	pt.MacKeys = true // menus draw the same on every system
 	os.Exit(m.Run())
 }

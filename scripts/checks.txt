@@ -13,6 +13,7 @@ package:/internal/verify
 test:/examples/desktop:TestCalculatorCopyPaste
 test:/examples/desktop:TestCalculatorPhysicalOperators
 test:/examples/desktop:TestChosenLanguage
+test:/examples/desktop:TestDeskFramesShowInput
 test:/examples/desktop:TestDesktopAlarm
 test:/examples/desktop:TestDesktopApplicationMenu
 test:/examples/desktop:TestDesktopAsButtons
@@ -162,6 +163,10 @@ test::TestFindReplace
 test::TestFirstLineIndent
 test::TestFontPickerAndPageSetup
 test::TestFormulas
+test::TestFramesShowInput
+test::TestFramesShowInput/focus_taken_by_a_menu
+test::TestFramesShowInput/list_chosen
+test::TestFramesShowInput/window_raised
 test::TestIconViewAndUtility
 test::TestListBoxKeyboard
 test::TestListsRandomInput
@@ -211,6 +216,7 @@ test::TestSearchFieldClears
 test::TestSegmentedKeys
 test::TestSheetEditing
 test::TestSheetTabLeaves
+test::TestShortcutText
 test::TestSnapshotAlertIcons
 test::TestSnapshotBevelAndSegmented
 test::TestSnapshotButton

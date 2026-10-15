@@ -334,7 +334,12 @@ func (d *desk) view(c *ui.Context) {
 		pt.MenuBar(c, d.menus(c))
 		area := ui.Box(c).Grow(1).Clip()
 		area.Draw(func(p *ui.Painter, r ui.Rect) {
-			d.size = [2]int{int(r.W), int(r.H)}
+			if size := [2]int{int(r.W), int(r.H)}; size != d.size {
+				// The icons and the zoom box go by the size: lay them out
+				// again.
+				d.size = size
+				c.Invalidate()
+			}
 			d.drawPattern(p, r)
 		})
 		if area.Pressed() && !area.Hovered() {
@@ -494,7 +499,10 @@ func (d *desk) iconsView(c *ui.Context) {
 		}
 		e := ui.Box(c.Key(fmt.Sprint("icon", i))).Absolute().Left(float32(di.x)).Top(float32(di.y)).Size(deskIconW, deskIconH).
 			Focusable().FocusRing(false).Role(ui.RoleButton).Label(di.name)
-		sel := d.selIcon == i
+		if e.Focused() {
+			d.selIcon = i // chosen by the keyboard
+		}
+		over := false // a drag over it
 		from := ui.Rect{X: float32(di.x + (deskIconW-32)/2), Y: float32(di.y + pt.MenuBarHeight), W: 32, H: 32}
 		if e.Shortcut(0, ui.KeyEnter) || e.Shortcut(ui.Cmd, ui.KeyO) || e.DoubleClicked() {
 			d.zoomFrom = from
@@ -507,7 +515,7 @@ func (d *desk) iconsView(c *ui.Context) {
 				c.After(0)
 			}
 			if _, over := ui.DragOver[*node](e); over {
-				sel = true
+				over = true
 			}
 		}
 		if di.icon == iconDisk {
@@ -519,7 +527,7 @@ func (d *desk) iconsView(c *ui.Context) {
 				c.After(0)
 			}
 			if _, over := ui.DragOver[*node](e); over {
-				sel = true
+				over = true
 				d.springAt(c, d.disk)
 			}
 		}
@@ -531,9 +539,6 @@ func (d *desk) iconsView(c *ui.Context) {
 			}}})
 		if d.balloons {
 			pt.Balloon(c, e, di.help)
-		}
-		if e.Focused() {
-			d.selIcon = i
 		}
 		e.HandleInput(func(ev ui.InputEvent) bool {
 			switch ev.Kind {
@@ -567,6 +572,9 @@ func (d *desk) iconsView(c *ui.Context) {
 		focused := e.FocusVisible()
 		th := d.theme
 		e.Draw(func(p *ui.Painter, r ui.Rect) {
+			// Chosen as the frame paints, after every icon built: the
+			// keyboard chooses the icon after this one as it builds.
+			sel := over || d.selIcon == i
 			pn := pt.NewPen(p, r)
 			ic.draw(p, float32(pn.X+(pn.W-32)/2), float32(pn.Y), sel)
 			drawIconName(pn, name, 34, sel, th.Accent)

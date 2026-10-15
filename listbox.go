@@ -188,6 +188,7 @@ func ListBox(c *ui.Context, selected *int, items []string) *ListBoxWidget {
 	// Drawn over the rows' elements, which are there for assistive
 	// technology alone.
 	w.el.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r).Faded(w.disabled)
 		DrawContentRing(pn)
@@ -236,6 +237,7 @@ func ListBox(c *ui.Context, selected *int, items []string) *ListBoxWidget {
 			})
 		}
 	})
+	report(w.el, w.changed || w.activated)
 	return w
 }
 
@@ -326,11 +328,11 @@ func (w *ListBoxWidget) Disabled(d bool) *ListBoxWidget {
 }
 
 // Changed reports whether the user chose another row since the last frame.
-func (w *ListBoxWidget) Changed() bool { return w.changed }
+func (w *ListBoxWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Activated reports whether the user double-clicked a row, or pressed
 // Return, since the last frame.
-func (w *ListBoxWidget) Activated() bool { return w.activated }
+func (w *ListBoxWidget) Activated() bool { return report(w.el, w.activated) }
 
 // Element returns the list box's element, to size it.
 func (w *ListBoxWidget) Element() ui.Element { return w.el }

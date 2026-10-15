@@ -79,13 +79,35 @@ func (it MenuItem) mods() ui.Modifiers {
 	return it.Mods
 }
 
+// MacKeys is whether menus show the keys of shortcuts as a Mac's keyboard
+// marks them, as ⌘N, or by their names, as Ctrl+N, as other systems do.
+// It starts as the system's, in a browser the system the browser runs on;
+// tests set it, to draw the same everywhere.
+var MacKeys = macKeyboard()
+
 // shortcutText returns how a menu shows the keyboard equivalent.
 func (it MenuItem) shortcutText() string {
 	if it.Key == 0 {
 		return ""
 	}
-	s := ""
 	m := it.mods()
+	if !MacKeys {
+		// Cmd is Control where keys go by name.
+		if m&ui.Cmd != 0 {
+			m = m&^ui.Cmd | ui.Ctrl
+		}
+		s := ""
+		for _, mod := range []struct {
+			mod  ui.Modifiers
+			name string
+		}{{ui.Ctrl, "Ctrl+"}, {ui.Super, "Super+"}, {ui.Alt, "Alt+"}, {ui.Shift, "Shift+"}} {
+			if m&mod.mod != 0 {
+				s += mod.name
+			}
+		}
+		return s + keyName(it.Key)
+	}
+	s := ""
 	if m&ui.Ctrl != 0 && m&ui.Cmd == 0 {
 		s += "^"
 	}
@@ -101,6 +123,8 @@ func (it MenuItem) shortcutText() string {
 	return s + keyName(it.Key)
 }
 
+// keyName returns how a menu writes k: by a symbol on a Mac, else by
+// name.
 func keyName(k ui.Key) string {
 	switch {
 	case k >= ui.KeyA && k <= ui.KeyZ:
@@ -124,8 +148,19 @@ func keyName(k ui.Key) string {
 	case ui.KeyBracketRight:
 		return "]"
 	case ui.KeyEnter:
+		if !MacKeys {
+			return "Enter"
+		}
 		return "↵"
-	case ui.KeyBackspace, ui.KeyDelete:
+	case ui.KeyBackspace:
+		if !MacKeys {
+			return "Backspace"
+		}
+		return "⌫"
+	case ui.KeyDelete:
+		if !MacKeys {
+			return "Del"
+		}
 		return "⌫"
 	}
 	return "?"
@@ -520,6 +555,7 @@ func trackerOverlay(c *ui.Context, t *menuTracker, a Accent, onPointer func(ev u
 		// The layer keeps the keyboard while the menu is open, as the
 		// classic menus did: shortcuts of the window wait.
 		layer := ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Focusable().FocusRing(false).Modal()
+		shown(c, layer)
 		layer.HandleInput(func(ev ui.InputEvent) bool {
 			if onPointer != nil && onPointer(ev) {
 				return true
@@ -603,6 +639,7 @@ func ContextMenu(c *ui.Context, target ui.Element, items []MenuItem) {
 			st.t = nil
 			if it.Action != nil {
 				it.Action()
+				report(target, true)
 			}
 		} else if st.t.closed {
 			st.t = nil

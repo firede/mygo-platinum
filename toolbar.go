@@ -55,6 +55,7 @@ func Toolbar(c *ui.Context, items []ToolItem) ui.Element {
 		Role(ui.RoleToolbar).FocusGroup(ui.Horizontal).Clip()
 	st := ui.Local(bar, "toolbar", func() toolbarState { return toolbarState{} })
 	bar.Draw(func(p *ui.Painter, r ui.Rect) {
+		resized(c, ui.Rect{W: st.width, H: r.H}, r)
 		st.width = r.W
 		pn := NewPen(p, r)
 		pn.Rect(0, 0, pn.W, pn.H, Gray2)

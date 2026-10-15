@@ -208,6 +208,7 @@ func TreeView(c *ui.Context, roots []*TreeNode, selected **TreeNode) *TreeWidget
 	sel := *selected
 	top := int(st.top)
 	w.el.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r)
 		DrawContentRing(pn)
@@ -237,16 +238,17 @@ func TreeView(c *ui.Context, roots []*TreeNode, selected **TreeNode) *TreeWidget
 			})
 		}
 	})
+	report(w.el, w.changed || w.activated)
 	return w
 }
 
 // Changed reports whether the user chose another item since the last
 // frame.
-func (w *TreeWidget) Changed() bool { return w.changed }
+func (w *TreeWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Activated reports whether the user double-clicked an item, or pressed
 // Return, since the last frame.
-func (w *TreeWidget) Activated() bool { return w.activated }
+func (w *TreeWidget) Activated() bool { return report(w.el, w.activated) }
 
 // Element returns the tree view's element, to size it.
 func (w *TreeWidget) Element() ui.Element { return w.el }

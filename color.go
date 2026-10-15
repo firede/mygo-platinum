@@ -134,12 +134,13 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 			})
 		})
 	}
+	report(w.el, w.changed)
 	return w
 }
 
 // Changed reports whether the user chose another color since the last
 // frame.
-func (w *ColorWellWidget) Changed() bool { return w.changed }
+func (w *ColorWellWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the well's element.
 func (w *ColorWellWidget) Element() ui.Element { return w.el }

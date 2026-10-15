@@ -216,12 +216,16 @@ func DocumentTabs(c *ui.Context, selected *int, titles []string, fn func(i int))
 			}
 		})
 	})
+	report(w.el, w.closed >= 0)
 	return w
 }
 
 // Closed returns the index of the tab whose close box the user clicked
 // since the last frame, or -1.
-func (w *DocumentTabsWidget) Closed() int { return w.closed }
+func (w *DocumentTabsWidget) Closed() int {
+	report(w.el, w.closed >= 0)
+	return w.closed
+}
 
 // Element returns the element of the tabs and their pane.
 func (w *DocumentTabsWidget) Element() ui.Element { return w.el }

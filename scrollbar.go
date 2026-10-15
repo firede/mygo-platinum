@@ -41,6 +41,7 @@ type scrollState struct {
 
 // ScrollBarWidget is a scroll bar being built.
 type ScrollBarWidget struct {
+	c              *ui.Context
 	inactiveWindow bool
 	el             ui.Element
 	value          *float64
@@ -61,7 +62,7 @@ type ScrollBarWidget struct {
 // shows an empty track. Its element is ScrollBarWidth wide; give it a
 // height, or let it stretch.
 func ScrollBar(c *ui.Context, value *float64, visible, total float64) *ScrollBarWidget {
-	s := &ScrollBarWidget{value: value, visible: visible, total: total, step: 16, th: ThemeOf(c), active: true, inactiveWindow: inactive(c)}
+	s := &ScrollBarWidget{c: c, value: value, visible: visible, total: total, step: 16, th: ThemeOf(c), active: true, inactiveWindow: inactive(c)}
 	s.el = ui.Box(c).Width(ScrollBarWidth).Role(ui.RoleScroll)
 	s.st = ui.Local(s.el, "scroll", func() scrollState { return scrollState{} })
 	s.changed, s.st.changed = s.st.changed, false
@@ -78,6 +79,7 @@ func ScrollBar(c *ui.Context, value *float64, visible, total float64) *ScrollBar
 	}
 	s.el.HandleInput(func(ev ui.InputEvent) bool { return s.input(ev) })
 	s.el.Draw(s.draw)
+	report(s.el, s.changed)
 	return s
 }
 
@@ -103,7 +105,7 @@ func (s *ScrollBarWidget) Inactive() *ScrollBarWidget {
 }
 
 // Changed reports whether the user scrolled since the last frame.
-func (s *ScrollBarWidget) Changed() bool { return s.changed }
+func (s *ScrollBarWidget) Changed() bool { return report(s.el, s.changed) }
 
 // Element returns the scroll bar's element.
 func (s *ScrollBarWidget) Element() ui.Element { return s.el }
@@ -239,6 +241,7 @@ func (s *ScrollBarWidget) input(ev ui.InputEvent) bool {
 func (s *ScrollBarWidget) draw(p *ui.Painter, r ui.Rect) {
 	pn := NewPen(p, r)
 	st := s.st
+	resized(s.c, st.rect, r)
 	st.rect = r
 	st.length = r.H
 	if s.horizontal {

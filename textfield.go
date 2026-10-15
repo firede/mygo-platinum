@@ -135,6 +135,7 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 	w.el.TextCaret(show.caretRect(w.textLeft(), w.lineTop(TextFieldHeight), TextLineHeight, int(st.top), st.scrollX))
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
 		disabled, placeholder, password := w.disabled, w.placeholder, w.password
+		resized(w.c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r).Faded(w.disabled)
 		width := pn.W
@@ -214,6 +215,7 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 			})
 		})
 	}
+	report(w.el, w.changed || w.submitted)
 	return w
 }
 
@@ -456,11 +458,11 @@ func (w *TextFieldWidget) Disabled(d bool) *TextFieldWidget {
 }
 
 // Changed reports whether the user changed the text since the last frame.
-func (w *TextFieldWidget) Changed() bool { return w.changed }
+func (w *TextFieldWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Submitted reports whether the user pressed Return in a text field since
 // the last frame.
-func (w *TextFieldWidget) Submitted() bool { return w.submitted }
+func (w *TextFieldWidget) Submitted() bool { return report(w.el, w.submitted) }
 
 // Element returns the field's element.
 func (w *TextFieldWidget) Element() ui.Element { return w.el }

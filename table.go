@@ -301,6 +301,7 @@ func Table(c *ui.Context, st *TableState, cols []Column, rows int, cell func(row
 	top := int(st.top)
 	bg := inactive(c)
 	w.el.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r)
 		DrawContentRing(pn)
@@ -367,16 +368,17 @@ func Table(c *ui.Context, st *TableState, cols []Column, rows int, cell func(row
 			})
 		}
 	})
+	report(w.el, w.changed || w.activated || w.sorted)
 	return w
 }
 
 // Changed reports whether the user changed the selection since the last
 // frame.
-func (w *TableWidget) Changed() bool { return w.changed }
+func (w *TableWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Activated reports whether the user double-clicked a row, or pressed
 // Return, with rows selected, since the last frame.
-func (w *TableWidget) Activated() bool { return w.activated }
+func (w *TableWidget) Activated() bool { return report(w.el, w.activated) }
 
 // Cursor returns the model index of the row the arrows last moved to or a
 // click chose, or -1 with no rows.
@@ -389,7 +391,7 @@ func (w *TableWidget) Cursor() int {
 
 // Sorted reports whether the user sorted the rows anew since the last
 // frame.
-func (w *TableWidget) Sorted() bool { return w.sorted }
+func (w *TableWidget) Sorted() bool { return report(w.el, w.sorted) }
 
 // Order returns the rows of the model in the order they show.
 func (w *TableWidget) Order() []int { return w.st.order }

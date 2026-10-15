@@ -92,6 +92,7 @@ func IconView(c *ui.Context, items []IconItem, selected *int) *IconViewWidget {
 	focused := w.el.Focused()
 	sel := *selected
 	w.el.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r)
 		DrawContentRing(pn)
@@ -104,15 +105,16 @@ func IconView(c *ui.Context, items []IconItem, selected *int) *IconViewWidget {
 				Size(IconCellW, IconCellH).Role(ui.RoleListItem).Label(it.Name).PassThrough()
 		}
 	})
+	report(w.el, w.changed || w.activated)
 	return w
 }
 
 // Changed reports whether the user chose another icon since the last frame.
-func (w *IconViewWidget) Changed() bool { return w.changed }
+func (w *IconViewWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Activated reports whether the user double-clicked an icon, or pressed
 // Return, since the last frame.
-func (w *IconViewWidget) Activated() bool { return w.activated }
+func (w *IconViewWidget) Activated() bool { return report(w.el, w.activated) }
 
 // Element returns the icon view's element, to size it.
 func (w *IconViewWidget) Element() ui.Element { return w.el }

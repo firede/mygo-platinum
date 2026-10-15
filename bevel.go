@@ -111,7 +111,7 @@ func (b *BevelWidget) Disabled(d bool) *BevelWidget {
 // frame. A toggle has turned over by then.
 func (b *BevelWidget) Clicked() bool {
 	if b.clicked {
-		return true
+		return report(b.el, true)
 	}
 	if b.disabled || b.menu != nil || !b.el.Clicked() {
 		return false
@@ -180,6 +180,7 @@ func (b *BevelWidget) trackMenu() {
 			st.t = nil
 			if it.Action != nil {
 				it.Action()
+				report(b.el, true)
 			}
 		} else if st.t.closed {
 			st.t = nil
@@ -192,6 +193,7 @@ func (b *BevelWidget) trackMenu() {
 }
 
 func (b *BevelWidget) draw(p *ui.Painter, r ui.Rect) {
+	resized(b.c, b.st.rect, r)
 	b.st.rect = r
 	pn := NewPen(p, r).Faded(b.disabled)
 	s := StateNormal

@@ -447,6 +447,7 @@ func Sheet(c *ui.Context, st *SheetState, rows, cols int) *SheetWidget {
 	top, left := int(st.top), int(st.left)
 	bg := inactive(c)
 	w.el.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r)
 		DrawContentRing(pn)
@@ -470,11 +471,12 @@ func Sheet(c *ui.Context, st *SheetState, rows, cols int) *SheetWidget {
 		})
 	})
 	w.el.Value(st.Cursor.String() + " " + st.Value(st.Cursor))
+	report(w.el, w.changed)
 	return w
 }
 
 // Changed reports whether the user changed a cell since the last frame.
-func (w *SheetWidget) Changed() bool { return w.changed }
+func (w *SheetWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the sheet's element, to size it.
 func (w *SheetWidget) Element() ui.Element { return w.el }

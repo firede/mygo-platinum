@@ -170,6 +170,7 @@ func PopupMenu(c *ui.Context, selected *int, label string, items []string) *Popu
 			DrawFocusRing(btn, 3, th.Accent.Dark)
 		}
 	})
+	report(w.el, w.changed)
 	return w
 }
 
@@ -181,7 +182,7 @@ func (w *PopupWidget) Disabled(d bool) *PopupWidget {
 }
 
 // Changed reports whether the user chose another item since the last frame.
-func (w *PopupWidget) Changed() bool { return w.changed }
+func (w *PopupWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the pop-up menu's element.
 func (w *PopupWidget) Element() ui.Element { return w.el }

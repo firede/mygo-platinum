@@ -75,6 +75,7 @@ func fileModal(c *ui.Context, open *bool, label string, fn func()) {
 	ui.Overlay(c, func() {
 		activeWithin(c, func() {
 			back := ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Modal()
+			shown(c, back)
 			if back.OverlayShortcut(0, ui.KeyEscape) {
 				*open = false
 			}

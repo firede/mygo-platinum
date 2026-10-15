@@ -34,6 +34,7 @@ func MenuBar(c *ui.Context, menus []Menu) ui.Element {
 		run := st.run
 		st.run = nil
 		run()
+		report(bar, true)
 	}
 
 	barW, _ := c.Size()
@@ -199,6 +200,7 @@ func MenuBar(c *ui.Context, menus []Menu) ui.Element {
 		flash = st.flash
 	}
 	bar.Draw(func(p *ui.Painter, r ui.Rect) {
+		resized(c, st.rect, r)
 		st.rect = r
 		pn := NewPen(p, r)
 		hl := open

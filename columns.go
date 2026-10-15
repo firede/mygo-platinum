@@ -79,6 +79,7 @@ func ColumnView(c *ui.Context, roots []*TreeNode, path *[]*TreeNode) *ColumnView
 	w.el.Children(func() {
 		cols := ui.Row(c).Grow(1).AlignItems(ui.Stretch).Clip()
 		cols.Draw(func(p *ui.Painter, r ui.Rect) {
+			resized(c, ui.Rect{W: st.width, H: st.height}, r)
 			st.height, st.width = r.H, r.W
 			pn := NewPen(p, r)
 			pn.Rect(0, 0, pn.W, pn.H, White)
@@ -149,6 +150,7 @@ func ColumnView(c *ui.Context, roots []*TreeNode, path *[]*TreeNode) *ColumnView
 			}
 		})
 	})
+	report(w.el, w.changed || w.activated != nil)
 	return w
 }
 
@@ -164,7 +166,7 @@ func (w *ColumnViewWidget) ScrollBarRoom(px int) *ColumnViewWidget {
 
 // Changed reports whether the user chose another item since the last
 // frame.
-func (w *ColumnViewWidget) Changed() bool { return w.changed }
+func (w *ColumnViewWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the column view's element, to size it.
 func (w *ColumnViewWidget) Element() ui.Element { return w.el }
@@ -174,4 +176,7 @@ func (w *ColumnViewWidget) Label(s string) *ColumnViewWidget { w.el.Label(s); re
 
 // Activated returns the item the user double-clicked, or chose and pressed
 // Return on, since the last frame, or nil.
-func (w *ColumnViewWidget) Activated() *TreeNode { return w.activated }
+func (w *ColumnViewWidget) Activated() *TreeNode {
+	report(w.el, w.activated != nil)
+	return w.activated
+}

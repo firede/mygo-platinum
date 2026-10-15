@@ -38,6 +38,7 @@ func Alert(c *ui.Context, open *bool, kind AlertKind, message, detail string, bu
 	ui.Overlay(c, func() {
 		activeWithin(c, func() {
 			back := ui.Column(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Center().Modal()
+			shown(c, back)
 			back.Children(func() {
 				box := ui.Column(c).Width(AlertWidth).Padding(alertPadding + 2).Gap(alertGap).
 					Role(ui.RoleAlertDialog).Label(message)
@@ -176,6 +177,7 @@ func Dialog(c *ui.Context, open *bool, title string, width int, fn func()) {
 	ui.Overlay(c, func() {
 		activeWithin(c, func() {
 			back := ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Modal()
+			shown(c, back)
 			st := ui.Local(back, "dialog", func() dialogState { return dialogState{} })
 			if back.OverlayShortcut(0, ui.KeyEscape) {
 				*open = false

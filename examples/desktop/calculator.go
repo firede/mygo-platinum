@@ -15,6 +15,7 @@ type calculator struct {
 	shown    string  // what the display shows
 	fresh    bool    // the display shows a result; typing starts anew
 	flashKey string  // the key the keyboard pressed, shown pressed briefly
+	front    bool    // the window was in front, as last built
 }
 
 func newCalculatorWindow() *win {
@@ -177,9 +178,12 @@ func calculatorView(c *ui.Context, w *win) {
 	}
 	body := ui.Column(c).Fill().Padding(10).Gap(8).AlignItems(ui.Stretch).
 		Focusable().FocusRing(false).HandleInput(input)
-	if w.active && !body.FocusWithin() {
+	// Brought to the front, it takes the keys typed; Tab still takes the
+	// focus away from it, as to the desktop's icons.
+	if w.active && !k.front && !body.FocusWithin() {
 		body.Focus()
 	}
+	k.front = w.active
 	body.Children(func() {
 		// The display: a sunken panel with the number at its right.
 		m := w.desk.say()

@@ -168,6 +168,9 @@ func (d *desk) cabinetView(c *ui.Context, w *win) {
 			// alone.
 			focused := body.Focused() && cb.active
 			body.Draw(func(p *ui.Painter, r ui.Rect) {
+				if r.W != cb.rect.W || r.H != cb.rect.H {
+					c.Invalidate() // the scroll bar goes by the size
+				}
 				cb.rect = r
 				pn := pt.NewPen(p, r)
 				pn.Rect(0, 0, pn.W, pn.H, pt.White)

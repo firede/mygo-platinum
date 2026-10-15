@@ -157,6 +157,7 @@ test::TestContextMenu
 test::TestDatePickerAndCombo
 test::TestDialogMovable
 test::TestDocumentTabs
+test::TestEastAsianCaret
 test::TestEastAsianMeasure
 test::TestEastAsianPixels
 test::TestExampleCoverage

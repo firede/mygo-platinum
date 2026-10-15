@@ -203,6 +203,21 @@ func eastAsianGlyph(r rune, bold bool) (glyph, bool) {
 	return gl, true
 }
 
+// lineInk returns how far the glyphs of f reach over and under the
+// baseline: its face's ascent and descent, and as far as the East Asian
+// faces SetEastAsian gave reach, where further — an ideograph stands two
+// pixels over a capital.
+func (f Font) lineInk() (up, down int) {
+	fc := f.face()
+	up, down = fc.Ascent, fc.Height-fc.Ascent
+	for _, r := range "永中あ한" {
+		if g, ok := eastAsianGlyph(r, f == SystemFont); ok {
+			up, down = max(up, g.up), max(down, g.rows-g.up)
+		}
+	}
+	return up, down
+}
+
 // Fallback returns the character drawn for one the face lacks: the
 // replacement character, or a question mark.
 func (f *face) Fallback() rune {

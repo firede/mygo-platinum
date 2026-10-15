@@ -360,9 +360,19 @@ func (e *editor) lineScale(n int) int {
 }
 
 // lineHeight returns the height of line n, where a line of text at scale 1
-// is lineH tall: a line of larger text is taller by what its text is.
+// is lineH tall: a line of larger text is taller by what its glyphs reach,
+// East Asian ones included.
 func (e *editor) lineHeight(n, lineH int) int {
-	return lineH + (e.lineScale(n)-1)*e.font.Height()
+	up, down := e.font.lineInk()
+	return lineH + (e.lineScale(n)-1)*(up+down)
+}
+
+// lineTextTop returns how far below the top of line n the cells of its
+// glyphs, at its scale, start: their ink centered in the line.
+func (e *editor) lineTextTop(n, lineH int) int {
+	k := e.lineScale(n)
+	up, down := e.font.lineInk()
+	return (e.lineHeight(n, lineH)-k*(up+down))/2 + k*(up-e.font.Ascent())
 }
 
 // linesHeight returns the height of the lines from a to b.
@@ -436,14 +446,29 @@ func (e *editor) xOf(i int) int {
 	return e.lineX(n) + e.measure(l.start, i)
 }
 
-// caretRect is shared by painting and the input method's candidate anchor.
+// textTop returns how far below the top of a line lineH tall the cells of
+// glyphs of f start: their ink, an East Asian face's included, centered.
+func textTop(f Font, lineH int) int {
+	up, down := f.lineInk()
+	return (lineH-up-down)/2 + up - f.Ascent()
+}
+
+// caretRect is shared by painting and the input method's candidate anchor:
+// the line's height but a pixel at either end, reaching as far as its
+// glyphs do.
 func (e *editor) caretRect(x0, y0, lineH, top, scrollX int) ui.Rect {
 	n := e.lineOf(e.caret)
+	y := y0 + e.linesHeight(top, n, lineH)
+	k := e.lineScale(n)
+	base := y + e.lineTextTop(n, lineH) + e.font.Ascent()*k
+	up, down := e.font.lineInk()
+	from := min(y+1, base-up*k)
+	to := max(y+e.lineHeight(n, lineH)-1, base+down*k)
 	return ui.Rect{
 		X: float32(x0 - scrollX + e.xOf(e.caret) - 1),
-		Y: float32(y0 + e.linesHeight(top, n, lineH) + 1),
+		Y: float32(from),
 		W: 1,
-		H: float32(e.lineHeight(n, lineH) - 2),
+		H: float32(to - from),
 	}
 }
 
@@ -679,7 +704,6 @@ const caretBlink = 530 * time.Millisecond
 func (e *editor) drawLines(pn Pen, x0, y0, lineH0, top, scrollX int, ink, selBG ui.Color, caret bool) {
 	e.layout()
 	a, b := e.selection()
-	ty := (lineH0 - e.font.Height()) / 2
 	y := y0
 	for n := top; n < len(e.lines); n++ {
 		if y >= pn.H {
@@ -702,6 +726,7 @@ func (e *editor) drawLines(pn Pen, x0, y0, lineH0, top, scrollX int, ink, selBG 
 		}
 		x := x0 - scrollX + lx
 		seg := string(e.text[l.start:l.end])
+		ty := e.lineTextTop(n, lineH0)
 		if e.rich {
 			e.drawRuns(pn, x, y+ty, l, e.lineScale(n), ink)
 			continue

@@ -97,3 +97,43 @@ func TestSnapshotEastAsian(t *testing.T) {
 	SetEastAsian(ja.Regular, ja.Bold)
 	snap(t, "eastasian-ja", 200, 90, view)
 }
+
+// TestEastAsianCaret checks a line of text with East Asian characters, at
+// each scale: its glyphs inside the line, and the caret reaching as far up and down as
+// they do and as the Latin glyphs do, as it does without them.
+func TestEastAsianCaret(t *testing.T) {
+	check := func(text string, k int) {
+		t.Helper()
+		e := &editor{font: AppFont, multi: true, rich: true, text: []rune(text)}
+		for range e.text {
+			e.styles = append(e.styles, TextStyle(0).Scaled(k))
+		}
+		e.caret = len(e.text)
+		e.layout()
+		c := e.caretRect(0, 0, TextLineHeight, 0, 0)
+		lineH := e.lineHeight(0, TextLineHeight)
+		base := e.lineTextTop(0, TextLineHeight) + AppFont.Ascent()*k
+		fc := AppFont.face()
+		up, down := fc.Ascent, fc.Height-fc.Ascent
+		for _, r := range text {
+			if g, ok := AppFont.glyph(r, false); ok && g.eastAsian {
+				up, down = max(up, g.up), max(down, g.rows-g.up)
+			}
+		}
+		up, down = up*k, down*k
+		if base-up < 0 || base+down > lineH {
+			t.Errorf("%q at %d×: the glyphs reach %d to %d, out of the line 0 to %d", text, k, base-up, base+down, lineH)
+		}
+		if int(c.Y) > base-up || int(c.Y+c.H) < base+down {
+			t.Errorf("%q at %d×: the caret runs %v to %v, the glyphs %d to %d", text, k, c.Y, c.Y+c.H, base-up, base+down)
+		}
+	}
+	for k := 1; k <= MaxScale; k++ {
+		check("Hg", k)
+	}
+	useEastAsian(t)
+	for k := 1; k <= MaxScale; k++ {
+		check("搅匀，用黄油煎。", k)
+		check("Hg", k)
+	}
+}

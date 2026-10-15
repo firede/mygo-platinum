@@ -194,7 +194,7 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 		}
 		pn.Clip(2, 2, width-4, pn.H-4, func() {
 			if len(ed.text) == 0 && placeholder != "" && ed.compose == "" {
-				pn.Text(w.textLeft(), w.lineTop(pn.H)+(TextLineHeight-AppFont.Height())/2, placeholder, AppFont, Gray7)
+				pn.Text(w.textLeft(), w.lineTop(pn.H)+textTop(AppFont, TextLineHeight), placeholder, AppFont, Gray7)
 			}
 			top := 0
 			if w.multi {
@@ -260,7 +260,7 @@ func (w *TextFieldWidget) lineTop(h int) int {
 	if w.multi {
 		return textInset
 	}
-	return (h-AppFont.CapHeight())/2 - (TextLineHeight-AppFont.Height())/2 - (AppFont.Ascent() - AppFont.CapHeight())
+	return (h-AppFont.CapHeight())/2 - textTop(AppFont, TextLineHeight) - (AppFont.Ascent() - AppFont.CapHeight())
 }
 
 // linesInView returns how many lines from line top a text area shows

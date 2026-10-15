@@ -61,6 +61,11 @@
   "palette": "Palette",
   "paperLabel": "Paper:",
   "path": "Path",
+  "points": "{size} Point",
+  "@points": {
+    "description": "An item of the Size menu: a size of text, in points.",
+    "placeholders": { "size": { "type": "int", "example": "22" } }
+  },
   "portrait": "Portrait",
   "previousPage": "Previous page",
   "red": "Red",

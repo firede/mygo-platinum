@@ -42,6 +42,12 @@ func sayWith(c *ui.Context, key string, args map[string]any) string {
 // what is made without a window, as menus.
 func sayApp(key string) string { return catalog().Format(i18n.Locale(), key, nil) }
 
+// sayAppWith returns the message of key with args in the language the app
+// shows.
+func sayAppWith(key string, args map[string]any) string {
+	return catalog().Format(i18n.Locale(), key, args)
+}
+
 // formats returns the regional formats the controls of c write dates and
 // times in — the first day of the week and the hour cycle — and the
 // locale that puts them together with the window's language, as MyGo's

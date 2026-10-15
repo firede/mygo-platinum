@@ -203,3 +203,17 @@ func TestSnapshotRegions(t *testing.T) {
 		compareGolden(t, tc.golden, tt.Image())
 	}
 }
+
+// TestSizeMenuLanguages checks the items of the Size menu, which says the
+// sizes in points in the language the app shows.
+func TestSizeMenuLanguages(t *testing.T) {
+	t.Cleanup(func() { i18n.SetLocaleFunc(nil) })
+	for _, tc := range []struct{ tag, want string }{
+		{"en", "22 Point"}, {"zh-Hans", "22 磅"}, {"zh-Hant", "22 點"}, {"ja", "22 ポイント"}, {"ko", "22포인트"},
+	} {
+		i18n.SetLocaleFunc(func() string { return tc.tag })
+		if got := SizeMenu(&RichText{}).Items[1].Title; got != tc.want {
+			t.Errorf("%s: %q, want %q", tc.tag, got, tc.want)
+		}
+	}
+}

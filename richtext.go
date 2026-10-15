@@ -1,10 +1,6 @@
 package platinum
 
-import (
-	"fmt"
-
-	"github.com/egoist/mygo/ui"
-)
+import "github.com/egoist/mygo/ui"
 
 // RichText is a document of styled text, kept by the app: its text, the
 // style of each of its runes, and the alignment of each of its paragraphs.
@@ -213,7 +209,7 @@ func SizeMenu(d *RichText) Menu {
 	size := d.Size()
 	for k := 1; k <= MaxScale; k++ {
 		m.Items = append(m.Items, MenuItem{
-			Title:   fmt.Sprintf("%d Point", 11*k),
+			Title:   sayAppWith("points", map[string]any{"size": 11 * k}),
 			Checked: size == k,
 			Action:  func() { d.SetSize(k) },
 		})

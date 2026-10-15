@@ -221,6 +221,7 @@ test::TestSegmentedKeys
 test::TestSheetEditing
 test::TestSheetTabLeaves
 test::TestShortcutText
+test::TestSizeMenuLanguages
 test::TestSnapshotAlertIcons
 test::TestSnapshotBevelAndSegmented
 test::TestSnapshotButton

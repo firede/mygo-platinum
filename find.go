@@ -89,14 +89,14 @@ type FindState struct {
 // Find and ReplaceAll, and the select methods of its text area.
 func FindReplace(c *ui.Context, open *bool, st *FindState) FindAction {
 	act := FindNone
-	Dialog(c, open, say(c, "findAndReplace"), 340, func() {
+	Dialog(c, open, say(c, "findAndReplace"), 380, func() {
 		for _, f := range []struct {
 			label string
 			v     *string
 		}{{say(c, "findLabel"), &st.Query}, {say(c, "replaceLabel"), &st.With}} {
 			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
 				ui.Box(c).Width(62).Children(func() { Label(c, f.label) })
-				tf := TextField(c, f.v).Width(240).Label(strings.TrimSuffix(f.label, ":"))
+				tf := TextField(c, f.v).Width(240).Label(strings.TrimRight(f.label, ":："))
 				if f.v == &st.Query {
 					tf.Element().AutoFocus()
 				}
@@ -116,6 +116,11 @@ func FindReplace(c *ui.Context, open *bool, st *FindState) FindAction {
 			st.announced = st.Note
 		}
 		ui.Row(c).Gap(10).Justify(ui.End).AlignItems(ui.Center).Children(func() {
+			// Cancel closes it, as Escape and Command-period do.
+			if Button(c, say(c, "cancel")).Cancel().Clicked() {
+				*open = false
+			}
+			ui.Box(c).Grow(1)
 			if Button(c, say(c, "replaceAll")).Disabled(st.Query == "").Clicked() {
 				act = ReplaceEvery
 			}

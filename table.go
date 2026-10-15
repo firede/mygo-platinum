@@ -28,8 +28,9 @@ type Column struct {
 	Fixed bool
 	// Less, if set, orders rows a and b of the model by the column, for
 	// cells whose text does not sort as their values do (as "2 K" and
-	// "300 bytes"); otherwise cells sort as numbers where both are, and as
-	// text otherwise.
+	// "300 bytes"), or text to order as a language does (a collator of
+	// golang.org/x/text/collate); otherwise cells sort as numbers where
+	// both are, and as text otherwise, by code point.
 	Less func(a, b int) bool
 	// Icon, if set, gives a small picture (at most 16×16, as rows for
 	// DrawIcon) for row r of the model, drawn at the left of its cell.

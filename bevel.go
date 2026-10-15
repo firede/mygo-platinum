@@ -167,12 +167,17 @@ func (b *BevelWidget) resize() {
 func (b *BevelWidget) trackMenu() {
 	st := b.st
 	cw, ch := b.c.Size()
-	if b.el.Clicked() || b.el.Shortcut(0, ui.KeyDown) {
+	down := b.el.Shortcut(0, ui.KeyDown)
+	if b.el.Clicked() || down {
 		if st.t == nil && !b.disabled {
 			g := layoutMenu(b.menu, round(st.rect.X), round(st.rect.Y+st.rect.H)-1, round(st.rect.W))
 			st.t = newTracker(b.menu, fitMenu(g, round(cw), round(ch)))
-			st.t.keyboard = true
-			st.t.key(frameNow(b.c), ui.KeyDown)
+			// From the keyboard, the first item is highlighted for the
+			// arrows to go on from; a click leaves none, for the pointer.
+			if down || b.el.FocusVisible() {
+				st.t.keyboard = true
+				st.t.key(frameNow(b.c), ui.KeyDown)
+			}
 		}
 	}
 	if st.t != nil {

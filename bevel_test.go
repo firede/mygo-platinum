@@ -115,3 +115,39 @@ func TestSegmentedKeys(t *testing.T) {
 		t.Fatalf("Left chose %d", sel)
 	}
 }
+
+// TestBevelMenuHighlight checks the first item of a bevel button's menu:
+// none highlighted when a click opens it, for the pointer to choose, and
+// the first when the keyboard does, for the arrows to go on from.
+func TestBevelMenuHighlight(t *testing.T) {
+	freeze(t)
+	view := func(c *ui.Context) {
+		Use(c, nil)
+		ui.Row(c).Padding(10).Children(func() {
+			BevelButton(c, "Style").Menu([]MenuItem{{Title: "Plain"}, {Title: "Italic"}})
+		})
+	}
+	highlighted := func(tt *ui.Tester) bool {
+		r, ok := tt.Find("Plain")
+		if !ok {
+			t.Fatal("the menu did not open")
+		}
+		c := tt.Image().RGBAAt(int(r.X)+2, int(r.Y+r.H/2))
+		return ui.RGB(c.R, c.G, c.B) == Lavender.Dark
+	}
+	tt := ui.NewTester(view, 200, 120)
+	if err := tt.Click("Style"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if highlighted(tt) {
+		t.Error("a click opened the menu with its first item highlighted")
+	}
+	tt = ui.NewTester(view, 200, 120)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyDown)
+	tt.Frame()
+	if !highlighted(tt) {
+		t.Error("Down opened the menu with no item highlighted")
+	}
+}

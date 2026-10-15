@@ -137,3 +137,34 @@ func TestEastAsianCaret(t *testing.T) {
 		check("Hg", k)
 	}
 }
+
+// TestEastAsianWrap checks how lines of East Asian text wrap: between any
+// two ideographs or kana, but never with a closing mark first on a line
+// or an opening one last; Latin words still wrap at their spaces.
+func TestEastAsianWrap(t *testing.T) {
+	useEastAsian(t)
+	lines := func(text string, width int) []string {
+		e := &editor{font: AppFont, multi: true, wrap: width, text: []rune(text)}
+		e.layout()
+		var out []string
+		for _, l := range e.lines {
+			out = append(out, string(e.text[l.start:l.end]))
+		}
+		return out
+	}
+	// Seven ideographs fit a line 84 wide: the period would start the
+	// next, so the ideograph before it goes there with it.
+	if got := lines("一二三四五六七。", 84); len(got) != 2 || got[1] != "七。" {
+		t.Errorf("一二三四五六七。 wrapped as %q, want the period kept with 七", got)
+	}
+	if got := lines("「一二三四五六」", 84); len(got) != 2 || got[0] != "「一二三四五" {
+		t.Errorf("「一二三四五六」 wrapped as %q", got)
+	}
+	// After a space, the ideographs fill the line rather than break there.
+	if got := lines("Shift 一二三四五六七八", 84); got[0] == "Shift " {
+		t.Errorf("Shift 一二三… wrapped at the space: %q", got)
+	}
+	if got := lines("the quick brown fox", 60); got[0] != "the quick " {
+		t.Errorf("Latin text wrapped as %q", got)
+	}
+}

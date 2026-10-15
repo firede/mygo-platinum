@@ -533,9 +533,10 @@ The look has no hover state: nothing changes as the pointer passes over.
   the next control, so that the keyboard is never trapped in it.
 - Formula bar: a band of Gray2 with an etched line under it; the cursor's
   name on a placard **44** wide, and its text in a text field.
-- Find and replace: a movable modal dialog with Find and Replace fields
-  under labels **62** wide, Match case and Whole word, a Gray9 note, and
-  Replace All, Replace and Find (default) buttons.
+- Find and replace: a movable modal dialog **380** wide with Find and
+  Replace fields under labels **62** wide, Match case and Whole word, a
+  Gray9 note, and a Cancel button at the left of Replace All, Replace and
+  Find (default).
 - Ruler: **22** tall on Gray2 with a Black line at its bottom; a scale band
   **12** tall, White between the margins and Gray1 outside, ruled Gray7 above
   and below. The scale is in inches at 72 dpi and starts at the left margin:

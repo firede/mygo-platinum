@@ -149,6 +149,7 @@ test::TestAccentedLetters
 test::TestAlertButtons
 test::TestBackgroundWindowFirstClick
 test::TestBackgroundWindowTakesDrops
+test::TestBevelMenuHighlight
 test::TestBevelToggleAndMenu
 test::TestCalendarKeysAndClicks
 test::TestCatalogs
@@ -162,6 +163,7 @@ test::TestDocumentTabs
 test::TestEastAsianCaret
 test::TestEastAsianMeasure
 test::TestEastAsianPixels
+test::TestEastAsianWrap
 test::TestExampleCoverage
 test::TestFallbackCharacters
 test::TestFileDialogsFocus
@@ -207,6 +209,7 @@ test::TestPixelExactRendering
 test::TestPopupMenu
 test::TestPopupWindow
 test::TestProgressDialogAndBanner
+test::TestRadioGroupArrows
 test::TestRichText
 test::TestRichTextComposition
 test::TestRichTextComposition/plain

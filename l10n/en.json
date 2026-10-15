@@ -34,6 +34,11 @@
   "formula": "Formula",
   "green": "Green",
   "italic": "Italic",
+  "labelled": "{name}:",
+  "@labelled": {
+    "description": "A label before a control, as the color picker's sliders' names.",
+    "placeholders": { "name": { "type": "String", "example": "Red" } }
+  },
   "landscape": "Landscape",
   "margins": "Margins",
   "marginsLabel": "Margins:",

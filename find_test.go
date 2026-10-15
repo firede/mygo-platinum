@@ -51,4 +51,12 @@ func TestFindReplace(t *testing.T) {
 	if got := tt.Announcements(); len(got) != 3 || got[0] != "1 found" || got[2] != "1 found" {
 		t.Fatalf("announced %q", got)
 	}
+	// Cancel closes it, for those who would not press Escape.
+	if err := tt.Click("Cancel"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if open {
+		t.Fatal("Cancel left the dialog open")
+	}
 }

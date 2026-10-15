@@ -192,7 +192,7 @@ func Radio[T comparable](c *ui.Context, selected *T, value T, label string) *Rad
 // RadioGroup lays out the radio buttons fn builds in a column, as one stop
 // of Tab whose buttons the arrow keys move between and choose.
 func RadioGroup(c *ui.Context, fn func()) ui.Element {
-	return ui.Column(c).Gap(2).FocusGroup(ui.Vertical).Role(ui.RoleRadioGroup).Children(fn)
+	return ui.RadioGroup(c, fn).Gap(2)
 }
 
 // Disabled dims the radio button and makes it take no input while d is true.

@@ -261,19 +261,19 @@ func (e *editor) wrapParagraph(start, end, para int) {
 	face := e.font.face()
 	first := true
 	for {
-		w, lastSpace, i := 0, -1, start
+		w, last, i := 0, -1, start
 		wrap := e.wrap
 		if first {
 			wrap -= e.indent
 		}
 		first = false
 		for ; i < end; i++ {
+			if i > start && breakable(e.text, i) {
+				last = i
+			}
 			a := e.adv(i)
 			if w+a-face.Tracking > wrap && i > start {
 				break
-			}
-			if e.text[i] == ' ' {
-				lastSpace = i
 			}
 			w += a
 		}
@@ -281,13 +281,48 @@ func (e *editor) wrapParagraph(start, end, para int) {
 			e.lines = append(e.lines, lineSpan{start, end, para})
 			return
 		}
-		brk := i
-		if lastSpace >= start {
-			brk = lastSpace + 1 // the space stays at the end of the line
+		brk := last
+		if brk <= start {
+			// No room to break: within a word, though not before what may
+			// not start a line.
+			brk = i
+			for brk > start+1 && strings.ContainsRune(noLineStart, e.text[brk]) {
+				brk--
+			}
 		}
 		e.lines = append(e.lines, lineSpan{start, brk, para})
 		start = brk
 	}
+}
+
+// Punctuation that may not start a line, and that may not end one, as
+// East Asian text sets it (kinsoku): a line does not break before a
+// period, a comma or a closing bracket, nor after an opening one.
+const (
+	noLineStart = "、。，．：；？！）」』】〕〉》〗〙〛｝］”’ー々ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ…‥・,.:;?!)]}"
+	noLineEnd   = "（「『【〔〈《〖〘〚｛［“‘([{"
+)
+
+// breakable reports whether a line may break before text[k]: after a
+// space, or between characters of scripts written without spaces —
+// ideographs, kana and their punctuation — unless the punctuation keeps
+// them together.
+func breakable(text []rune, k int) bool {
+	if k <= 0 || k >= len(text) {
+		return false
+	}
+	a, b := text[k-1], text[k]
+	if strings.ContainsRune(noLineStart, b) || strings.ContainsRune(noLineEnd, a) {
+		return false
+	}
+	return a == ' ' || unspaced(a) || unspaced(b)
+}
+
+// unspaced reports whether r is of a script written without spaces
+// between words, where a line may break between any two characters.
+func unspaced(r rune) bool {
+	return unicode.In(r, unicode.Han, unicode.Hiragana, unicode.Katakana) ||
+		r >= 0x3000 && r <= 0x303F || r >= 0xFF00 && r <= 0xFF60
 }
 
 // paraOf returns the paragraph holding rune offset i.

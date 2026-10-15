@@ -117,7 +117,7 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 				v    *float64
 			}{{say(c, "red"), &st.r}, {say(c, "green"), &st.g}, {say(c, "blue"), &st.b}} {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-					ui.Box(c).Width(42).Children(func() { Label(c, ch.name+":") })
+					ui.Box(c).Width(42).Children(func() { Label(c, sayWith(c, "labelled", map[string]any{"name": ch.name})) })
 					Slider(c, ch.v, 0, 255).Width(160).Step(1).Label(ch.name)
 					TextIn(c, fmt.Sprint(int(*ch.v)), AppFont, Black)
 				})

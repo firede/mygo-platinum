@@ -360,7 +360,7 @@
   "soundWhistle": "Whistle",
   "languageLabel": "The desk speaks:",
   "languageSystem": "The system’s language",
-  "languageNote": "Words, dates and the forms of East Asian characters follow the language chosen.",
+  "languageNote": "Words, dates and the forms of East Asian characters follow the language chosen. The documents on the disk stay in the language the desk started in.",
   "error": "Error",
   "display": "Display"
 }

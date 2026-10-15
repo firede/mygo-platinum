@@ -191,7 +191,7 @@
   "soundWhistle": "口笛",
   "languageLabel": "デスクの言語：",
   "languageSystem": "システムの言語",
-  "languageNote": "言葉や日付、東アジアの文字の字形は選んだ言語に従います。",
+  "languageNote": "言葉や日付、東アジアの文字の字形は選んだ言語に従います。ディスクの書類はデスクを起動したときの言語のままです。",
   "error": "エラー",
   "display": "表示"
 }

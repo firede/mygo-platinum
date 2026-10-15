@@ -191,7 +191,7 @@
   "soundWhistle": "口哨",
   "languageLabel": "桌面使用的語言：",
   "languageSystem": "系統語言",
-  "languageNote": "文字、日期和東亞文字的字形會跟隨所選的語言。",
+  "languageNote": "文字、日期和東亞文字的字形會跟隨所選的語言。磁碟上的文件保持桌面啟動時的語言。",
   "error": "錯誤",
   "display": "顯示"
 }

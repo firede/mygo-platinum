@@ -1946,11 +1946,11 @@ func (msgs Messages) LanguageSystem() string {
 	return Catalog.Format(msgs.locale, "languageSystem", nil)
 }
 
-// LanguageNote says "Words, dates and the forms of East Asian characters follow the language chosen."
+// LanguageNote says "Words, dates and the forms of East Asian characters follow the language chosen. The documents on the disk stay in the…"
 // in the language the app shows.
 func LanguageNote() string { return In(i18n.Locale()).LanguageNote() }
 
-// LanguageNote says "Words, dates and the forms of East Asian characters follow the language chosen."
+// LanguageNote says "Words, dates and the forms of East Asian characters follow the language chosen. The documents on the disk stay in the…"
 // in the language of msgs.
 func (msgs Messages) LanguageNote() string {
 	return Catalog.Format(msgs.locale, "languageNote", nil)

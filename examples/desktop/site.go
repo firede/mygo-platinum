@@ -13,7 +13,7 @@ import (
 // languages, for screens too small to run it; and, drawn once at a scale
 // of 1 for the page to scale without smoothing, the pattern of its
 // desktop, the icons of its menu bar and the frames of a window, buttons,
-// a text field and a progress bar, which the page's style sheet stretches around its
+// a pop-up menu, a text field and a progress bar, which the page's style sheet stretches around its
 // own content (border-image).
 func sitePictures() map[string]*image.RGBA {
 	pics := map[string]*image.RGBA{}
@@ -53,6 +53,8 @@ func sitePictures() map[string]*image.RGBA {
 		pt.DrawDefaultRing(pn, 0, 0, pn.W, pn.H, pt.StateNormal)
 		pt.DrawButton(pn.Sub(ring, ring, 24, 20), "", pt.StatePressed)
 	})
+	pics["popup.png"] = drawn(40, pt.PopupHeight, 1, func(pn pt.Pen) { pt.DrawPopupButton(pn, "", pt.StateNormal) })
+	pics["popup-pressed.png"] = drawn(40, pt.PopupHeight, 1, func(pn pt.Pen) { pt.DrawPopupButton(pn, "", pt.StatePressed) })
 	pics["field.png"] = drawn(12, 12, 1, func(pn pt.Pen) { pt.DrawTextFrame(pn, false) })
 	pics["button-default-disabled.png"] = drawn(24+2*ring, 20+2*ring, 1, func(pn pt.Pen) {
 		pt.DrawDefaultRing(pn, 0, 0, pn.W, pn.H, pt.StateDisabled)

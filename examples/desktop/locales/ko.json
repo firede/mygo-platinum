@@ -191,7 +191,7 @@
   "soundWhistle": "휘파람",
   "languageLabel": "데스크의 언어:",
   "languageSystem": "시스템 언어",
-  "languageNote": "단어, 날짜, 동아시아 문자의 글자 모양은 선택한 언어를 따릅니다.",
+  "languageNote": "단어, 날짜, 동아시아 문자의 글자 모양은 선택한 언어를 따릅니다. 디스크의 도큐멘트는 데스크를 시작할 때의 언어로 남습니다.",
   "error": "오류",
   "display": "표시"
 }

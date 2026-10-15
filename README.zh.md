@@ -18,9 +18,9 @@
 [第 5 页](docs/gallery-5@2x.png)（文档与导航）。
 
 > **仅为风格上的致敬。** 本项目与 Apple Inc. 没有任何关联，也未获其认可或
-> 支持。项目没有使用 Apple 的任何字体、图标、图片或商标：两套点阵字体、所有
-> 图标和图片都是为本项目原创绘制的，设计规范（[docs/spec.md](docs/spec.md)）
-> 也是从零写成的。
+> 支持。项目没有使用 Apple 的任何字体、图标、图片或商标：西文点阵字体、所有
+> 图标和图片都是为本项目原创绘制的，东亚文字字形来自开源的缝合像素字体，设计
+> 规范（[docs/spec.md](docs/spec.md)）也是从零写成的。
 
 > [!WARNING]
 > **这是一个早期的个人项目。** 它为作者自用而写，按原样分享，不承诺提供支持。
@@ -170,15 +170,27 @@ go run ./examples/desktop                    # 经典桌面
 
 - 像素即 DIP：控件在任意整数倍缩放的显示器上都很清晰，在 2 倍屏上以 2×2 的
   像素块绘制。
-- 文字使用本库自带的点阵字体绘制，覆盖 ASCII、常用标点、Latin-1 的全部字母
-  （带重音的字母，以及 Æ、Ð、Ø、Þ、Œ、ß）和最常用的中欧字母（Ł、Ś、Č、Ő、Ą…）。
-  **中文**、希腊文和其他带重音的字母不在点阵字体中，会用系统字体在同一基线上
-  绘制，因此任何文字都可以输入和显示，只是不是点阵风格。
+- 文字使用 [platinum-fonts](https://github.com/firede/platinum-fonts) 的点阵
+  字体绘制：Platinum Sans Bold（`SystemFont`）与 Platinum Sans Small
+  （`AppFont`），覆盖 ASCII、常用标点、Latin-1 的全部字母（带重音的字母，以及
+  Æ、Ð、Ø、Þ、Œ、ß）和最常用的中欧字母（Ł、Ś、Č、Ő、Ą…）。
+- 东亚文字由应用选定后，使用 platinum-fonts 中 `cjk12` 的 12px 字体，按应用语言
+  的地区字形绘制：
+
+  ```go
+  import "github.com/firede/platinum-fonts/cjk12/zhhans"
+
+  pt.SetEastAsian(zhhans.Regular, zhhans.Bold)
+  ```
+
+  没有字体绘制的字符（调用之前的东亚文字、希腊文、其他带重音的字母）会用系统
+  字体在同一基线上绘制，因此任何文字都可以输入和显示。
 - 每个焦点位置都有供屏幕阅读器读出的名称；Tab 键可以在每个页面和窗口中循环，
   不会被困住；焦点之外的提示（例如横幅、搜索结果）也会被读出。这三点都有测试
   覆盖。
 
 ## 许可
 
-MIT，详见 [LICENSE](LICENSE)。`internal/pixfont` 中的点阵字体是本项目的一部分，
-采用相同的许可。
+MIT，详见 [LICENSE](LICENSE)。字体来自
+[platinum-fonts](https://github.com/firede/platinum-fonts)，其字形数据采用 SIL Open
+Font License 1.1。

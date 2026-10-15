@@ -20,9 +20,10 @@ tables, layout),
 
 > **A tribute in style only.** This project is not affiliated with, endorsed
 > by or connected to Apple Inc. It uses none of Apple's fonts, icons, images
-> or trademarks: its two bitmap faces, its icons and every picture in it were
-> drawn for it, and its design specification ([docs/spec.md](docs/spec.md))
-> is written from scratch.
+> or trademarks: its Latin bitmap faces, its icons and every picture in it
+> were drawn for it, its East Asian glyphs come from the open Fusion Pixel
+> Font, and its design specification ([docs/spec.md](docs/spec.md)) is
+> written from scratch.
 
 > [!WARNING]
 > **An early, personal project.** It was made for its author's own use and
@@ -171,16 +172,30 @@ Its last line is `PASSED x/y`.
 
 - Pixels are DIPs: the controls are crisp at any whole scale of the display,
   and drawn blocks of 2×2 pixels on a 2× display.
-- Text is drawn with the library's own bitmap faces, which cover ASCII,
-  common punctuation, every letter of Latin-1 (accented letters, Æ, Ð, Ø,
-  Þ, Œ, ß) and the Central European letters most used (Ł, Ś, Č, Ő, Ą…).
-  Other characters — Chinese, Greek, other accented letters — draw in the
-  system's font on the same baseline, so any text can be typed.
+- Text is drawn with the bitmap faces of
+  [platinum-fonts](https://github.com/firede/platinum-fonts): Platinum
+  Sans Bold (`SystemFont`) and Platinum Sans Small (`AppFont`), which cover
+  ASCII, common punctuation, every letter of Latin-1 (accented letters, Æ,
+  Ð, Ø, Þ, Œ, ß) and the Central European letters most used (Ł, Ś, Č, Ő,
+  Ą…).
+- East Asian text is drawn with a 12px face of platinum-fonts' `cjk12`,
+  in the forms of the app's language, once the app chooses one:
+
+  ```go
+  import "github.com/firede/platinum-fonts/cjk12/zhhans"
+
+  pt.SetEastAsian(zhhans.Regular, zhhans.Bold)
+  ```
+
+  Characters no face draws — East Asian ones before that call, Greek,
+  other accented letters — draw in the system's font on the same baseline,
+  so any text can be typed.
 - Every focus stop has a name for screen readers, Tab goes round every
   page and window without being trapped, and news the focus does not bring
   (a banner, what a search found) is read out; tests check all three.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). The bitmap faces in `internal/pixfont` are
-part of this work and under the same license.
+MIT — see [LICENSE](LICENSE). The faces come from
+[platinum-fonts](https://github.com/firede/platinum-fonts), whose glyph
+data is under the SIL Open Font License 1.1.

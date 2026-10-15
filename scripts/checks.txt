@@ -8,7 +8,6 @@ check:vet
 package:
 package:/examples/desktop
 package:/examples/gallery
-package:/internal/pixfont
 package:/internal/verify
 test:/examples/desktop:TestCalculatorCopyPaste
 test:/examples/desktop:TestCalculatorPhysicalOperators
@@ -146,6 +145,8 @@ test::TestContextMenu
 test::TestDatePickerAndCombo
 test::TestDialogMovable
 test::TestDocumentTabs
+test::TestEastAsianMeasure
+test::TestEastAsianPixels
 test::TestExampleCoverage
 test::TestFallbackCharacters
 test::TestFileDialogsFocus
@@ -208,6 +209,7 @@ test::TestSnapshotButton
 test::TestSnapshotCheckbox
 test::TestSnapshotCoverage
 test::TestSnapshotDisclosure
+test::TestSnapshotEastAsian
 test::TestSnapshotGroupAndTabs
 test::TestSnapshotInactiveWindow
 test::TestSnapshotKeyboardFocus

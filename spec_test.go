@@ -6,7 +6,6 @@ import (
 	"image/color"
 	"os"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 
@@ -277,9 +276,17 @@ func TestSpecFaces(t *testing.T) {
 		}
 		// Capitals are as tall as the cap height and sit on the baseline.
 		for _, r := range "EHT" {
-			rows := face.Rows(r)
-			if len(rows) != tc.cap || !strings.Contains(rows[0], "#") {
-				t.Errorf("%s face: %q is %d rows, the cap height is %d", face.Name, r, len(rows), tc.cap)
+			g, _ := face.src.Glyph(r)
+			top, bottom := g.Bounds.Max.Y, g.Bounds.Min.Y
+			for y := g.Bounds.Min.Y; y < g.Bounds.Max.Y; y++ {
+				for x := g.Bounds.Min.X; x < g.Bounds.Max.X; x++ {
+					if g.At(x, y) {
+						top, bottom = min(top, y), max(bottom, y+1)
+					}
+				}
+			}
+			if top != -tc.cap || bottom != 0 {
+				t.Errorf("%s face: %q inks rows %d to %d, the cap height is %d", face.Name, r, top, bottom, tc.cap)
 			}
 		}
 	}

@@ -5,12 +5,13 @@ import (
 	"sync"
 
 	"github.com/egoist/mygo/ui"
-	"github.com/firede/mygo-platinum/internal/pixfont"
 )
 
-// Font is one of the two bitmap faces of the library, both drawn for it:
-// SystemFont, bold, for menus, buttons, labels and titles, and AppFont,
-// regular, for documents, lists and the names of icons.
+// Font is one of the two bitmap faces of the library, from platinum-fonts:
+// SystemFont, Platinum Sans Bold, for menus, buttons, labels and titles,
+// and AppFont, Platinum Sans Small, for documents, lists and the names of
+// icons. East Asian characters are drawn with the faces SetEastAsian
+// gives, and other characters the faces lack in the system's font.
 type Font int
 
 // The two faces of the library.
@@ -19,12 +20,7 @@ const (
 	AppFont
 )
 
-func (f Font) face() *pixfont.Face {
-	if f == AppFont {
-		return pixfont.App
-	}
-	return pixfont.System
-}
+func (f Font) face() *face { return faces().regular[f] }
 
 // Height returns the height of the font's lines, without leading.
 func (f Font) Height() int { return f.face().Height }
@@ -48,18 +44,17 @@ func (f Font) Measure(s string) int {
 }
 
 // advance returns how far the pen moves after r: its glyph's advance, or
-// for a character the face lacks, as of a script it does not cover, the
-// advance of the system's font that draws it instead.
+// for a character no face draws, the advance of the system's font that
+// draws it instead.
 func (f Font) advance(r rune) int {
-	face := f.face()
-	if g, ok := face.Glyphs[r]; ok {
-		return g.Advance
+	if g, ok := f.glyph(r, false); ok {
+		return g.advance
 	}
 	return fallback(f, r).advance
 }
 
-// The characters the faces lack, drawn in the system's font: a CJK
-// character or an accented letter shows as itself rather than as a box.
+// The characters no face draws, drawn in the system's font: a character of
+// a script the faces do not cover shows as itself rather than as a box.
 type fallbackGlyph struct {
 	glyphs  []ui.Glyph
 	advance int
@@ -103,26 +98,22 @@ func fallback(f Font, r rune) fallbackGlyph {
 
 // drawGlyph draws r with its cell's top at x, y, and returns its advance.
 func (pn Pen) drawGlyph(x, y int, r rune, f Font, c ui.Color) int {
-	face := f.face()
-	g, ok := face.Glyphs[r]
+	g, ok := f.glyph(r, false)
 	if !ok {
 		fg := fallback(f, r)
-		if fg.glyphs == nil {
-			g = face.Glyph(r) // the box
-		} else {
-			pn.P.Glyphs(fg.glyphs, float32(pn.X+x), float32(pn.Y+y+face.Ascent), pn.unfade(c))
+		if fg.glyphs != nil {
+			pn.P.Glyphs(fg.glyphs, float32(pn.X+x), float32(pn.Y+y+f.Ascent()), pn.unfade(c))
 			return fg.advance
 		}
+		g, _ = f.glyph(f.face().Fallback(), false) // the box
 	}
 	if r != ' ' {
-		// The cell, with the rows over it a mark over a capital takes.
-		h := float32(face.Above + face.Height)
-		pn.P.ImageRegion(atlas(f),
-			ui.Rect{X: float32(g.X), Y: 0, W: float32(g.Width), H: h},
-			ui.Rect{X: float32(pn.X + x), Y: float32(pn.Y + y - face.Above), W: float32(g.Width), H: h},
+		pn.P.ImageRegion(g.bmp,
+			ui.Rect{X: float32(g.x), Y: 0, W: float32(g.w), H: float32(g.rows)},
+			ui.Rect{X: float32(pn.X + x + g.left), Y: float32(pn.Y + y + f.Ascent() - g.up), W: float32(g.w), H: float32(g.rows)},
 			ui.ImageOptions{Tint: pn.unfade(c)})
 	}
-	return g.Advance
+	return g.advance
 }
 
 // Truncate returns s cut with an ellipsis to fit in width pixels, or s as it
@@ -144,22 +135,10 @@ func (f Font) Truncate(s string, width int) string {
 	return s
 }
 
-// Has reports whether the font draws r itself; others draw in the
-// system's font, or as a box where it has none.
+// Has reports whether the font's own face draws r; East Asian characters
+// draw with the faces SetEastAsian gives, and others in the system's font,
+// or as a box where it has none.
 func (f Font) Has(r rune) bool { return f.face().Has(r) }
-
-var (
-	atlasOnce sync.Once
-	atlases   [2]*ui.Bitmap
-)
-
-func atlas(f Font) *ui.Bitmap {
-	atlasOnce.Do(func() {
-		atlases[SystemFont] = ui.NewBitmap(pixfont.System.Atlas).Pixelated()
-		atlases[AppFont] = ui.NewBitmap(pixfont.App.Atlas).Pixelated()
-	})
-	return atlases[f]
-}
 
 // Text draws s with its cell's top at x, y, in c, and returns the x after
 // it.
@@ -187,19 +166,20 @@ func (pn Pen) TextMiddle(x, y, h int, s string, f Font, c ui.Color) int {
 
 // TextScaled draws s as Text does, each pixel of its glyphs a k×k block,
 // for large type such as a clock's, and returns the x after it.
+// Characters no face draws show as the face's box.
 func (pn Pen) TextScaled(x, y int, s string, f Font, c ui.Color, k int) int {
-	face := f.face()
-	bmp := atlas(f)
-	h := float32(face.Above + face.Height)
 	for _, r := range s {
-		g := face.Glyph(r)
+		g, ok := f.glyph(r, false)
+		if !ok {
+			g, _ = f.glyph(f.face().Fallback(), false)
+		}
 		if r != ' ' {
-			pn.P.ImageRegion(bmp,
-				ui.Rect{X: float32(g.X), Y: 0, W: float32(g.Width), H: h},
-				ui.Rect{X: float32(pn.X + x), Y: float32(pn.Y + y - face.Above*k), W: float32(g.Width * k), H: h * float32(k)},
+			pn.P.ImageRegion(g.bmp,
+				ui.Rect{X: float32(g.x), Y: 0, W: float32(g.w), H: float32(g.rows)},
+				ui.Rect{X: float32(pn.X + x + g.left*k), Y: float32(pn.Y + y + (f.Ascent()-g.up)*k), W: float32(g.w * k), H: float32(g.rows * k)},
 				ui.ImageOptions{Tint: pn.unfade(c)})
 		}
-		x += g.Advance * k
+		x += g.advance * k
 	}
 	return x
 }
@@ -233,20 +213,22 @@ func TextIn(c *ui.Context, text string, f Font, ink ui.Color) ui.Element {
 	return el
 }
 
-// TextStyled draws s as Text does, in style: bold as classic bitmap text
-// was made bold, each glyph drawn again a pixel to its right and a pixel wider;
-// italic slanted to the right, each pair of rows a pixel right of the pair
-// below, with the slant's room added after the run; underlined with a line
-// a pixel under the baseline; and at the style's scale, each pixel of all
-// that k by k. It returns the x after it.
+// TextStyled draws s as Text does, in style: bold in the bold faces, each
+// glyph drawn again a pixel to its right and a pixel wider, as classic
+// bitmap text was made bold; italic slanted to the right, each pair of
+// rows a pixel right of the pair below, with the slant's room added after
+// the run, East Asian characters staying upright; underlined with a line a
+// pixel under the baseline; and at the style's scale, each pixel of all
+// that k by k. Characters no face draws are drawn upright in the system's
+// font. It returns the x after it.
 func (pn Pen) TextStyled(x, y int, s string, f Font, c ui.Color, style TextStyle) int {
 	face := f.face()
-	bmp := atlas(f)
 	bold, italic := style&Bold != 0, style&Italic != 0
 	k := style.Scale()
 	start := x
 	for _, r := range s {
-		if !face.Has(r) {
+		g, ok := f.glyph(r, bold)
+		if !ok {
 			// In the system's font, at its own size, on the baseline.
 			pn.drawGlyph(x, y+(k-1)*face.Ascent, r, f, c)
 			if bold {
@@ -255,29 +237,32 @@ func (pn Pen) TextStyled(x, y int, s string, f Font, c ui.Color, style TextStyle
 			x += (f.advance(r) + boolInt(bold)) * k
 			continue
 		}
-		g := face.Glyph(r)
+		// East Asian scripts have no italic: their glyphs stay upright.
+		slant := italic && !g.eastAsian
 		if r != ' ' {
-			// The rows drawn at a time: all, the rows over the cell a mark
-			// takes with them, or pairs, slanted.
-			first, step := -face.Above, face.Above+face.Height
-			if italic {
-				first, step = -(face.Above+1)/2*2, 2
+			// The rows drawn at a time, from the top of the cell: all of
+			// the glyph's, or pairs, slanted.
+			top, end := face.Ascent-g.up, face.Ascent-g.up+g.rows
+			first, step := top, g.rows
+			if slant {
+				first, step = -(-top+1)/2*2, 2
 			}
-			for b := 0; b <= boolInt(bold); b++ {
-				for row := first; row < face.Height; row += step {
-					from := max(row, -face.Above)
-					h := min(row+step, face.Height) - from
-					shift := 0
-					if italic {
-						shift = (face.Ascent - row) / 2
-					}
-					src := ui.Rect{X: float32(g.X), Y: float32(face.Above + from), W: float32(g.Width), H: float32(h)}
-					dst := ui.Rect{X: float32(pn.X + x + (shift+b)*k), Y: float32(pn.Y + y + from*k), W: float32(g.Width * k), H: float32(h * k)}
-					pn.P.ImageRegion(bmp, src, dst, ui.ImageOptions{Tint: pn.unfade(c)})
+			for row := first; row < end; row += step {
+				from := max(row, top)
+				h := min(row+step, end) - from
+				if h <= 0 {
+					continue
 				}
+				shift := 0
+				if slant {
+					shift = (face.Ascent - row) / 2
+				}
+				src := ui.Rect{X: float32(g.x), Y: float32(from - top), W: float32(g.w), H: float32(h)}
+				dst := ui.Rect{X: float32(pn.X + x + (g.left+shift)*k), Y: float32(pn.Y + y + from*k), W: float32(g.w * k), H: float32(h * k)}
+				pn.P.ImageRegion(g.bmp, src, dst, ui.ImageOptions{Tint: pn.unfade(c)})
 			}
 		}
-		x += (g.Advance + boolInt(bold)) * k
+		x += g.advance * k
 	}
 	if italic {
 		x += ItalicSlant(f) * k

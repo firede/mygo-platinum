@@ -7,8 +7,9 @@
 // and it is not affiliated with or endorsed by Apple Inc.
 //
 // Every control is drawn on a grid of whole DIPs, so it is crisp at any
-// whole scale of the display, and its text is drawn with two bitmap faces
-// made for the library (see Font). Call Use at the top of a view to give
+// whole scale of the display, and its text is drawn with the bitmap faces
+// of platinum-fonts (see Font, and SetEastAsian for East Asian scripts).
+// Call Use at the top of a view to give
 // the window its theme, as the package's example shows; every control has
 // an example of its own.
 //

@@ -2,8 +2,11 @@ package platinum
 
 import (
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 )
 
@@ -42,8 +45,9 @@ type CalendarWidget struct {
 func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 	th := ThemeOf(c)
 	w := &CalendarWidget{}
+	locale := c.Locale()
 	w.el = ui.Box(c).Size(CalendarWidth, CalendarHeight).Focusable().FocusRing(false).
-		Role(ui.RoleGroup).Label("Calendar").Value(day.Format("January 2, 2006"))
+		Role(ui.RoleGroup).Label(say(c, "calendar")).Value(i18n.FormatDate(locale, *day, i18n.DateOptions{Date: i18n.LongStyle}))
 	st := ui.Local(w.el, "calendar", func() calendarState { return calendarState{} })
 	if st.changed {
 		*day = st.picked
@@ -110,7 +114,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 	dim := inactive(c)
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
 		pn := NewPen(p, r).Dimmed(dim)
-		DrawCalendar(pn, month, chosen, today, focused, th.Accent)
+		DrawCalendar(pn, locale, month, chosen, today, focused, th.Accent)
 		if focused {
 			DrawFocusRing(pn, 0, th.Accent.Dark)
 		}
@@ -141,9 +145,9 @@ var (
 	monthNext = []string{"#...", "##..", "###.", "####", "###.", "##..", "#..."}
 )
 
-// DrawCalendar draws the calendar of month in pn's box, chosen highlighted
-// and today outlined.
-func DrawCalendar(pn Pen, month, chosen, today time.Time, focused bool, a Accent) {
+// DrawCalendar draws the calendar of month in pn's box, in the language of
+// locale, chosen highlighted and today outlined.
+func DrawCalendar(pn Pen, locale string, month, chosen, today time.Time, focused bool, a Accent) {
 	w, h := pn.W, pn.H
 	DrawContentRing(pn)
 	pn.Frame(1, 1, w-2, h-2, Black)
@@ -155,11 +159,11 @@ func DrawCalendar(pn Pen, month, chosen, today time.Time, focused bool, a Accent
 	pn.HLine(2, calendarHeader, w-4, Black)
 	hd.Bitmap(6, (hd.H-7)/2, monthBack, Black)
 	hd.Bitmap(hd.W-10, (hd.H-7)/2, monthNext, Black)
-	hd.TextCentered(0, 0, hd.W, hd.H, month.Format("January 2006"), SystemFont, Black)
+	hd.TextCentered(0, 0, hd.W, hd.H, i18n.FormatDate(locale, month, i18n.DateOptions{Skeleton: "yMMMM"}), SystemFont, Black)
 	// The weekdays.
-	for i, d := range "SMTWTFS" {
+	for i, d := range i18n.Weekdays(locale, i18n.Narrow, true) {
 		x := calendarPad + 2 + i*CalendarCellW
-		pn.TextCentered(x, calendarHeader+2, CalendarCellW, calendarDays, string(d), AppFont, Gray8)
+		pn.TextCentered(x, calendarHeader+2, CalendarCellW, calendarDays, d, AppFont, Gray8)
 	}
 	pn.HLine(calendarPad+2, calendarHeader+calendarDays+1, 7*CalendarCellW, Gray4)
 	start := gridStart(month)
@@ -201,8 +205,14 @@ type DatePickerWidget struct {
 func DatePicker(c *ui.Context, day *time.Time) *DatePickerWidget {
 	th := ThemeOf(c)
 	w := &DatePickerWidget{}
-	text := day.Format("Jan 2, 2006")
-	btnW := SystemFont.Measure("Sep 30, 2000") + popupTextLeft + 8 + PopupArrowBox
+	locale := c.Locale()
+	date := func(d time.Time) string { return i18n.FormatDate(locale, d, i18n.DateOptions{Skeleton: "yMMMd"}) }
+	text := date(*day)
+	widest := 0
+	for _, d := range []time.Time{time.Date(2000, 9, 30, 0, 0, 0, 0, time.UTC), time.Date(2000, 12, 30, 0, 0, 0, 0, time.UTC)} {
+		widest = max(widest, SystemFont.Measure(date(d)))
+	}
+	btnW := widest + popupTextLeft + 8 + PopupArrowBox
 	w.el = ui.ButtonBase(c).FocusRing(false).Role(ui.RolePopUpButton).Label(text).Size(float32(btnW), PopupHeight)
 	st := ui.Local(w.el, "datepicker", func() pickerState { return pickerState{} })
 	if w.el.Clicked() || w.el.Shortcut(0, ui.KeyDown) {
@@ -260,15 +270,16 @@ type timeState struct {
 	rect    ui.Rect
 }
 
-// timeParts returns the text of the parts of t, as "9", "41" and "AM".
-func timeParts(t time.Time) [3]string {
+// timeParts returns the text of the parts of t, as "9", "41" and "AM", the
+// half of the day in the language of locale.
+func timeParts(t time.Time, locale string) [3]string {
 	h := t.Hour() % 12
 	if h == 0 {
 		h = 12
 	}
-	ampm := "AM"
+	ampm, pm := i18n.DayPeriods(locale, i18n.Abbreviated)
 	if t.Hour() >= 12 {
-		ampm = "PM"
+		ampm = pm
 	}
 	return [3]string{fmt.Sprint(h), fmt.Sprintf("%02d", t.Minute()), ampm}
 }
@@ -303,18 +314,34 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 			set(t.Add(12 * time.Hour))
 		}
 	}
-	parts := timeParts(*t)
-	text := parts[0] + ":" + parts[1] + " " + parts[2]
-	width := AppFont.Measure("12:59 PM") + 2*textInset + 10
-	row.Role(ui.RoleGroup).Label("Time").Value(text)
+	locale := c.Locale()
+	parts := timeParts(*t, locale)
+	// The parts as the language writes them: the half of the day after the
+	// minutes, or before the hours.
+	order, seps := timeOrder(locale)
+	var shown [3]string
+	for i, p := range order {
+		shown[i] = parts[p]
+	}
+	text := shown[0] + seps[0] + shown[1] + seps[1] + shown[2]
+	// As wide as the widest time.
+	width := 0
+	am, pm := i18n.DayPeriods(locale, i18n.Abbreviated)
+	for _, period := range []string{am, pm} {
+		widest := [3]string{"12", "59", period}
+		width = max(width, AppFont.Measure(widest[order[0]]+seps[0]+widest[order[1]]+seps[1]+widest[order[2]]))
+	}
+	width += 2*textInset + 10
+	at := func(seg int) int { return slices.Index(order[:], seg) }
+	row.Role(ui.RoleGroup).Label(say(c, "time")).Value(text)
 	row.Children(func() {
 		field := ui.Box(c).Size(float32(width), TextFieldHeight).Focusable().FocusRing(false).
-			Role(ui.RoleTextField).Label("Time").Value(text)
+			Role(ui.RoleTextField).Label(say(c, "time")).Value(text)
 		if field.Shortcut(0, ui.KeyLeft) {
-			st.seg, st.typed = max(st.seg-1, 0), ""
+			st.seg, st.typed = order[max(at(st.seg)-1, 0)], ""
 		}
 		if field.Shortcut(0, ui.KeyRight) {
-			st.seg, st.typed = min(st.seg+1, 2), ""
+			st.seg, st.typed = order[min(at(st.seg)+1, 2)], ""
 		}
 		if field.Shortcut(0, ui.KeyUp) {
 			add(1)
@@ -322,19 +349,22 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 		if field.Shortcut(0, ui.KeyDown) {
 			add(-1)
 		}
-		// Where each part starts, for the pointer and the highlight.
-		x0 := textInset + 1
-		xs := [4]int{x0}
-		xs[1] = x0 + AppFont.Measure(parts[0]+":") + 1
-		xs[2] = xs[1] + AppFont.Measure(parts[1]+" ") + 1
-		xs[3] = xs[2] + AppFont.Measure(parts[2]) + 1
+		// Where each part shown starts, for the pointer and the highlight.
+		xs := [4]int{textInset + 1}
+		for i := range 3 {
+			sep := ""
+			if i < 2 {
+				sep = seps[i]
+			}
+			xs[i+1] = xs[i] + AppFont.Measure(shown[i]+sep) + 1
+		}
 		field.HandleInput(func(ev ui.InputEvent) bool {
 			switch ev.Kind {
 			case ui.InputPointerDown:
-				st.seg, st.typed = 0, ""
+				st.seg, st.typed = order[0], ""
 				for i := 1; i < 3; i++ {
 					if int(ev.X) >= xs[i]-2 {
-						st.seg = i
+						st.seg = order[i]
 					}
 				}
 				return false // and take the focus
@@ -367,8 +397,10 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 						}
 						set(time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), m, t.Second(), 0, t.Location()))
 					}
-					if len(st.typed) >= 2 {
-						st.seg, st.typed = st.seg+1, ""
+					if len(st.typed) >= 2 && st.seg == 0 {
+						st.seg, st.typed = 1, ""
+					} else if len(st.typed) >= 2 {
+						st.seg, st.typed = order[min(at(st.seg)+1, 2)], ""
 					}
 				}
 				return true
@@ -381,22 +413,23 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 		inact := inactive(c)
 		field.Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := NewPen(p, r)
-			DrawTimeField(pn, parts, xs, seg, focused, inact, th.Accent)
+			DrawTimeField(pn, shown, seps, xs, at(seg), focused, inact, th.Accent)
 			if focused {
 				DrawFocusRing(pn, 0, th.Accent.Dark)
 			}
 		})
 		var d float64
-		if Stepper(c, &d, -1, 1, 1).Label("Change time").Changed() {
+		if Stepper(c, &d, -1, 1, 1).Label(say(c, "changeTime")).Changed() {
 			add(int(d))
 		}
 	})
 	return row
 }
 
-// DrawTimeField draws a time field showing parts — hours, minutes, AM or
-// PM — from xs, part seg chosen while focused, in pn's box.
-func DrawTimeField(pn Pen, parts [3]string, xs [4]int, seg int, focused, inactive bool, a Accent) {
+// DrawTimeField draws a time field showing parts — the hours, minutes and
+// half of the day, in the order the language writes them, seps after the
+// first two — from xs, part seg chosen while focused, in pn's box.
+func DrawTimeField(pn Pen, parts [3]string, seps [2]string, xs [4]int, seg int, focused, inactive bool, a Accent) {
 	DrawTextFrame(pn, false)
 	if inactive {
 		pn.Frame(1, 1, pn.W-2, pn.H-2, Gray8)
@@ -406,8 +439,22 @@ func DrawTimeField(pn Pen, parts [3]string, xs [4]int, seg int, focused, inactiv
 	if focused {
 		pn.Rect(xs[seg]-1, 4, xs[seg+1]-xs[seg]-1, pn.H-8, a.Light)
 	}
-	x := pn.Text(xs[0], y, parts[0], AppFont, Black)
-	pn.Text(x, y, ":", AppFont, Black)
-	x = pn.Text(xs[1], y, parts[1], AppFont, Black)
-	pn.Text(xs[2], y, parts[2], AppFont, Black)
+	for i, part := range parts {
+		x := pn.Text(xs[i], y, part, AppFont, Black)
+		if i < 2 {
+			pn.Text(x, y, seps[i], AppFont, Black)
+		}
+	}
+}
+
+// timeOrder returns the order the parts of a time — 0 the hours, 1 the
+// minutes, 2 the half of the day — are written in the language of locale,
+// and what is written after the first two.
+func timeOrder(locale string) (order [3]int, seps [2]string) {
+	p := i18n.NewDateFormatter(locale, i18n.DateOptions{Skeleton: "hm"}).Pattern()
+	a, h := strings.IndexByte(p, 'a'), strings.IndexAny(p, "hK")
+	if a >= 0 && h > a {
+		return [3]int{2, 0, 1}, [2]string{strings.Trim(p[a+1:h], "'"), ":"}
+	}
+	return [3]int{0, 1, 2}, [2]string{":", " "}
 }

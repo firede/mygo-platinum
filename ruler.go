@@ -25,7 +25,7 @@ type RulerState struct {
 // the margins is the document's width; the first line of each paragraph
 // starts First further in.
 func Ruler(c *ui.Context, st *RulerState) ui.Element {
-	el := ui.Box(c).Height(RulerHeight).AlignSelf(ui.Stretch).Role(ui.RoleSlider).Label("Ruler")
+	el := ui.Box(c).Height(RulerHeight).AlignSelf(ui.Stretch).Role(ui.RoleSlider).Label(say(c, "ruler"))
 	dim := inactive(c)
 	el.Range(0, 1000, float64(st.Right-st.Left))
 	var width float32

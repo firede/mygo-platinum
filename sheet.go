@@ -314,7 +314,7 @@ func Sheet(c *ui.Context, st *SheetState, rows, cols int) *SheetWidget {
 		st.Cells = map[Cell]string{}
 	}
 	w := &SheetWidget{}
-	w.el = ui.Row(c).Focusable().FocusRing(false).Role(ui.RoleTable).Label("Sheet").Size(320, 200).AlignItems(ui.Stretch).Padding(1)
+	w.el = ui.Row(c).Focusable().FocusRing(false).Role(ui.RoleTable).Label(say(c, "sheet")).Size(320, 200).AlignItems(ui.Stretch).Padding(1)
 	w.changed, st.changed = st.changed, false
 	visRows := max(int((st.rect.H-4-SheetCellH)/SheetCellH), 1)
 	visCols := max(int((st.rect.W-4-SheetRowHeadW-ScrollBarWidth)/SheetCellW), 1)
@@ -583,13 +583,13 @@ func FormulaBar(c *ui.Context, st *SheetState) ui.Element {
 	})
 	bar.Children(func() {
 		ref := st.Cursor.String()
-		ui.Box(c).Size(44, TextFieldHeight).Role(ui.RoleStatus).Label("Cell").Value(ref).Draw(func(p *ui.Painter, r ui.Rect) {
+		ui.Box(c).Size(44, TextFieldHeight).Role(ui.RoleStatus).Label(say(c, "cell")).Value(ref).Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := NewPen(p, r)
 			DrawPlacard(pn)
 			pn.TextCentered(0, 0, pn.W, pn.H, ref, SystemFont, Black)
 		})
 		edit := text
-		f := TextField(c.Key(fmt.Sprint("formula", ref)), &edit).Label("Formula")
+		f := TextField(c.Key(fmt.Sprint("formula", ref)), &edit).Label(say(c, "formula"))
 		f.Element().Grow(1)
 		if f.Changed() {
 			st.Editing, st.IsEditing = edit, true

@@ -1,8 +1,6 @@
 package platinum
 
 import (
-	"fmt"
-
 	"github.com/egoist/mygo/ui"
 )
 
@@ -46,7 +44,7 @@ var crumbArrow = []string{"#..", "##.", "###", "##.", "#.."}
 func Breadcrumb(c *ui.Context, path []string) int {
 	th := ThemeOf(c)
 	chosen := -1
-	ui.Row(c).Gap(2).AlignItems(ui.Center).Role(ui.RoleGroup).Label("Path").FocusGroup(ui.Horizontal).Children(func() {
+	ui.Row(c).Gap(2).AlignItems(ui.Center).Role(ui.RoleGroup).Label(say(c, "path")).FocusGroup(ui.Horizontal).Children(func() {
 		for i, name := range path {
 			if i > 0 {
 				ui.Box(c).Size(7, 12).Role(ui.RoleNone).Draw(func(p *ui.Painter, r ui.Rect) {
@@ -84,17 +82,17 @@ func Breadcrumb(c *ui.Context, path []string) int {
 // arrow has the keyboard focus.
 func Pagination(c *ui.Context, page *int, pages int) ui.Element {
 	*page = min(max(*page, 0), max(pages-1, 0))
-	row := ui.Row(c).Gap(8).AlignItems(ui.Center).Role(ui.RoleGroup).Label("Pages").
-		Value(fmt.Sprintf("Page %d of %d", *page+1, pages))
+	row := ui.Row(c).Gap(8).AlignItems(ui.Center).Role(ui.RoleGroup).Label(say(c, "pages")).
+		Value(sayWith(c, "pageOf", map[string]any{"page": *page + 1, "pages": pages}))
 	row.Children(func() {
 		back := BevelButton(c, "").Icon(monthBack).Size(BevelHeight, BevelHeight).Disabled(*page == 0)
-		back.Element().Label("Previous page")
+		back.Element().Label(say(c, "previousPage"))
 		if back.Clicked() || row.Shortcut(0, ui.KeyLeft) && *page > 0 {
 			*page--
 		}
-		TextIn(c, fmt.Sprintf("Page %d of %d", *page+1, pages), SystemFont, Black)
+		TextIn(c, sayWith(c, "pageOf", map[string]any{"page": *page + 1, "pages": pages}), SystemFont, Black)
 		next := BevelButton(c, "").Icon(monthNext).Size(BevelHeight, BevelHeight).Disabled(*page >= pages-1)
-		next.Element().Label("Next page")
+		next.Element().Label(say(c, "nextPage"))
 		if next.Clicked() || row.Shortcut(0, ui.KeyRight) && *page < pages-1 {
 			*page++
 		}

@@ -12,6 +12,7 @@ type ComboBoxWidget struct {
 	field   ui.Element
 	button  ui.Element
 	changed bool
+	locale  string
 }
 
 type comboState struct {
@@ -25,7 +26,7 @@ type comboState struct {
 // opens the menu from the keyboard.
 func ComboBox(c *ui.Context, value *string, items []string) *ComboBoxWidget {
 	th := ThemeOf(c)
-	w := &ComboBoxWidget{}
+	w := &ComboBoxWidget{locale: c.Locale()}
 	w.el = ui.Row(c).Gap(0).AlignItems(ui.Center).AlignSelf(ui.Start)
 	st := ui.Local(w.el, "combo", func() comboState { return comboState{} })
 	cw, ch := c.Size()
@@ -54,7 +55,7 @@ func ComboBox(c *ui.Context, value *string, items []string) *ComboBoxWidget {
 		if f.Element().Shortcut(0, ui.KeyDown) && st.t == nil {
 			open()
 		}
-		btn := ui.ButtonBase(c).Size(PopupArrowBox+2, TextFieldHeight).FocusRing(false).Label("Choices").Margin(0, 0, 0, -1)
+		btn := ui.ButtonBase(c).Size(PopupArrowBox+2, TextFieldHeight).FocusRing(false).Label(say(c, "choices")).Margin(0, 0, 0, -1)
 		w.button = btn
 		if btn.Clicked() && st.t == nil {
 			open()
@@ -95,10 +96,10 @@ func (w *ComboBoxWidget) Changed() bool { return w.changed }
 func (w *ComboBoxWidget) Element() ui.Element { return w.el }
 
 // Label names the combo box for assistive technology and tests: the
-// group, the field, and the button of its choices "<l> choices".
+// group, the field, and the button of its choices, as "<l> choices".
 func (w *ComboBoxWidget) Label(l string) *ComboBoxWidget {
 	w.el.Role(ui.RoleGroup).Label(l)
 	w.field.Label(l)
-	w.button.Label(l + " choices")
+	w.button.Label(catalog().Format(w.locale, "choicesOf", map[string]any{"name": l}))
 	return w
 }

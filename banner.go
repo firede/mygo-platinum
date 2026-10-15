@@ -32,7 +32,7 @@ func Banner(c *ui.Context, open *bool, kind AlertKind, text string) {
 				DrawSmallAlertIcon(NewPen(p, r), kind)
 			})
 			TextIn(c, AppFont.Truncate(text, w-64), AppFont, Black).Grow(1)
-			box := ui.ButtonBase(c).Size(TitleBoxSize, TitleBoxSize).FocusRing(false).Label("Close")
+			box := ui.ButtonBase(c).Size(TitleBoxSize, TitleBoxSize).FocusRing(false).Label(say(c, "close"))
 			pressed := box.Pressed()
 			box.Draw(func(p *ui.Painter, r ui.Rect) { DrawTitleBox(NewPen(p, r), PartClose, pressed) })
 			if box.Clicked() {

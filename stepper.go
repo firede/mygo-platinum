@@ -196,6 +196,7 @@ type NumberFieldWidget struct {
 	field   ui.Element
 	arrows  *StepperWidget
 	changed bool
+	locale  string
 }
 
 // NumberField builds a text field of a number between lo and hi with little
@@ -209,7 +210,7 @@ func NumberField(c *ui.Context, value *float64, lo, hi, step float64, digits int
 // numberField is NumberField with the number padded with zeros to pad
 // digits, in a field width wide.
 func numberField(c *ui.Context, value *float64, lo, hi, step float64, digits, pad, width int) *NumberFieldWidget {
-	w := &NumberFieldWidget{}
+	w := &NumberFieldWidget{locale: c.Locale()}
 	w.el = ui.Row(c).Gap(3).AlignItems(ui.Center)
 	st := ui.Local(w.el, "number", func() numberState { return numberState{} })
 	format := func(v float64) string {
@@ -258,11 +259,11 @@ func numberField(c *ui.Context, value *float64, lo, hi, step float64, digits, pa
 }
 
 // Label names the field for assistive technology and tests: the group,
-// the field, and its little arrows "Change" it.
+// the field, and its little arrows, as "Change <l>".
 func (w *NumberFieldWidget) Label(l string) *NumberFieldWidget {
 	w.el.Role(ui.RoleGroup).Label(l)
 	w.field.Label(l)
-	w.arrows.Label("Change " + l)
+	w.arrows.Label(catalog().Format(w.locale, "change", map[string]any{"name": l}))
 	return w
 }
 

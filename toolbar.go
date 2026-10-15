@@ -129,7 +129,7 @@ func Toolbar(c *ui.Context, items []ToolItem) ui.Element {
 			ui.Box(c).Grow(1)
 			more := BevelButton(c.Key("more"), "»")
 			more.noArrow = true
-			more.Size(overflowW, BevelHeight).Menu(menu).Element().Label("More")
+			more.Size(overflowW, BevelHeight).Menu(menu).Element().Label(say(c, "more"))
 		}
 	})
 	return bar

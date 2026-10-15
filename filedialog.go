@@ -106,7 +106,7 @@ func fileBody(c *ui.Context, st *FileDialogState, roots []*TreeNode, saving bool
 		st.sel = 0
 	}
 	// The folder shown, as a path pop-up: a disk's own icon at a disk.
-	names := []string{"Desktop"}
+	names := []string{say(c, "desktop")}
 	for _, n := range st.Path {
 		names = append(names, n.Title)
 	}
@@ -150,7 +150,7 @@ func fileBody(c *ui.Context, st *FileDialogState, roots []*TreeNode, saving bool
 			if saving && st.sel >= 0 && st.sel < len(dim) && dim[st.sel] {
 				st.sel = -1
 			}
-			lb := ListBox(c, &st.sel, titles).Icons(icons).Dim(dim).ScrollBarAlways().Label("Files")
+			lb := ListBox(c, &st.sel, titles).Icons(icons).Dim(dim).ScrollBarAlways().Label(say(c, "files"))
 			lb.Element().Size(FileListW, FileListH)
 			if !saving {
 				lb.Element().AutoFocus()
@@ -170,18 +170,18 @@ func fileBody(c *ui.Context, st *FileDialogState, roots []*TreeNode, saving bool
 		})
 		ui.Column(c).Gap(8).Width(FileButtonW).AlignItems(ui.Start).Children(func() {
 			// The disk the folder is on, and its name.
-			disk := "Desktop"
+			disk := say(c, "desktop")
 			if len(st.Path) > 0 {
 				disk = st.Path[0].Title
 			}
 			ui.Row(c).Gap(4).Height(16).AlignItems(ui.Center).Children(func() {
-				ui.Box(c).Size(16, 16).Role(ui.RoleImage).Label("Disk").Draw(func(p *ui.Painter, r ui.Rect) {
+				ui.Box(c).Size(16, 16).Role(ui.RoleImage).Label(say(c, "disk")).Draw(func(p *ui.Painter, r ui.Rect) {
 					DrawIcon(NewPen(p, r), iconDisk16, ThemeOf(c).Accent, false)
 				})
 				TextIn(c, AppFont.Truncate(disk, FileButtonW-20), AppFont, Black)
 			})
-			Button(c, "Eject").Width(FileButtonW).Disabled(true) // nothing here ejects
-			if Button(c, "Desktop").Width(FileButtonW).Disabled(len(st.Path) == 0).Clicked() {
+			Button(c, say(c, "eject")).Width(FileButtonW).Disabled(true) // nothing here ejects
+			if Button(c, say(c, "desktop")).Width(FileButtonW).Disabled(len(st.Path) == 0).Clicked() {
 				st.Path, st.sel = nil, 0
 			}
 			buttons()
@@ -214,17 +214,17 @@ func defaultButton(c *ui.Context, label string, disabled bool) bool {
 // opened, and closes, or nil.
 func OpenDialog(c *ui.Context, open *bool, st *FileDialogState, roots []*TreeNode) *TreeNode {
 	var got *TreeNode
-	fileModal(c, open, "Open File", func() {
+	fileModal(c, open, say(c, "openFile"), func() {
 		items := st.folder(roots)
 		opened := fileBody(c, st, roots, false, func() {}, func() {
-			if Button(c, "Cancel").Width(FileButtonW).Cancel().Clicked() {
+			if Button(c, say(c, "cancel")).Width(FileButtonW).Cancel().Clicked() {
 				*open = false
 			}
 			var sel *TreeNode
 			if st.sel >= 0 && st.sel < len(items) {
 				sel = items[st.sel]
 			}
-			if defaultButton(c, "Open", sel == nil) && sel != nil {
+			if defaultButton(c, say(c, "open"), sel == nil) && sel != nil {
 				if sel.Children != nil {
 					st.Path = append(st.Path, sel)
 					st.sel = 0
@@ -253,14 +253,14 @@ func OpenDialog(c *ui.Context, open *bool, st *FileDialogState, roots []*TreeNod
 // st.Name say where.
 func SaveDialog(c *ui.Context, open *bool, st *FileDialogState, roots []*TreeNode, prompt string) bool {
 	saved := false
-	fileModal(c, open, "Save File", func() {
+	fileModal(c, open, say(c, "saveFile"), func() {
 		items := st.folder(roots)
 		exists := false
 		for _, n := range items {
 			exists = exists || n.Title == st.Name && n.Children == nil
 		}
 		fileBody(c, st, roots, true, func() {
-			if Button(c, "New Folder").Width(FileButtonW).Disabled(st.NewFolder == nil).Clicked() {
+			if Button(c, say(c, "newFolder")).Width(FileButtonW).Disabled(st.NewFolder == nil).Clicked() {
 				var in *TreeNode
 				if len(st.Path) > 0 {
 					in = st.Path[len(st.Path)-1]
@@ -271,10 +271,10 @@ func SaveDialog(c *ui.Context, open *bool, st *FileDialogState, roots []*TreeNod
 				}
 			}
 		}, func() {
-			if Button(c, "Cancel").Width(FileButtonW).Cancel().Clicked() {
+			if Button(c, say(c, "cancel")).Width(FileButtonW).Cancel().Clicked() {
 				*open = false
 			}
-			if defaultButton(c, "Save", st.Name == "") {
+			if defaultButton(c, say(c, "save"), st.Name == "") {
 				if exists {
 					st.replacing = true
 				} else {
@@ -293,7 +293,7 @@ func SaveDialog(c *ui.Context, open *bool, st *FileDialogState, roots []*TreeNod
 		})
 	})
 	if st.replacing {
-		switch Alert(c, &st.replacing, AlertCaution, "Replace existing “"+st.Name+"”?", "", "Cancel", "Replace") {
+		switch Alert(c, &st.replacing, AlertCaution, sayWith(c, "replaceExisting", map[string]any{"name": st.Name}), "", say(c, "cancel"), say(c, "replace")) {
 		case 1:
 			saved = true
 		}

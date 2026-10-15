@@ -209,7 +209,7 @@ func RichTextArea(c *ui.Context, d *RichText) *TextFieldWidget {
 // item for each scale, named by its size in points (the App face is 11),
 // the selection's checked.
 func SizeMenu(d *RichText) Menu {
-	m := Menu{Title: "Size"}
+	m := Menu{Title: sayApp("size")}
 	size := d.Size()
 	for k := 1; k <= MaxScale; k++ {
 		m.Items = append(m.Items, MenuItem{
@@ -299,12 +299,12 @@ func FormatItems(d *RichText) []ToolItem {
 	align := d.Align()
 	left, center, right := align == AlignLeft, align == AlignCenter, align == AlignRight
 	return []ToolItem{
-		{Label: "Bold", Icon: IconBold, IconOnly: true, On: &bold, Action: func() { d.Toggle(Bold) }},
-		{Label: "Italic", Icon: IconItalic, IconOnly: true, On: &italic, Action: func() { d.Toggle(Italic) }},
-		{Label: "Underline", Icon: IconUnderline, IconOnly: true, On: &under, Action: func() { d.Toggle(Underline) }},
+		{Label: sayApp("bold"), Icon: IconBold, IconOnly: true, On: &bold, Action: func() { d.Toggle(Bold) }},
+		{Label: sayApp("italic"), Icon: IconItalic, IconOnly: true, On: &italic, Action: func() { d.Toggle(Italic) }},
+		{Label: sayApp("underline"), Icon: IconUnderline, IconOnly: true, On: &under, Action: func() { d.Toggle(Underline) }},
 		{Separator: true},
-		{Label: "Align Left", Icon: IconAlign[0], IconOnly: true, On: &left, Action: func() { d.SetAlign(AlignLeft) }},
-		{Label: "Align Center", Icon: IconAlign[1], IconOnly: true, On: &center, Action: func() { d.SetAlign(AlignCenter) }},
-		{Label: "Align Right", Icon: IconAlign[2], IconOnly: true, On: &right, Action: func() { d.SetAlign(AlignRight) }},
+		{Label: sayApp("alignLeft"), Icon: IconAlign[0], IconOnly: true, On: &left, Action: func() { d.SetAlign(AlignLeft) }},
+		{Label: sayApp("alignCenter"), Icon: IconAlign[1], IconOnly: true, On: &center, Action: func() { d.SetAlign(AlignCenter) }},
+		{Label: sayApp("alignRight"), Icon: IconAlign[2], IconOnly: true, On: &right, Action: func() { d.SetAlign(AlignRight) }},
 	}
 }

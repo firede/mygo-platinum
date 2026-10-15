@@ -138,6 +138,7 @@ test::TestBackgroundWindowFirstClick
 test::TestBackgroundWindowTakesDrops
 test::TestBevelToggleAndMenu
 test::TestCalendarKeysAndClicks
+test::TestCatalogs
 test::TestColorWell
 test::TestColumnView
 test::TestCompositionReplacesSelection
@@ -214,11 +215,13 @@ test::TestSnapshotGroupAndTabs
 test::TestSnapshotInactiveWindow
 test::TestSnapshotKeyboardFocus
 test::TestSnapshotLabels
+test::TestSnapshotLanguages
 test::TestSnapshotListBoxStates
 test::TestSnapshotMenuOpen
 test::TestSnapshotPopupStates
 test::TestSnapshotProgress
 test::TestSnapshotRadio
+test::TestSnapshotSaveDialogChinese
 test::TestSnapshotScrollBar
 test::TestSnapshotSlider
 test::TestSnapshotSmallStatus
@@ -252,6 +255,7 @@ test::TestTextCompositionCaret
 test::TestTextFieldEditing
 test::TestTextWholePixelsAt2x
 test::TestTimeField
+test::TestTimeOrder
 test::TestToolbarOverflow
 test::TestTreeViewKeys
 test::TestWindowBoxesUpdateGeometryImmediately

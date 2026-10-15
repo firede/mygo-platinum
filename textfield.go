@@ -499,7 +499,7 @@ func SearchField(c *ui.Context, value *string) *TextFieldWidget {
 	w.search = true
 	w.el.Role(ui.RoleTextField)
 	if w.placeholder == "" {
-		w.placeholder = "Search"
+		w.placeholder = say(c, "search")
 	}
 	return w
 }

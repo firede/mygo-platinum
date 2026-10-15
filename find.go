@@ -89,11 +89,11 @@ type FindState struct {
 // Find and ReplaceAll, and the select methods of its text area.
 func FindReplace(c *ui.Context, open *bool, st *FindState) FindAction {
 	act := FindNone
-	Dialog(c, open, "Find and Replace", 340, func() {
+	Dialog(c, open, say(c, "findAndReplace"), 340, func() {
 		for _, f := range []struct {
 			label string
 			v     *string
-		}{{"Find:", &st.Query}, {"Replace:", &st.With}} {
+		}{{say(c, "findLabel"), &st.Query}, {say(c, "replaceLabel"), &st.With}} {
 			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
 				ui.Box(c).Width(62).Children(func() { Label(c, f.label) })
 				tf := TextField(c, f.v).Width(240).Label(strings.TrimSuffix(f.label, ":"))
@@ -103,8 +103,8 @@ func FindReplace(c *ui.Context, open *bool, st *FindState) FindAction {
 			})
 		}
 		ui.Row(c).Gap(14).Padding(0, 0, 0, 68).Children(func() {
-			Checkbox(c, &st.Options.MatchCase, "Match case")
-			Checkbox(c, &st.Options.WholeWord, "Whole word")
+			Checkbox(c, &st.Options.MatchCase, say(c, "matchCase"))
+			Checkbox(c, &st.Options.WholeWord, say(c, "wholeWord"))
 		})
 		if st.Note != "" {
 			ui.Row(c).Padding(0, 0, 0, 68).Children(func() { TextIn(c, st.Note, AppFont, Gray9) })
@@ -116,13 +116,13 @@ func FindReplace(c *ui.Context, open *bool, st *FindState) FindAction {
 			st.announced = st.Note
 		}
 		ui.Row(c).Gap(10).Justify(ui.End).AlignItems(ui.Center).Children(func() {
-			if Button(c, "Replace All").Disabled(st.Query == "").Clicked() {
+			if Button(c, say(c, "replaceAll")).Disabled(st.Query == "").Clicked() {
 				act = ReplaceEvery
 			}
-			if Button(c, "Replace").Disabled(st.Query == "").Clicked() {
+			if Button(c, say(c, "replace")).Disabled(st.Query == "").Clicked() {
 				act = ReplaceOne
 			}
-			if Button(c, "Find").Default().Disabled(st.Query == "").Clicked() {
+			if Button(c, say(c, "find")).Default().Disabled(st.Query == "").Clicked() {
 				act = FindNext
 			}
 		})

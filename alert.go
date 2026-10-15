@@ -61,7 +61,7 @@ func Alert(c *ui.Context, open *bool, kind AlertKind, message, detail string, bu
 								b.Default()
 								b.Element().AutoFocus()
 							}
-							if label == "Cancel" {
+							if label == "Cancel" || label == say(c, "cancel") {
 								b.Cancel()
 							}
 							if b.Clicked() {

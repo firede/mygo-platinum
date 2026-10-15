@@ -27,7 +27,7 @@ type menuBarState struct {
 // Keyboard equivalents of the items work wherever the focus is.
 func MenuBar(c *ui.Context, menus []Menu) ui.Element {
 	th := ThemeOf(c)
-	bar := ui.Box(c).Height(MenuBarHeight).AlignSelf(ui.Stretch).Role(ui.RoleMenuBar).Label("Menu bar")
+	bar := ui.Box(c).Height(MenuBarHeight).AlignSelf(ui.Stretch).Role(ui.RoleMenuBar).Label(say(c, "menuBar"))
 	st := ui.Local(bar, "menubar", func() menuBarState { return menuBarState{open: -1, flash: -1} })
 	now := frameNow(c)
 	if st.run != nil {

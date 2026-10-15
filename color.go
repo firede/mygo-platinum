@@ -88,7 +88,7 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 			now := ui.RGB(uint8(st.r), uint8(st.g), uint8(st.b))
 			ui.Row(c).Gap(12).AlignItems(ui.Start).Children(func() {
 				// The palette.
-				grid := ui.Box(c).Size(8*swatchSize+4, 6*swatchSize+4).Role(ui.RoleGroup).Label("Palette")
+				grid := ui.Box(c).Size(8*swatchSize+4, 6*swatchSize+4).Role(ui.RoleGroup).Label(say(c, "palette"))
 				grid.HandleInput(func(ev ui.InputEvent) bool {
 					if ev.Kind != ui.InputPointerDown {
 						return false
@@ -115,7 +115,7 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 			for _, ch := range []struct {
 				name string
 				v    *float64
-			}{{"Red", &st.r}, {"Green", &st.g}, {"Blue", &st.b}} {
+			}{{say(c, "red"), &st.r}, {say(c, "green"), &st.g}, {say(c, "blue"), &st.b}} {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 					ui.Box(c).Width(42).Children(func() { Label(c, ch.name+":") })
 					Slider(c, ch.v, 0, 255).Width(160).Step(1).Label(ch.name)
@@ -123,10 +123,10 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 				})
 			}
 			ui.Row(c).Gap(10).Justify(ui.End).Children(func() {
-				if Button(c, "Cancel").Cancel().Clicked() {
+				if Button(c, say(c, "cancel")).Cancel().Clicked() {
 					st.open = false
 				}
-				if Button(c, "OK").Default().Clicked() {
+				if Button(c, say(c, "ok")).Default().Clicked() {
 					*col = now
 					st.open = false
 					w.changed = true

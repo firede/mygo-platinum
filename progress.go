@@ -105,7 +105,7 @@ func ProgressDialog(c *ui.Context, open *bool, title, message string, value floa
 			TextIn(c, detail, AppFont, Gray9)
 		}
 		ui.Row(c).Justify(ui.End).Children(func() {
-			if Button(c, "Cancel").Cancel().Default().Clicked() {
+			if Button(c, say(c, "cancel")).Cancel().Default().Clicked() {
 				cancelled = true
 			}
 		})

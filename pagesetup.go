@@ -31,7 +31,7 @@ func PageSetup(c *ui.Context, open *bool, st *PageSetupState) bool {
 		*draft = *st
 		return false
 	}
-	Dialog(c, open, "Page Setup", 360, func() {
+	Dialog(c, open, say(c, "pageSetup"), 360, func() {
 		d := draft
 		ui.Row(c).Gap(16).AlignItems(ui.Start).Children(func() {
 			ui.Column(c).Gap(8).Children(func() {
@@ -39,38 +39,38 @@ func PageSetup(c *ui.Context, open *bool, st *PageSetupState) bool {
 				for i, p := range Papers {
 					names[i] = p.Name
 				}
-				PopupMenu(c, &d.Paper, "Paper:", names)
+				PopupMenu(c, &d.Paper, say(c, "paperLabel"), names)
 				ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-					Label(c, "Orientation:")
+					Label(c, say(c, "orientationLabel"))
 					portrait, landscape := !d.Landscape, d.Landscape
-					if IconButton(c, portraitIcon, "Portrait").Toggle(&portrait).Clicked() {
+					if IconButton(c, portraitIcon, say(c, "portrait")).Toggle(&portrait).Clicked() {
 						d.Landscape = false
 					}
-					if IconButton(c, landscapeIcon, "Landscape").Toggle(&landscape).Clicked() {
+					if IconButton(c, landscapeIcon, say(c, "landscape")).Toggle(&landscape).Clicked() {
 						d.Landscape = true
 					}
 				})
 				ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-					Label(c, "Scale:")
-					NumberField(c, &d.Scale, 25, 400, 5, 0).Label("Scale")
+					Label(c, say(c, "scaleLabel"))
+					NumberField(c, &d.Scale, 25, 400, 5, 0).Label(say(c, "scale"))
 					Label(c, "%")
 				})
 				ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-					Label(c, "Margins:")
-					NumberField(c, &d.Margin, 0, 144, 6, 0).Label("Margins")
+					Label(c, say(c, "marginsLabel"))
+					NumberField(c, &d.Margin, 0, 144, 6, 0).Label(say(c, "margins"))
 					Label(c, "pt")
 				})
 			})
 			page := *d
-			ui.Box(c).Size(90, 110).Role(ui.RoleImage).Label("Page").Draw(func(p *ui.Painter, r ui.Rect) {
+			ui.Box(c).Size(90, 110).Role(ui.RoleImage).Label(say(c, "page")).Draw(func(p *ui.Painter, r ui.Rect) {
 				DrawPagePreview(NewPen(p, r), page)
 			})
 		})
 		ui.Row(c).Gap(10).Justify(ui.End).Children(func() {
-			if Button(c, "Cancel").Cancel().Clicked() {
+			if Button(c, say(c, "cancel")).Cancel().Clicked() {
 				*open = false
 			}
-			if Button(c, "OK").Default().Clicked() {
+			if Button(c, say(c, "ok")).Default().Clicked() {
 				*st = *d
 				*open = false
 				ok = true

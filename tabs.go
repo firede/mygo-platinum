@@ -195,7 +195,7 @@ func DocumentTabs(c *ui.Context, selected *int, titles []string, fn func(i int))
 						pn.Rect(5, pn.H-5, pn.W-10, 2, th.Accent.Dark)
 					}
 				})
-				ContextMenu(c, tab, []MenuItem{{Title: "Close", Action: func() { *st = i }}})
+				ContextMenu(c, tab, []MenuItem{{Title: say(c, "close"), Action: func() { *st = i }}})
 			}
 		})
 		x := 4
@@ -212,7 +212,7 @@ func DocumentTabs(c *ui.Context, selected *int, titles []string, fn func(i int))
 			if n > 0 {
 				fn(*selected)
 			} else {
-				EmptyState(c, "No documents")
+				EmptyState(c, say(c, "noDocuments"))
 			}
 		})
 	})

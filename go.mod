@@ -4,7 +4,7 @@ go 1.27.1
 
 require (
 	github.com/egoist/mygo v0.5.1
-	github.com/firede/platinum-fonts v0.1.0
+	github.com/firede/platinum-fonts v0.2.0
 )
 
 require (

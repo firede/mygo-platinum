@@ -210,7 +210,7 @@ func (d *desk) appName(w *win) (string, []string) {
 func (d *desk) rightMenus() []pt.Menu {
 	m := d.say()
 	name, pic := m.Desk(), miniDesk
-	if f := d.front(); f != nil {
+	if f := d.front(); f != nil && !d.covered {
 		name, pic = d.appName(f)
 	}
 	var apps []pt.MenuItem

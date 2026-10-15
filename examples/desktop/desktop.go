@@ -136,6 +136,10 @@ type desk struct {
 	emptying    bool   // the alert asking to empty the wastebasket
 	ringing     bool   // the alarm going off
 	balloons    bool   // help balloons show
+	// covered leaves every window inactive, under a window of the
+	// caller's in front, as the welcome window of the shared pictures, and
+	// the application menu the desk's.
+	covered bool
 	// later holds what a build asked to do to the disk, done before the
 	// next build: changing the folders while building them would build
 	// some of their items twice.
@@ -386,7 +390,7 @@ func (d *desk) view(c *ui.Context) {
 func (d *desk) windowView(c *ui.Context, w *win) {
 	opts := w.opts
 	// A modal dialog or alert in front leaves no window active under it.
-	opts.Active = w == d.front() && !d.modalUp()
+	opts.Active = w == d.front() && !d.modalUp() && !d.covered
 	opts.Dragging = d.dragging
 	opts.ZoomTo = [4]int{4, 4, d.size[0] - 8, d.size[1] - 8}
 	w.active = opts.Active

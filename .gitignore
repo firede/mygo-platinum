@@ -4,3 +4,6 @@
 /verify
 *.test
 *.out
+
+# The web page, as scripts/site.sh builds it.
+/site/dist/

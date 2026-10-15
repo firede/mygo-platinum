@@ -1,0 +1,20 @@
+# Platinum (mygo-platinum)
+
+> Controls for MyGo's native UI in the gray, beveled style of late-1990s
+> desktops, written in Go and drawn pixel by pixel. This site runs the
+> library's example desktop, compiled to WebAssembly.
+
+- Module: github.com/firede/mygo-platinum (package platinum, imported as pt)
+- Install: go get github.com/firede/mygo-platinum
+- Needs: Go 1.27, MyGo v0.5.1 (native UI, package github.com/egoist/mygo/ui)
+- License: MIT; bitmap fonts from Platinum Fonts, OFL 1.1
+- Languages of the controls' own words: English, Simplified and Traditional Chinese, Japanese, Korean
+
+## Source
+
+- [README](https://raw.githubusercontent.com/firede/mygo-platinum/main/README.md): the controls, how to use them, fonts, tests
+- [Design specification](https://raw.githubusercontent.com/firede/mygo-platinum/main/docs/spec.md): how each control looks and behaves
+- [Package documentation](https://pkg.go.dev/github.com/firede/mygo-platinum)
+- [Example: desktop](https://github.com/firede/mygo-platinum/tree/main/examples/desktop): the desk this site runs
+- [Example: gallery](https://github.com/firede/mygo-platinum/tree/main/examples/gallery): every control on five pages
+- [Platinum Fonts](https://github.com/firede/platinum-fonts): the bitmap faces, Latin and East Asian

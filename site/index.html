@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-mygo-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platinum — classic desktop controls for MyGo</title>
+<meta name="description" content="Controls for MyGo's native UI in the gray, beveled style of late-1990s desktops, written in Go and drawn pixel by pixel. Try the example desktop in the browser.">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
+<meta property="og:type" content="website">
+<meta property="og:url" content="__SITE__/">
+<meta property="og:title" content="Platinum — classic desktop controls for MyGo">
+<meta property="og:description" content="Controls for MyGo's native UI in the gray, beveled style of late-1990s desktops. Try the example desktop in the browser.">
+<meta property="og:image" content="__SITE__/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A window reading “Platinum, classic desktop controls for MyGo” on a patterned desktop, with a calculator behind it.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fonts/sans-bold-sc.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="menubar waiting" aria-hidden="true">
+  <span class="menu icon"><img src="logo.png" width="10" height="10" alt=""></span>
+  <span class="menu" data-t="menuFile">File</span>
+  <span class="menu" data-t="menuEdit">Edit</span>
+  <span class="menu" data-t="menuView">View</span>
+  <span class="menu" data-t="menuSpecial">Special</span>
+  <span class="menu" data-t="menuHelp">Help</span>
+  <span class="menu right" id="clock"></span>
+  <span class="menu"><img src="desk.png" width="12" height="12" alt=""> <span data-t="desk">Desk</span></span>
+</header>
+
+<main class="desk">
+  <section class="window" aria-labelledby="name">
+    <h1 id="name">Platinum</h1>
+    <p class="tagline" data-t="tagline">Classic desktop controls for MyGo</p>
+    <p class="about" data-t="about">Windows, menus, buttons, lists and dialogs in the gray, beveled style of late-1990s desktops, for <a href="https://mygo.egoist.dev">MyGo</a>’s native UI. Written in Go, drawn pixel by pixel, in five languages.</p>
+
+    <dl class="facts">
+      <dt data-t="install">Install</dt>
+      <dd><code class="field">go get github.com/firede/mygo-platinum</code></dd>
+      <dt data-t="source">Source</dt>
+      <dd><a href="https://github.com/firede/mygo-platinum">github.com/firede/mygo-platinum</a></dd>
+      <dt data-t="needs">Needs</dt>
+      <dd>Go 1.27, MyGo 0.5.1</dd>
+      <dt data-t="license">License</dt>
+      <dd data-t="licenseText">MIT; fonts from <a href="https://github.com/firede/platinum-fonts">Platinum Fonts</a>, OFL 1.1</dd>
+    </dl>
+
+    <div class="wide">
+      <div class="loading">
+        <span id="status" data-t="loading">Loading the desk…</span>
+        <span class="progress"><span class="fill" id="fill"></span></span>
+      </div>
+      <div class="buttons">
+        <a class="button" href="https://github.com/firede/mygo-platinum" data-t="github">GitHub</a>
+        <button class="button default" id="start" type="button" disabled data-t="start">Start the Desk</button>
+      </div>
+    </div>
+
+    <div class="narrow">
+      <p data-t="narrow">The desk needs a larger screen, a mouse and a keyboard. This is how it looks:</p>
+      <div class="peek"><img id="scene" src="scene-en.png" width="900" height="620" alt="The example desktop with a few windows open: a disk, a note, a calculator and a sliding puzzle." loading="lazy"></div>
+    </div>
+  </section>
+</main>
+
+<div id="mygo" hidden></div>
+<script src="__WASM_EXEC__"></script>
+<script src="site.js" data-wasm="__WASM__" data-wasm-size="__WASM_SIZE__"></script>
+</body>
+</html>

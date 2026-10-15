@@ -643,6 +643,7 @@ func aboutView(c *ui.Context, d *desk) {
 			ui.Column(c).Gap(2).Children(func() {
 				pt.Label(c, m.PlatinumDesk())
 				pt.TextIn(c, m.Version(), pt.AppFont, pt.Black)
+				sourceLink(c)
 			})
 		})
 		pt.Separator(c)
@@ -669,6 +670,23 @@ func aboutView(c *ui.Context, d *desk) {
 		})
 		pt.TextIn(c, m.Memory(humanSize(m, total), humanSize(m, total-used)), pt.AppFont, pt.Black)
 	})
+}
+
+// sourceURL is where the desk's source is.
+const sourceURL = "https://github.com/firede/mygo-platinum"
+
+// sourceLink builds a link to the desk's source: its address, underlined,
+// which opens in the browser when clicked.
+func sourceLink(c *ui.Context) {
+	text := strings.TrimPrefix(sourceURL, "https://")
+	f, a := pt.AppFont, pt.ThemeOf(c).Accent
+	link := ui.Box(c).Size(float32(f.Measure(text)), float32(f.Height()+1)).Cursor(ui.CursorPointer).Role(ui.RoleLink).Label(text)
+	link.Draw(func(p *ui.Painter, r ui.Rect) {
+		pt.NewPen(p, r).TextStyled(0, 0, text, f, a.Dark, pt.Underline)
+	})
+	if link.Clicked() {
+		c.OpenURL(sourceURL)
+	}
 }
 
 // accentName returns the name of an accent in the language of m.

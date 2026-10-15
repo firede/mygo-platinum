@@ -9,6 +9,7 @@
 //	go run ./examples/desktop
 //	go run ./examples/desktop -png desktop.png               # a picture, without a window
 //	go run ./examples/desktop -png desktop.png -lang zh-Hans # the same, in Chinese
+//	go run ./examples/desktop -site dir                      # the pictures of its web page
 package main
 
 import (
@@ -17,6 +18,7 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/egoist/mygo"
@@ -33,24 +35,23 @@ func main() {
 	capture := flag.String("capture", "", "open the scene in a window, save what the window shows to this PNG file and exit")
 	scale := flag.Float64("scale", 1, "the scale of the PNG")
 	lang := flag.String("lang", "", "the language of the PNG, as zh-Hans")
+	site := flag.String("site", "", "render the pictures of the desk's web page to this directory and exit")
 	flag.Parse()
+	if *site != "" {
+		writeSite(*site)
+		return
+	}
 	if *out != "" {
-		img := renderScene(float32(*scale), *lang)
-		f, err := os.Create(*out)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := png.Encode(f, img); err != nil {
-			log.Fatal(err)
-		}
-		if err := f.Close(); err != nil {
-			log.Fatal(err)
-		}
+		savePNG(*out, renderScene(float32(*scale), *lang))
 		return
 	}
 	d := newDesk(time.Now)
 	if *capture != "" {
 		d = scene("")
+	} else if runtime.GOOS == "js" {
+		// In a browser the desk is a web page's, seen once: it opens with
+		// its disk and its Read Me.
+		d.greet()
 	}
 	d.setLocale = func(tag string) { mygo.App.SetLocale(tag) }
 	// The desk draws its own menus. Native menu accelerators would close
@@ -83,6 +84,19 @@ func main() {
 	d.quit = func() { mygo.App.Quit() }
 	if err := mygo.App.Run(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+// greet opens the disk's window and the Read Me in it.
+func (d *desk) greet() {
+	f := d.openFolder(d.disk)
+	f.frame.X, f.frame.Y = 24, 20
+	for _, n := range d.disk.children {
+		if n.kind == kindDocument {
+			d.openNode(n)
+			r := d.front()
+			r.frame.X, r.frame.Y = 200, 140
+		}
 	}
 }
 
@@ -124,6 +138,20 @@ func scene(lang string) *desk {
 	p := d.launch(appPuzzle)
 	p.frame.X, p.frame.Y = 120, 290
 	return d
+}
+
+// savePNG writes img to the file at path, or ends the program.
+func savePNG(path string, img image.Image) {
+	f, err := os.Create(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := png.Encode(f, img); err != nil {
+		log.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func renderScene(scale float32, lang string) *image.RGBA {

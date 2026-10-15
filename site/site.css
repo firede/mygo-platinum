@@ -1,0 +1,152 @@
+/* The page is a desk of the library's own pictures: the frames of its
+   window, buttons, field and progress bar are drawn by the library at a
+   scale of 1 and stretched around the page's content (border-image),
+   scaled without smoothing. Type is Platinum Fonts at 12px, a pixel of
+   the faces to a CSS pixel. */
+
+@font-face { font-family: "PS SC"; src: url(fonts/sans-bold-sc.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PS TC"; src: url(fonts/sans-bold-tc.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PS JP"; src: url(fonts/sans-bold-jp.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PS KR"; src: url(fonts/sans-bold-kr.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PSS SC"; src: url(fonts/sans-small-sc.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PSS TC"; src: url(fonts/sans-small-tc.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PSS JP"; src: url(fonts/sans-small-jp.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "PSS KR"; src: url(fonts/sans-small-kr.woff2) format("woff2"); font-display: block; }
+
+:root {
+  color-scheme: light;
+  --black: #000;
+  --white: #fff;
+  --gray2: #ddd;
+  --gray8: #777;
+  --gray9: #666;
+  --accent-dark: #4c4ca8;
+  --accent-light: #ccf;
+  --system: "PS SC";
+  --app: "PSS SC";
+}
+:root:lang(zh-Hant) { --system: "PS TC"; --app: "PSS TC"; }
+:root:lang(ja) { --system: "PS JP"; --app: "PSS JP"; }
+:root:lang(ko) { --system: "PS KR"; --app: "PSS KR"; }
+
+* { box-sizing: border-box; }
+[hidden]:not(#mygo) { display: none !important; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: #99c url(pattern.png);
+  color: var(--black);
+  font: 12px/16px var(--app), monospace;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  font-kerning: none;
+  text-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+}
+img { image-rendering: pixelated; }
+::selection { background: var(--accent-light); }
+a { color: var(--accent-dark); text-decoration: underline; text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: 1px; }
+
+/* The menu bar, as the desk draws it: 20px, a white line above, a black
+   one below, titles 9px from either side, 10px in from the ends. */
+.menubar {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; height: 20px; padding: 0 10px;
+  background: var(--gray2);
+  border-top: 1px solid var(--white);
+  border-bottom: 1px solid var(--black);
+  font-family: var(--system);
+  white-space: nowrap; overflow: hidden;
+  user-select: none;
+}
+.menu { display: flex; align-items: flex-start; padding: 2px 9px 0; height: 18px; }
+.menu img { margin-top: 2px; }
+.menu.icon img { margin-top: 2px; }
+.menu > img + span { margin-left: 4px; }
+.menu.right { margin-left: auto; }
+/* Before the desk starts its menus wait, dimmed, as under a modal dialog;
+   the clock goes on. */
+.menubar.waiting .menu:not(#clock) { color: var(--gray8); }
+
+/* The window: its frame from window.png, 19px of title bar above and
+   6px at the sides and bottom. */
+.desk { display: flex; justify-content: center; padding: 48px 16px 64px; }
+.window {
+  width: 100%; max-width: 380px;
+  border-style: solid;
+  border-width: 19px 6px 6px;
+  border-image: url(window.png) 19 6 6 fill / 19px 6px 6px stretch;
+  padding: 14px 16px 12px;
+}
+/* The name, four times the size: its capitals' tops 8px under the line's
+   top, its baseline 44px. */
+h1 { margin: -8px 0 0; font: 48px/56px var(--system); }
+.tagline { margin: 0 0 10px; font-family: var(--system); }
+.about { margin: 0 0 12px; }
+
+.facts {
+  display: grid; grid-template-columns: max-content 1fr;
+  gap: 6px 10px; margin: 0 0 14px; align-items: baseline;
+}
+.facts dt { font-family: var(--system); }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.field {
+  display: block; padding: 3px 4px;
+  border-style: solid; border-width: 2px;
+  border-image: url(field.png) 2 fill / 2px stretch;
+  font: inherit; user-select: all; overflow-x: auto; white-space: nowrap;
+}
+
+/* Buttons: 20px tall, their frames from button.png; the default one in
+   its ring, 4px around it. */
+.buttons { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+.button {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 20px; min-width: 64px; padding: 0 12px;
+  border-style: solid; border-width: 4px;
+  border-image: url(button.png) 4 fill / 4px stretch;
+  background: none; color: var(--black); text-decoration: none;
+  font: 12px/14px var(--system); cursor: default;
+}
+.button:active:not(:disabled) { border-image-source: url(button-pressed.png); color: var(--white); }
+.button > * { pointer-events: none; }
+.button.default {
+  height: 28px; min-width: 72px; padding: 0 16px;
+  border-width: 8px;
+  border-image: url(button-default.png) 8 fill / 8px stretch;
+}
+.button.default:active:enabled { border-image-source: url(button-default-pressed.png); }
+.button.default:disabled { border-image-source: url(button-default-disabled.png); color: var(--gray8); }
+
+/* What the desk is doing as it loads, over the bar of how far. */
+.loading { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.progress {
+  position: relative; height: 12px;
+  border-style: solid; border-width: 2px;
+  border-image: url(progress.png) 2 fill / 2px stretch;
+}
+.fill {
+  position: absolute; inset: -2px;
+  border-style: solid; border-width: 2px;
+  border-image: url(progress-full.png) 2 fill / 2px stretch;
+  clip-path: inset(0 calc(100% - 1px - var(--done, 0) * (100% - 2px)) 0 0);
+}
+
+/* Screens too small or touched: no desk to start, a picture of it. */
+.narrow { display: none; }
+.narrow p { margin: 0 0 8px; }
+.peek {
+  overflow-x: auto; border: 1px solid var(--black);
+  background: var(--black);
+}
+.peek img { display: block; width: 900px; height: auto; max-width: none; }
+@media (max-width: 759px), (pointer: coarse) {
+  .wide { display: none; }
+  .narrow { display: block; }
+  .desk { padding-top: 24px; }
+  .menu:nth-child(n+4):not(.right):not(:last-child) { display: none; }
+}
+
+/* The desk itself, once started, over everything. */
+#mygo { position: fixed; inset: 0; z-index: 2; background: #99c url(pattern.png); }
+#mygo[hidden] { display: block; visibility: hidden; }

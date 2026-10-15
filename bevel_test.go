@@ -49,7 +49,7 @@ func TestSnapshotBevelAndSegmented(t *testing.T) {
 					DrawBevelButton(pn, StatePressed, false)
 					pn.TextCentered(1, 1, pn.W, pn.H, "Pressed", SystemFont, Black)
 				})
-				Segmented(c, &seg, []string{"Left", "Center", "Right"})
+				Segmented(c, &seg, "Left", "Center", "Right")
 			})
 			Toolbar(c, []ToolItem{
 				{Label: "New", Icon: pageIcon, IconOnly: true},
@@ -98,7 +98,7 @@ func TestSegmentedKeys(t *testing.T) {
 	view := func(c *ui.Context) {
 		Use(c, nil)
 		ui.Row(c).Padding(10).Children(func() {
-			Segmented(c, &sel, []string{"One", "Two", "Three"})
+			Segmented(c, &sel, "One", "Two", "Three")
 		})
 	}
 	tt := ui.NewTester(view, 300, 60)

@@ -45,8 +45,9 @@ type MenuItem struct {
 	Action func()
 }
 
-// Divider returns a separator, for a menu's list of items.
-func Divider() MenuItem { return MenuItem{Separator: true} }
+// SeparatorItem returns a separator, for a menu's list of items, as MyGo's
+// menus have Separator; Separator draws one in a window.
+func SeparatorItem() MenuItem { return MenuItem{Separator: true} }
 
 // Menu is a menu of a menu bar.
 type Menu struct {
@@ -611,6 +612,8 @@ func trackerOverlay(c *ui.Context, t *menuTracker, a Accent, onPointer func(ev u
 // pointer on a click of the secondary button, or a Control-click, and
 // chooses as the menus of a menu bar do. Shift-F10 opens it from the
 // keyboard while target has the focus.
+//
+// The counterpart among MyGo's own controls is Element.ContextMenu.
 func ContextMenu(c *ui.Context, target ui.Element, items []MenuItem) {
 	th := ThemeOf(c)
 	st := ui.Local(target, "contextmenu", func() bevelState { return bevelState{} })

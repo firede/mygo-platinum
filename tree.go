@@ -42,8 +42,8 @@ func flatten(nodes []*TreeNode, level int, out []treeRow) []treeRow {
 	return out
 }
 
-// TreeWidget is a tree view being built.
-type TreeWidget struct {
+// TreeViewWidget is a tree view being built.
+type TreeViewWidget struct {
 	el        ui.Element
 	changed   bool
 	activated bool
@@ -65,9 +65,11 @@ type treeState struct {
 // keyboard focus, Up and Down move the choice, Right opens the item chosen
 // or goes into it, Left closes it or goes to its parent, typing the start
 // of a title chooses it, and Return activates. Give it a size.
-func TreeView(c *ui.Context, roots []*TreeNode, selected **TreeNode) *TreeWidget {
+//
+// The counterpart among MyGo's own controls is ui.Tree.
+func TreeView(c *ui.Context, roots []*TreeNode, selected **TreeNode) *TreeViewWidget {
 	th := ThemeOf(c)
-	w := &TreeWidget{}
+	w := &TreeViewWidget{}
 	w.el = ui.Row(c).Focusable().FocusRing(false).Role(ui.RoleTree).Size(200, 160).AlignItems(ui.Stretch).Padding(1)
 	st := ui.Local(w.el, "tree", func() treeState { return treeState{} })
 	if st.changed {
@@ -244,17 +246,17 @@ func TreeView(c *ui.Context, roots []*TreeNode, selected **TreeNode) *TreeWidget
 
 // Changed reports whether the user chose another item since the last
 // frame.
-func (w *TreeWidget) Changed() bool { return report(w.el, w.changed) }
+func (w *TreeViewWidget) Changed() bool { return report(w.el, w.changed) }
 
-// Activated reports whether the user double-clicked an item, or pressed
-// Return, since the last frame.
-func (w *TreeWidget) Activated() bool { return report(w.el, w.activated) }
+// Submitted reports whether the user double-clicked an item, or pressed
+// Return, since the last frame, as MyGo's lists report it.
+func (w *TreeViewWidget) Submitted() bool { return report(w.el, w.activated) }
 
 // Element returns the tree view's element, to size it.
-func (w *TreeWidget) Element() ui.Element { return w.el }
+func (w *TreeViewWidget) Element() ui.Element { return w.el }
 
 // Label names the tree view.
-func (w *TreeWidget) Label(s string) *TreeWidget { w.el.Label(s); return w }
+func (w *TreeViewWidget) Label(s string) *TreeViewWidget { w.el.Label(s); return w }
 
 // DrawTree draws the rows of a tree view of roots — those open showing their
 // children — from row top in pn's box, sel highlighted (in the accent while

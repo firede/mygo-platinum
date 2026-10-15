@@ -57,7 +57,7 @@ func TestLocalCopyBindings(t *testing.T) {
 			app = v
 		}, click("Beta"), 0},
 		{"Disclosure", func(c *ui.Context) { v := app.(bool); Disclosure(c, &v, "More"); app = v }, click("More"), false},
-		{"Segmented", func(c *ui.Context) { v := app.(int); Segmented(c, &v, items); app = v }, click("Beta"), 0},
+		{"Segmented", func(c *ui.Context) { v := app.(int); Segmented(c, &v, items...); app = v }, click("Beta"), 0},
 		{"TabControl", func(c *ui.Context) { v := app.(int); TabControl(c, &v, items, func(int) {}); app = v }, click("Beta"), 0},
 		{"DocumentTabs", func(c *ui.Context) { v := app.(int); DocumentTabs(c, &v, items, func(int) {}); app = v }, click("Beta"), 0},
 		{"PopupMenu", func(c *ui.Context) { v := app.(int); PopupMenu(c, &v, "Sort:", items); app = v }, func(t *testing.T, tt *ui.Tester) {
@@ -78,7 +78,7 @@ func TestLocalCopyBindings(t *testing.T) {
 		{"TextField", func(c *ui.Context) { v := app.(string); TextField(c, &v); app = v }, typing, ""},
 		{"TextArea", func(c *ui.Context) { v := app.(string); TextArea(c, &v); app = v }, typing, ""},
 		{"SearchField", func(c *ui.Context) { v := app.(string); SearchField(c, &v); app = v }, typing, ""},
-		{"ComboBox", func(c *ui.Context) { v := app.(string); ComboBox(c, &v, items); app = v }, typing, ""},
+		{"Combobox", func(c *ui.Context) { v := app.(string); Combobox(c, &v, items); app = v }, typing, ""},
 		{"ListBox", func(c *ui.Context) { v := app.(int); ListBox(c, &v, items); app = v }, click("Beta"), 0},
 		{"IconView", func(c *ui.Context) {
 			v := app.(int)
@@ -86,7 +86,7 @@ func TestLocalCopyBindings(t *testing.T) {
 			app = v
 		}, click("Beta"), -1},
 		{"Calendar", func(c *ui.Context) { v := app.(time.Time); Calendar(c, &v); app = v }, keys(ui.KeyRight), day},
-		{"ColorWell", func(c *ui.Context) { v := app.(ui.Color); ColorWell(c, &v, "Tint"); app = v }, click("Tint", "OK"), ui.Color{}},
+		{"ColorWell", func(c *ui.Context) { v := app.(ui.Color); ColorWell(c, &v).Label("Tint"); app = v }, click("Tint", "OK"), ui.Color{}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			app = tc.zero

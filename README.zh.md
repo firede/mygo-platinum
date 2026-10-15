@@ -55,12 +55,12 @@
 | 树视图、可排序表格、图标视图 | `TreeView`、`Table`、`IconView` |
 | 分栏、滚动视图、工具窗口 | `Split`、`ScrollView`、带 `Utility` 的 `Window` |
 | 日历、日期选择器、时间输入框 | `Calendar`、`DatePicker`、`TimeField` |
-| 组合框、颜色槽与取色器 | `ComboBox`、`ColorWell` |
+| 组合框、颜色槽与取色器 | `Combobox`、`ColorWell` |
 | 带公式的电子表格、公式栏 | `Sheet`、`FormulaBar` |
 | 查找替换对话框、标尺 | `FindReplace`、`Find`、`ReplaceAll`、`Ruler` |
 | 分栏视图、文档标签页、字体选择器、页面设置 | `ColumnView`、`DocumentTabs`、`FontPicker`、`PageSetup` |
 | 进度对话框、横幅、提示消息（toast）、空状态 | `ProgressDialog`、`Banner`、`Toasts`、`EmptyState` |
-| 路径弹出菜单、面包屑、分页、卡片、状态栏 | `PathPopup`、`Breadcrumb`、`Pagination`、`Card`、`StatusBar` |
+| 路径弹出菜单、面包屑、分页、卡片、状态栏 | `PathPopup`、`Breadcrumbs`、`Pagination`、`Card`、`StatusBar` |
 | 富文本：样式、四种字号、段落对齐；格式栏 | `RichTextArea`、`FormatBar`、`SizeMenu` |
 | 停靠在底边的弹出窗口 | `PopupWindow`、`SpringOpen` |
 | 打开与保存对话框 | `OpenDialog`、`SaveDialog` |
@@ -70,6 +70,24 @@
 窗口时的非活动状态），可以完全用键盘操作，通过 MyGo 的无障碍支持向屏幕阅读器
 描述自己，并且都有一个能编译运行的 godoc 示例。有独特外观的控件还导出了对应的
 `Draw…` 函数，方便你画出外观一致的自定义控件。
+
+MyGo 自带的控件，本库沿用 MyGo 的名字和参数：`Button`、`Checkbox`、`Radio`、
+`Slider`、`Stepper`、`Segmented`、`Split`、`TextArea`、`SearchField`、
+`Combobox`、`ColorWell`、`Calendar`、`Badge`、`Breadcrumbs`、`Table`；报告用户
+操作的方式也一样（`Clicked`、`Changed`、`Submitted`，以及元素上的 `OnChange`）。
+其余控件用那个年代的叫法：
+
+| 本库 | MyGo 自带 |
+|---|---|
+| `PopupMenu` | `ui.Select` |
+| `TabControl` | `ui.Tabs` |
+| `ListBox`、`TreeView` | `ui.List`、`ui.Tree` |
+| `TextField`、`NumberField`、`TimeField`、`DatePicker` | `ui.TextInput`、`ui.NumberInput`、`ui.TimeInput`、`ui.DateInput` |
+| `ProgressBar`、`ChasingArrows` | `ui.Progress`、`ui.Spinner` |
+| `GroupBox`、`Separator`、`Disclosure` | `ui.Fieldset`、`ui.Divider`、`ui.Collapsible` |
+| `Alert`、`Dialog` | `ui.AlertDialog`、`ui.Modal` |
+| `Balloon`、`ContextMenu` | `Element.Tooltip`、`Element.ContextMenu` |
+| `Toasts` | 以本库外观绘制 `c.Toast` |
 
 ## 使用
 

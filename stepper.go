@@ -204,6 +204,8 @@ type NumberFieldWidget struct {
 // arrows beside it stepping it by step. Typing changes the number once the
 // text is a number; Return or leaving the field puts the text back in
 // order. digits sets how many decimals it shows.
+//
+// The counterpart among MyGo's own controls is ui.NumberInput.
 func NumberField(c *ui.Context, value *float64, lo, hi, step float64, digits int) *NumberFieldWidget {
 	return numberField(c, value, lo, hi, step, digits, 0, 56)
 }

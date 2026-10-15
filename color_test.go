@@ -11,7 +11,7 @@ func TestColorWell(t *testing.T) {
 	col := Lavender.Mid
 	view := func(c *ui.Context) {
 		Use(c, nil)
-		ui.Column(c).Padding(10).Children(func() { ColorWell(c, &col, "Highlight") })
+		ui.Column(c).Padding(10).Children(func() { ColorWell(c, &col).Label("Highlight") })
 	}
 	tt := ui.NewTester(view, 340, 300)
 	if err := tt.Click("Highlight"); err != nil {

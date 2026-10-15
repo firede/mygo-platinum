@@ -6,8 +6,8 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// ComboBoxWidget is a combo box being built.
-type ComboBoxWidget struct {
+// ComboboxWidget is a combo box being built.
+type ComboboxWidget struct {
 	el      ui.Element
 	field   ui.Element
 	button  ui.Element
@@ -20,13 +20,15 @@ type comboState struct {
 	rect ui.Rect
 }
 
-// ComboBox builds a text field editing *value with an arrow button at its
+// Combobox builds a text field editing *value with an arrow button at its
 // right that opens a menu of items: those that start as the text does, or
 // all of them while it is empty. Choosing one puts it in the field. Down
 // opens the menu from the keyboard.
-func ComboBox(c *ui.Context, value *string, items []string) *ComboBoxWidget {
+//
+// The counterpart among MyGo's own controls is ui.Combobox.
+func Combobox(c *ui.Context, value *string, items []string) *ComboboxWidget {
 	th := ThemeOf(c)
-	w := &ComboBoxWidget{locale: c.Locale()}
+	w := &ComboboxWidget{locale: c.Locale()}
 	w.el = ui.Row(c).Gap(0).AlignItems(ui.Center).AlignSelf(ui.Start)
 	st := ui.Local(w.el, "combo", func() comboState { return comboState{} })
 	cw, ch := c.Size()
@@ -94,14 +96,14 @@ func ComboBox(c *ui.Context, value *string, items []string) *ComboBoxWidget {
 }
 
 // Changed reports whether the text changed since the last frame.
-func (w *ComboBoxWidget) Changed() bool { return report(w.el, w.changed) }
+func (w *ComboboxWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the combo box's element.
-func (w *ComboBoxWidget) Element() ui.Element { return w.el }
+func (w *ComboboxWidget) Element() ui.Element { return w.el }
 
 // Label names the combo box for assistive technology and tests: the
 // group, the field, and the button of its choices, as "<l> choices".
-func (w *ComboBoxWidget) Label(l string) *ComboBoxWidget {
+func (w *ComboboxWidget) Label(l string) *ComboboxWidget {
 	w.el.Role(ui.RoleGroup).Label(l)
 	w.field.Label(l)
 	w.button.Label(catalog().Format(w.locale, "choicesOf", map[string]any{"name": l}))

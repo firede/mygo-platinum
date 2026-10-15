@@ -12,8 +12,8 @@ const (
 	tabInset   = 8  // from the pane's left edge to the first tab
 )
 
-// TabsWidget is a tab control being built.
-type TabsWidget struct {
+// TabControlWidget is a tab control being built.
+type TabControlWidget struct {
 	parts ui.TabsParts
 	el    ui.Element
 }
@@ -22,9 +22,11 @@ type TabsWidget struct {
 // raised pane that shows the page of the tab chosen, *selected. fn builds
 // that page, given its index. A click chooses a tab, and the arrows, Home
 // and End move the choice while a tab has the keyboard focus.
-func TabControl(c *ui.Context, selected *int, labels []string, fn func(i int)) *TabsWidget {
+//
+// The counterpart among MyGo's own controls is ui.Tabs.
+func TabControl(c *ui.Context, selected *int, labels []string, fn func(i int)) *TabControlWidget {
 	th := ThemeOf(c)
-	t := &TabsWidget{}
+	t := &TabControlWidget{}
 	tabState := StateNormal
 	if inactive(c) {
 		tabState = StateInactive
@@ -78,10 +80,10 @@ func TabControl(c *ui.Context, selected *int, labels []string, fn func(i int)) *
 }
 
 // Changed reports whether the user chose another tab since the last frame.
-func (t *TabsWidget) Changed() bool { return t.parts.List.Changed() }
+func (t *TabControlWidget) Changed() bool { return t.parts.List.Changed() }
 
 // Element returns the element holding the tabs and their pane.
-func (t *TabsWidget) Element() ui.Element { return t.el }
+func (t *TabControlWidget) Element() ui.Element { return t.el }
 
 // DrawTab draws a tab labeled label filling pn's box: its top corners
 // rounded, its bottom open onto the pane when selected.
@@ -150,6 +152,7 @@ func DrawTabPane(pn Pen, gapX, gapW int) {
 type DocumentTabsWidget struct {
 	el     ui.Element
 	closed int
+	parts  ui.TabsParts
 }
 
 // DocumentTabs builds the tabs of the documents of a window, choosing
@@ -174,6 +177,7 @@ func DocumentTabs(c *ui.Context, selected *int, titles []string, fn func(i int))
 	w.el = ui.Column(c).AlignItems(ui.Stretch)
 	w.el.Children(func() {
 		parts := ui.TabsBase(c, selected, n)
+		w.parts = parts
 		parts.List.Height(TabHeight+TabRaise).Padding(0, 0, 0, 4).AlignItems(ui.End)
 		if parts.List.Shortcut(ui.Cmd, ui.KeyW) && n > 0 {
 			w.closed = *selected
@@ -226,6 +230,10 @@ func (w *DocumentTabsWidget) Closed() int {
 	report(w.el, w.closed >= 0)
 	return w.closed
 }
+
+// Changed reports whether the user chose another document since the last
+// frame.
+func (w *DocumentTabsWidget) Changed() bool { return w.parts.List.Changed() }
 
 // Element returns the element of the tabs and their pane.
 func (w *DocumentTabsWidget) Element() ui.Element { return w.el }

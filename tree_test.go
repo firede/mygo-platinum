@@ -15,7 +15,7 @@ func TestTreeViewKeys(t *testing.T) {
 		ui.Column(c).Padding(10).Children(func() {
 			tv := TreeView(c, roots, &sel)
 			tv.Element().Size(180, 100).Label("Files")
-			if tv.Activated() {
+			if tv.Submitted() {
 				activated++
 			}
 		})

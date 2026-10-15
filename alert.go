@@ -30,6 +30,8 @@ const (
 // keyboard while it shows: Return and Enter press the default button, and
 // Escape and Command-period a button named "Cancel". It returns the index
 // of the button the user pressed, and closes, or -1.
+//
+// The counterpart among MyGo's own controls is ui.AlertDialog.
 func Alert(c *ui.Context, open *bool, kind AlertKind, message, detail string, buttons ...string) int {
 	chosen := -1
 	if !*open {
@@ -170,6 +172,8 @@ type dialogState struct {
 // controls fn builds, in a column. It keeps the keyboard while it shows;
 // Escape closes it, unless fn's buttons take it. It first shows centered,
 // as wide as width.
+//
+// The counterpart among MyGo's own controls is ui.Modal.
 func Dialog(c *ui.Context, open *bool, title string, width int, fn func()) {
 	if !*open {
 		return

@@ -36,7 +36,7 @@ type catalog struct {
 	diskIn         string         // and the language it was made in
 	table          *pt.TableState
 	icon           int
-	split          float64
+	split, splitV  float32
 	scrollView     ui.ScrollState
 	day            time.Time
 	combo          string
@@ -75,7 +75,7 @@ func newCatalogWindow(d *desk) *win {
 		on: true, mixed: true, mixedShown: true, radio: "two", slider: 40, open: true,
 		windows: []*pt.WindowState{{X: 6, Y: 30, W: 150, H: 80}, {X: 30, Y: 8, W: 170, H: 90}},
 		toggle:  true, segment: 1, number: 2, steps: 4,
-		table: pt.NewTableState(), icon: 1, split: 120,
+		table: pt.NewTableState(), icon: 1, split: 120, splitV: 40,
 		day: d.now(), color: pt.Lavender.Mid,
 		sheet: pt.NewSheetState(), ruler: pt.RulerState{Left: 9, Right: 270},
 		font: pt.FontChoice{Family: "Sans", Size: 12}, page: 2,
@@ -236,7 +236,7 @@ func catalogPages() []catalogPage {
 		{"MenuBar", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			ui.Column(c).Width(300).AlignItems(ui.Stretch).Children(func() {
 				pt.MenuBar(c, []pt.Menu{
-					{Title: m.MenuFile(), Items: []pt.MenuItem{{Title: m.Open(), Key: ui.KeyO}, pt.Divider(), {Title: m.Save(), Key: ui.KeyS, Disabled: true}}},
+					{Title: m.MenuFile(), Items: []pt.MenuItem{{Title: m.Open(), Key: ui.KeyO}, pt.SeparatorItem(), {Title: m.Save(), Key: ui.KeyS, Disabled: true}}},
 					{Title: m.MenuEdit(), Items: []pt.MenuItem{{Title: m.Copy(), Key: ui.KeyC}, {Title: m.Paste(), Key: ui.KeyV}}},
 				})
 			})
@@ -278,7 +278,7 @@ func catalogPages() []catalogPage {
 			})
 		}},
 		{"Segmented", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			pt.Segmented(c, &k.segment, []string{m.CatOne(), m.CatTwo(), m.CatThree()})
+			pt.Segmented(c, &k.segment, m.CatOne(), m.CatTwo(), m.CatThree())
 		}},
 		{"Toolbar, ToolbarSeparator", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			ui.Column(c).Width(300).AlignItems(ui.Stretch).Children(func() {
@@ -341,7 +341,7 @@ func catalogPages() []catalogPage {
 		{"Table", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			items := []string{m.Rent(), m.Groceries(), m.LampOil(), m.Books()}
 			costs := []int{1200, 340, 18, 65}
-			cols := []pt.Column{{Title: m.Item(), Width: 150}, {Title: m.Cost(), Width: 100, Right: true}}
+			cols := []pt.TableColumn{{Title: m.Item(), Width: 150}, {Title: m.Cost(), Width: 100, Right: true}}
 			pt.Table(c, k.table, cols, len(items), func(r, col int) string {
 				if col == 0 {
 					return items[r]
@@ -357,9 +357,9 @@ func catalogPages() []catalogPage {
 				{Name: m.Puzzle(), Icon: iconPuzzle.normal},
 			}, &k.icon).Element().Size(280, 110)
 		}},
-		{"Split, ScrollView", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
+		{"Split, SplitVertical, ScrollView", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			ui.Box(c).Size(300, 120).Children(func() {
-				pt.Split(c, &k.split, false, func() {
+				pt.Split(c, &k.split, func() {
 					ui.Column(c).Padding(6).Children(func() {
 						pt.TextIn(c, m.CatOne(), pt.AppFont, pt.Black)
 					})
@@ -371,6 +371,17 @@ func catalogPages() []catalogPage {
 					}).Grow(1)
 				}).Fill()
 			})
+			ui.Box(c).Size(300, 100).Children(func() {
+				pt.SplitVertical(c, &k.splitV, func() {
+					ui.Column(c).Padding(6).Children(func() {
+						pt.TextIn(c, m.CatOne(), pt.AppFont, pt.Black)
+					})
+				}, func() {
+					ui.Column(c).Padding(6).Children(func() {
+						pt.TextIn(c, m.CatTwo(), pt.AppFont, pt.Black)
+					})
+				}).Fill()
+			})
 		}},
 		{"Calendar", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			pt.Calendar(c, &k.day)
@@ -379,11 +390,11 @@ func catalogPages() []catalogPage {
 			pt.DatePicker(c, &k.day)
 			pt.TimeField(c, &k.day, 5)
 		}},
-		{"ComboBox", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			pt.ComboBox(c, &k.combo, []string{m.Slow(), m.Medium(), m.Fast()})
+		{"Combobox", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
+			pt.Combobox(c, &k.combo, []string{m.Slow(), m.Medium(), m.Fast()})
 		}},
 		{"ColorWell", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			pt.ColorWell(c, &k.color, strings.TrimRight(m.HighlightColor(), ":："))
+			pt.ColorWell(c, &k.color).Label(strings.TrimRight(m.HighlightColor(), ":："))
 		}},
 		{"Sheet, FormulaBar", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			ui.Column(c).Width(300).AlignItems(ui.Stretch).Gap(4).Children(func() {
@@ -466,10 +477,10 @@ func catalogPages() []catalogPage {
 				})
 			})
 		}},
-		{"PathPopup, Breadcrumb", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
+		{"PathPopup, Breadcrumbs", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			path := []string{m.PlatinumDisk(), m.Documents(), m.Letter()}
 			pt.PathPopup(c, path)
-			pt.Breadcrumb(c, path)
+			pt.Breadcrumbs(c, path)
 		}},
 		{"Pagination", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			pt.Pagination(c, &k.page, 5)

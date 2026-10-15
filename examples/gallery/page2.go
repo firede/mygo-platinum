@@ -50,7 +50,7 @@ func (g *gallery) page2(c *ui.Context) {
 						pt.BevelButton(c, "Page").Icon(iconNew)
 						pt.BevelButton(c, "Style").Menu([]pt.MenuItem{{Title: "Plain"}, {Title: "Bold"}})
 					})
-					pt.Segmented(c, &g.segment, []string{"Left", "Center", "Right"})
+					pt.Segmented(c, &g.segment, "Left", "Center", "Right")
 				})
 				pt.GroupBox(c, "Badges and tags", func() {
 					ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {

@@ -40,24 +40,32 @@ type wellState struct {
 	open    bool
 	r, g, b float64
 	old     ui.Color
+	label   string // the well's name, the picker's title
 }
 
 // ColorWellWidget is a color well being built.
 type ColorWellWidget struct {
-	el      ui.Element
-	changed bool
+	el       ui.Element
+	st       *wellState
+	changed  bool
+	disabled bool
 }
 
 // ColorWell builds a color well: a bevel button holding a swatch of *col.
 // Clicking it, or Space, opens a color picker dialog — a palette, sliders of
 // red, green and blue, and the new color beside the old — whose OK sets
-// *col, and Cancel leaves it. label names it.
-func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
+// *col, and Cancel leaves it. Label names it, and titles the picker.
+func ColorWell(c *ui.Context, col *ui.Color) *ColorWellWidget {
 	th := ThemeOf(c)
 	w := &ColorWellWidget{}
-	w.el = ui.ButtonBase(c).FocusRing(false).Role(ui.RoleColorWell).Label(label).
+	w.el = ui.ButtonBase(c).FocusRing(false).Role(ui.RoleColorWell).
 		Value(fmt.Sprintf("#%02X%02X%02X", col.R, col.G, col.B)).Size(ColorWellW, ColorWellH)
 	st := ui.Local(w.el, "well", func() wellState { return wellState{} })
+	w.st = st
+	title := st.label // as the last frame named it
+	if title == "" {
+		title = say(c, "color")
+	}
 	if w.el.Clicked() && !st.open {
 		st.open = true
 		st.old = *col
@@ -67,10 +75,13 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 	focused := w.el.FocusVisible()
 	shown := *col
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
-		pn := NewPen(p, r)
+		pn := NewPen(p, r).Faded(w.disabled)
 		s := StateNormal
 		if pressed {
 			s = StatePressed
+		}
+		if w.disabled {
+			s = StateDisabled
 		}
 		DrawBevelButton(pn, s, false)
 		d := 0
@@ -79,12 +90,12 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 		}
 		pn.Frame(5+d, 5+d, pn.W-10, pn.H-10, Black)
 		pn.Rect(6+d, 6+d, pn.W-12, pn.H-12, shown)
-		if focused {
+		if focused && !w.disabled {
 			DrawFocusRing(pn, 0, th.Accent.Dark)
 		}
 	})
 	if st.open {
-		Dialog(c, &st.open, label, 300, func() {
+		Dialog(c, &st.open, title, 300, func() {
 			now := ui.RGB(uint8(st.r), uint8(st.g), uint8(st.b))
 			ui.Row(c).Gap(12).AlignItems(ui.Start).Children(func() {
 				// The palette.
@@ -141,6 +152,21 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 // Changed reports whether the user chose another color since the last
 // frame.
 func (w *ColorWellWidget) Changed() bool { return report(w.el, w.changed) }
+
+// Label names the well, as screen readers read it, and titles its color
+// picker.
+func (w *ColorWellWidget) Label(s string) *ColorWellWidget {
+	w.el.Label(s)
+	w.st.label = s
+	return w
+}
+
+// Disabled dims the well and makes it take no input while d is true.
+func (w *ColorWellWidget) Disabled(d bool) *ColorWellWidget {
+	w.disabled = d
+	w.el.Disabled(d)
+	return w
+}
 
 // Element returns the well's element.
 func (w *ColorWellWidget) Element() ui.Element { return w.el }

@@ -14,6 +14,7 @@ type DisclosureWidget struct {
 	disabled bool
 	pressed  bool
 	focused  bool
+	changed  bool
 	th       *Theme
 }
 
@@ -21,6 +22,8 @@ type DisclosureWidget struct {
 // labels: it points right while *open is false and down while it is true,
 // and a click, Space or Enter turns it. Left and Right close and open it
 // too. Build what it shows after it, while *open.
+//
+// The counterpart among MyGo's own controls is ui.Collapsible.
 func Disclosure(c *ui.Context, open *bool, label string) *DisclosureWidget {
 	d := &DisclosureWidget{open: open, label: label, th: ThemeOf(c), inactive: inactive(c)}
 	d.el = ui.ButtonBase(c).FocusRing(false).Role(ui.RoleDisclosure).Label(label).Expanded(*open)
@@ -31,6 +34,7 @@ func Disclosure(c *ui.Context, open *bool, label string) *DisclosureWidget {
 		w += CheckGap + SystemFont.Measure(label)
 	}
 	d.el.Size(float32(w), CheckHeight)
+	was := *open
 	if d.el.Clicked() {
 		*open = !*open
 	}
@@ -40,7 +44,9 @@ func Disclosure(c *ui.Context, open *bool, label string) *DisclosureWidget {
 	if d.el.Shortcut(0, ui.KeyLeft) {
 		*open = false
 	}
+	d.changed = *open != was
 	d.el.Draw(d.draw)
+	report(d.el, d.changed)
 	return d
 }
 
@@ -130,3 +136,7 @@ func DrawDisclosure(pn Pen, open bool, s State) {
 		}
 	}
 }
+
+// Changed reports whether the user opened or closed the triangle since
+// the last frame.
+func (d *DisclosureWidget) Changed() bool { return report(d.el, d.changed) }

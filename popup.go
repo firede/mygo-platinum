@@ -18,8 +18,8 @@ type popupState struct {
 	sticky bool
 }
 
-// PopupWidget is a pop-up menu being built.
-type PopupWidget struct {
+// PopupMenuWidget is a pop-up menu being built.
+type PopupMenuWidget struct {
 	inactive bool
 	el       ui.Element
 	changed  bool
@@ -30,17 +30,19 @@ type PopupWidget struct {
 // beveled button showing the item chosen, with an arrow box at its right.
 // Pressing it shows the menu over it, the chosen item over the button;
 // releasing over an item chooses it, and a click without a drag leaves the
-// menu open for a second click. With the keyboard focus, Space, Return and
-// the arrows open it. An item "-" is a separator. A label, if not empty,
+// menu open for a second click. With the keyboard focus, Space, Return, Up
+// and Down open it. An item "-" is a separator. A label, if not empty,
 // shows before the button and names it.
-func PopupMenu(c *ui.Context, selected *int, label string, items []string) *PopupWidget {
+//
+// The counterpart among MyGo's own controls is ui.Select.
+func PopupMenu(c *ui.Context, selected *int, label string, items []string) *PopupMenuWidget {
 	th := ThemeOf(c)
-	w := &PopupWidget{inactive: inactive(c)}
+	w := &PopupMenuWidget{inactive: inactive(c)}
 	menu := make([]MenuItem, len(items))
 	textW := 0
 	for i, s := range items {
 		if s == "-" {
-			menu[i] = Divider()
+			menu[i] = SeparatorItem()
 			continue
 		}
 		menu[i] = MenuItem{Title: s, Checked: i == *selected}
@@ -175,17 +177,17 @@ func PopupMenu(c *ui.Context, selected *int, label string, items []string) *Popu
 }
 
 // Disabled dims the pop-up menu and makes it take no input while d is true.
-func (w *PopupWidget) Disabled(d bool) *PopupWidget {
+func (w *PopupMenuWidget) Disabled(d bool) *PopupMenuWidget {
 	w.disabled = d
 	w.el.Disabled(d)
 	return w
 }
 
 // Changed reports whether the user chose another item since the last frame.
-func (w *PopupWidget) Changed() bool { return report(w.el, w.changed) }
+func (w *PopupMenuWidget) Changed() bool { return report(w.el, w.changed) }
 
 // Element returns the pop-up menu's element.
-func (w *PopupWidget) Element() ui.Element { return w.el }
+func (w *PopupMenuWidget) Element() ui.Element { return w.el }
 
 var popupArrow = []string{
 	"#######",

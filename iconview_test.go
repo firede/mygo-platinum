@@ -19,7 +19,7 @@ func TestIconViewAndUtility(t *testing.T) {
 			Window(c, &frame, "Icons", WindowOptions{Active: true}, func() {
 				iv := IconView(c, items, &sel)
 				iv.Element().Grow(1).FillWidth().Label("Icons")
-				if iv.Activated() {
+				if iv.Submitted() {
 					opened++
 				}
 			})

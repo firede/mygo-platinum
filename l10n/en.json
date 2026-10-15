@@ -21,8 +21,10 @@
     "placeholders": { "name": { "type": "String", "example": "Font" } }
   },
   "close": "Close",
+  "color": "Color",
   "desktop": "Desktop",
   "disk": "Disk",
+  "divider": "Divider",
   "eject": "Eject",
   "families": "Families",
   "files": "Files",

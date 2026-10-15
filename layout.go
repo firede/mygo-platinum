@@ -19,21 +19,30 @@ type splitState struct {
 
 // Split builds two panes side by side, first and second, with a divider
 // between them that the pointer drags, or the arrows move while it has the
-// keyboard focus. *pos is the first pane's width, kept by the app. Vertical
-// stacks the panes instead, *pos being the first one's height. Give the
+// keyboard focus. *pos is the first pane's width, kept by the app. Give the
 // split a size, or let it grow.
-func Split(c *ui.Context, pos *float64, vertical bool, first, second func()) ui.Element {
+func Split(c *ui.Context, pos *float32, first, second func()) ui.Element {
+	return split(c, pos, false, first, second)
+}
+
+// SplitVertical builds a Split whose panes are stacked, *pos being the
+// first one's height.
+func SplitVertical(c *ui.Context, pos *float32, first, second func()) ui.Element {
+	return split(c, pos, true, first, second)
+}
+
+func split(c *ui.Context, pos *float32, vertical bool, first, second func()) ui.Element {
 	th := ThemeOf(c)
 	el := ui.Row(c).AlignItems(ui.Stretch)
 	if vertical {
 		el = ui.Column(c).AlignItems(ui.Stretch)
 	}
 	st := ui.Local(el, "split", func() splitState { return splitState{} })
-	clamp := func(v float64) float64 {
+	clamp := func(v float32) float32 {
 		if st.size <= 0 {
 			return max(v, SplitMin)
 		}
-		return min(max(v, SplitMin), float64(st.size)-SplitterWidth-SplitMin)
+		return min(max(v, SplitMin), st.size-SplitterWidth-SplitMin)
 	}
 	*pos = clamp(*pos)
 	el.Draw(func(p *ui.Painter, r ui.Rect) {
@@ -49,18 +58,18 @@ func Split(c *ui.Context, pos *float64, vertical bool, first, second func()) ui.
 	el.Children(func() {
 		one := ui.Column(c).AlignItems(ui.Stretch).Clip()
 		if vertical {
-			one.Height(float32(*pos))
+			one.Height(*pos)
 		} else {
-			one.Width(float32(*pos))
+			one.Width(*pos)
 		}
 		one.Children(first)
-		div := ui.Box(c).Focusable().FocusRing(false).Role(ui.RoleSplitter).Label("Divider")
+		div := ui.Box(c).Focusable().FocusRing(false).Role(ui.RoleSplitter).Label(say(c, "divider"))
 		if vertical {
 			div.Height(SplitterWidth).Cursor(ui.CursorResizeRow)
 		} else {
 			div.Width(SplitterWidth).Cursor(ui.CursorResizeColumn)
 		}
-		div.Range(SplitMin, float64(st.size)-SplitterWidth-SplitMin, *pos)
+		div.Range(SplitMin, float64(st.size-SplitterWidth-SplitMin), float64(*pos))
 		back, fwd := ui.KeyLeft, ui.KeyRight
 		if vertical {
 			back, fwd = ui.KeyUp, ui.KeyDown
@@ -82,7 +91,7 @@ func Split(c *ui.Context, pos *float64, vertical bool, first, second func()) ui.
 				return false // and take the focus
 			case ui.InputPointerMove:
 				if st.dragging && ev.Button == 0 {
-					*pos = clamp(*pos + float64(at-st.grab))
+					*pos = clamp(*pos + at - st.grab)
 					return true
 				}
 			case ui.InputPointerUp:
@@ -134,6 +143,8 @@ func DrawSplitter(pn Pen, vertical bool) {
 // ScrollView builds a box that scrolls what fn builds up and down, with a
 // Platinum scroll bar at its right that follows it, kept in *st by the
 // app. Give it a size, or let it grow.
+//
+// The counterpart among MyGo's own controls is ui.Scroll.
 func ScrollView(c *ui.Context, st *ui.ScrollState, fn func()) ui.Element {
 	el := ui.Row(c).AlignItems(ui.Stretch).Padding(1)
 	view := ui.Local(el, "scrollview", func() splitState { return splitState{} })

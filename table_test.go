@@ -67,7 +67,7 @@ func TestTableLess(t *testing.T) {
 	var order []int
 	view := func(c *ui.Context) {
 		Use(c, nil)
-		cols := []Column{{Title: "Size", Less: func(a, b int) bool { return bytes[a] < bytes[b] }}}
+		cols := []TableColumn{{Title: "Size", Less: func(a, b int) bool { return bytes[a] < bytes[b] }}}
 		order = Table(c, st, cols, 3, func(r, _ int) string { return sizes[r] }).Order()
 	}
 	ui.NewTester(view, 200, 100).Frame()

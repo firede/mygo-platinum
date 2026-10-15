@@ -20,7 +20,7 @@ type app struct {
 	name, query, note    string
 	confirm, find        bool
 	frame                pt.WindowState
-	split                float64
+	split                float32
 	scroll               ui.ScrollState
 	table                *pt.TableState
 	folders              []*pt.TreeNode
@@ -166,7 +166,7 @@ func ExampleListBox() {
 		pt.Use(c, nil)
 		lb := pt.ListBox(c, &a.font, fonts)
 		lb.Element().Size(160, 96).Label("Fonts")
-		if lb.Activated() {
+		if lb.Submitted() {
 			fmt.Println("chose", fonts[a.font])
 		}
 	})
@@ -205,7 +205,7 @@ func ExampleMenuBar() {
 			pt.MenuBar(c, []pt.Menu{
 				{Title: "File", Items: []pt.MenuItem{
 					{Title: "New", Key: ui.KeyN, Action: func() { fmt.Println("new") }},
-					pt.Divider(),
+					pt.SeparatorItem(),
 					{Title: "Recent", Submenu: []pt.MenuItem{{Title: "Notes"}}},
 					{Title: "Print…", Disabled: true},
 				}},
@@ -260,7 +260,7 @@ func ExampleBevelButton() {
 		pt.BevelButton(c, "Bold").Icon(boldIcon).Toggle(&a.bold)
 		pt.BevelButton(c, "Style").Menu([]pt.MenuItem{{Title: "Plain"}, {Title: "Bold"}})
 		pt.IconButton(c, boldIcon, "Bold")
-		pt.Segmented(c, &a.tab, []string{"Left", "Center", "Right"})
+		pt.Segmented(c, &a.tab, "Left", "Center", "Right")
 	})
 	// Output:
 }
@@ -344,7 +344,7 @@ func ExampleDrawTree() {
 func ExampleTable() {
 	a := &app{table: pt.NewTableState()}
 	rows := [][]string{{"Kiwi", "0.50"}, {"Fig", "2.50"}}
-	cols := []pt.Column{{Title: "Name", Width: 100}, {Title: "Price", Width: 60, Right: true}}
+	cols := []pt.TableColumn{{Title: "Name", Width: 100}, {Title: "Price", Width: 60, Right: true}}
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
 		t := pt.Table(c, a.table, cols, len(rows), func(r, col int) string { return rows[r][col] })
@@ -360,7 +360,7 @@ func ExampleIconView() {
 	a := &app{icons: []pt.IconItem{{Name: "Alpha"}, {Name: "Beta"}}, icon: -1}
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		if pt.IconView(c, a.icons, &a.icon).Activated() {
+		if pt.IconView(c, a.icons, &a.icon).Submitted() {
 			fmt.Println("open", a.icons[a.icon].Name)
 		}
 	})
@@ -371,7 +371,7 @@ func ExampleSplit() {
 	a := &app{split: 120}
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		pt.Split(c, &a.split, false, func() {
+		pt.Split(c, &a.split, func() {
 			pt.Label(c, "Folders")
 		}, func() {
 			pt.ScrollView(c, &a.scroll, func() {
@@ -380,6 +380,19 @@ func ExampleSplit() {
 				}
 			}).Grow(1)
 		}).Size(360, 200)
+	})
+	// Output:
+}
+
+func ExampleSplitVertical() {
+	height := float32(80)
+	render(func(c *ui.Context) {
+		pt.Use(c, nil)
+		pt.SplitVertical(c, &height, func() {
+			pt.Label(c, "Messages")
+		}, func() {
+			pt.Label(c, "Preview")
+		}).Size(240, 200)
 	})
 	// Output:
 }
@@ -421,11 +434,11 @@ func ExampleDatePicker() {
 	// Output:
 }
 
-func ExampleComboBox() {
+func ExampleCombobox() {
 	font := ""
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		pt.ComboBox(c, &font, []string{"Sans", "Serif", "Mono"}).Label("Font")
+		pt.Combobox(c, &font, []string{"Sans", "Serif", "Mono"}).Label("Font")
 	})
 	// Output:
 }
@@ -434,7 +447,7 @@ func ExampleColorWell() {
 	col := pt.Lavender.Mid
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		if pt.ColorWell(c, &col, "Highlight color").Changed() {
+		if pt.ColorWell(c, &col).Label("Highlight color").Changed() {
 			fmt.Println("now", col)
 		}
 	})
@@ -508,7 +521,7 @@ func ExamplePathPopup() {
 		if i := pt.PathPopup(c, path); i >= 0 {
 			path = path[:i+1]
 		}
-		if i := pt.Breadcrumb(c, path); i >= 0 {
+		if i := pt.Breadcrumbs(c, path); i >= 0 {
 			path = path[:i+1]
 		}
 		pt.Pagination(c, &page, 12)
@@ -690,7 +703,7 @@ func ExampleSegmented() {
 	align := 1
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		pt.Segmented(c, &align, []string{"Left", "Center", "Right"}).Label("Alignment")
+		pt.Segmented(c, &align, "Left", "Center", "Right").Label("Alignment")
 	})
 	fmt.Println(align)
 	// Output: 1
@@ -850,11 +863,11 @@ func ExampleToasts() {
 	// Output:
 }
 
-func ExampleBreadcrumb() {
+func ExampleBreadcrumbs() {
 	path := []string{"Platinum Disk", "Documents", "Letters"}
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		if i := pt.Breadcrumb(c, path); i >= 0 {
+		if i := pt.Breadcrumbs(c, path); i >= 0 {
 			path = path[:i+1] // go up to the folder chosen
 		}
 	})

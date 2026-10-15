@@ -13,6 +13,8 @@ const (
 // GroupBox builds a box that groups related controls under title: an
 // etched outline whose top edge the title interrupts. fn builds the
 // controls inside, in a column. An empty title draws the outline alone.
+//
+// The counterpart among MyGo's own controls is ui.Fieldset.
 func GroupBox(c *ui.Context, title string, fn func()) ui.Element {
 	top := GroupPadding
 	if title != "" {
@@ -55,6 +57,8 @@ func DrawGroupBox(pn Pen, title string, disabled bool) {
 
 // Separator builds a horizontal etched line, for dividing a column of
 // controls. Give it a width, or let it stretch across its column.
+//
+// The counterpart among MyGo's own controls is ui.Divider.
 func Separator(c *ui.Context) ui.Element {
 	return ui.Box(c).Height(2).AlignSelf(ui.Stretch).Role(ui.RoleNone).Draw(func(p *ui.Painter, r ui.Rect) {
 		pn := NewPen(p, r)

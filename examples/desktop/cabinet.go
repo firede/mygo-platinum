@@ -138,7 +138,7 @@ func (d *desk) cabinetView(c *ui.Context, w *win) {
 							d.toTrash(it)
 						}
 					}},
-					pt.Divider(),
+					pt.SeparatorItem(),
 					{Title: d.say().NewFolder(), Action: cb.newFolder},
 				})
 			}
@@ -328,7 +328,7 @@ func (d *desk) cabinetTable(c *ui.Context, cb *cabinet) {
 		cb.table.Selected[cb.sel] = true
 	}
 	m := d.say()
-	cols := []pt.Column{{Title: m.ColumnName(), Icon: func(r int) []string { return smallIcon(items[r]) }}, {Title: m.ColumnSize(), Right: true, Less: func(a, b int) bool {
+	cols := []pt.TableColumn{{Title: m.ColumnName(), Icon: func(r int) []string { return smallIcon(items[r]) }}, {Title: m.ColumnSize(), Right: true, Less: func(a, b int) bool {
 		// Folders, which show no size, after documents; documents by bytes.
 		sa, sb := items[a].size(), items[b].size()
 		if fa, fb := items[a].kind == kindFolder, items[b].kind == kindFolder; fa != fb {
@@ -356,7 +356,7 @@ func (d *desk) cabinetTable(c *ui.Context, cb *cabinet) {
 			cb.sel = r
 		}
 	}
-	if tw.Activated() {
+	if tw.Submitted() {
 		if it := cb.selected(); it != nil {
 			d.openNode(it)
 		}
@@ -395,8 +395,8 @@ func (d *desk) cabinetColumns(c *ui.Context, cb *cabinet) {
 	roots := treeOf(cb.dir, treeNodes)
 	cv := pt.ColumnView(c, roots, &cb.path).ScrollBarRoom(pt.GrowBoxSize - 1)
 	cv.Element().Grow(1).FillWidth().Label(cb.dir.name)
-	if t := cv.Activated(); t != nil {
-		if n, ok := t.Data.(*node); ok {
+	if cv.Submitted() && len(cb.path) > 0 {
+		if n, ok := cb.path[len(cb.path)-1].Data.(*node); ok {
 			d.openNode(n)
 		}
 	}

@@ -37,11 +37,13 @@ func PathPopup(c *ui.Context, path []string) int {
 
 var crumbArrow = []string{"#..", "##.", "###", "##.", "#.."}
 
-// Breadcrumb builds a row of the folders of path, the outermost first,
+// Breadcrumbs builds a row of the folders of path, the outermost first,
 // with arrows between them; a click on one, or Space or Return while it has
 // the keyboard focus, goes there. It returns the index of the one chosen,
 // or -1.
-func Breadcrumb(c *ui.Context, path []string) int {
+//
+// The counterpart among MyGo's own controls is ui.Breadcrumbs.
+func Breadcrumbs(c *ui.Context, path []string) int {
 	th := ThemeOf(c)
 	chosen := -1
 	ui.Row(c).Gap(2).AlignItems(ui.Center).Role(ui.RoleGroup).Label(say(c, "path")).FocusGroup(ui.Horizontal).Children(func() {

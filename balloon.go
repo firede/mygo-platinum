@@ -7,6 +7,8 @@ import (
 // Balloon gives anchor a help balloon: a rounded white balloon with a tail
 // pointing at it, holding text in the regular face, which shows as the
 // pointer rests on anchor or the keyboard focus comes to it.
+//
+// The counterpart among MyGo's own controls is Element.Tooltip.
 func Balloon(c *ui.Context, anchor ui.Element, text string) {
 	ui.TooltipBase(c, anchor, func(tip ui.Element) {
 		width := min(AppFont.Measure(text), 200)

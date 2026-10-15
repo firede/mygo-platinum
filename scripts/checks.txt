@@ -78,7 +78,7 @@ test::ExampleBadge
 test::ExampleBalloon
 test::ExampleBanner
 test::ExampleBevelButton
-test::ExampleBreadcrumb
+test::ExampleBreadcrumbs
 test::ExampleButton
 test::ExampleCalendar
 test::ExampleCard
@@ -86,7 +86,7 @@ test::ExampleChasingArrows
 test::ExampleCheckbox
 test::ExampleColorWell
 test::ExampleColumnView
-test::ExampleComboBox
+test::ExampleCombobox
 test::ExampleContextMenu
 test::ExampleDatePicker
 test::ExampleDialog
@@ -132,6 +132,7 @@ test::ExampleSeparator
 test::ExampleSheet
 test::ExampleSlider
 test::ExampleSplit
+test::ExampleSplitVertical
 test::ExampleStatusBar
 test::ExampleStepper
 test::ExampleTabControl
@@ -185,7 +186,7 @@ test::TestLocalCopyBindings
 test::TestLocalCopyBindings/Calendar
 test::TestLocalCopyBindings/Checkbox
 test::TestLocalCopyBindings/ColorWell
-test::TestLocalCopyBindings/ComboBox
+test::TestLocalCopyBindings/Combobox
 test::TestLocalCopyBindings/Disclosure
 test::TestLocalCopyBindings/DocumentTabs
 test::TestLocalCopyBindings/IconView
@@ -205,6 +206,7 @@ test::TestMenuBarClickChoose
 test::TestMenuBarDragChoose
 test::TestMenuBarEmptyMenu
 test::TestMenuBarKeyboard
+test::TestOnChange
 test::TestOpenDialog
 test::TestPasswordNeverCopies
 test::TestPathsAndPages
@@ -252,6 +254,7 @@ test::TestSnapshotSaveDialogChinese
 test::TestSnapshotScrollBar
 test::TestSnapshotSlider
 test::TestSnapshotSmallStatus
+test::TestSnapshotSplitVertical
 test::TestSnapshotTabStates
 test::TestSnapshotTextFieldStates
 test::TestSnapshotTitleBoxes

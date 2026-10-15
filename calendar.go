@@ -207,6 +207,8 @@ type DatePickerWidget struct {
 // DatePicker builds a pop-up button showing *day, which opens a calendar
 // under it to choose another; choosing a day, Escape or a click elsewhere
 // closes it. Space, Return and Down open it from the keyboard.
+//
+// The counterpart among MyGo's own controls is ui.DateInput.
 func DatePicker(c *ui.Context, day *time.Time) *DatePickerWidget {
 	th := ThemeOf(c)
 	w := &DatePickerWidget{}
@@ -347,6 +349,8 @@ func timeParts(t time.Time, locale string, l timeLayout) [3]string {
 // chosen one at a time, by a click or with Left and Right; Up, Down and the
 // arrows step the part chosen (minutes by step), digits type it, and A and
 // P set the half of the day.
+//
+// The counterpart among MyGo's own controls is ui.TimeInput.
 func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 	th := ThemeOf(c)
 	step = max(step, 1)

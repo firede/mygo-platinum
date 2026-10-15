@@ -105,7 +105,7 @@ func TestListsRandomInput(t *testing.T) {
 	view := func(c *ui.Context) {
 		Use(c, nil)
 		ui.Row(c).Padding(4).Gap(4).AlignItems(ui.Start).Children(func() {
-			cols := []Column{{Title: "Name", Width: 60}, {Title: "Size", Width: 40, Right: true}}
+			cols := []TableColumn{{Title: "Name", Width: 60}, {Title: "Size", Width: 40, Right: true}}
 			Table(c, st, cols, rows, func(r, col int) string { return itoa(r * (col + 1)) }).Label("Table").Element().Size(130, 120)
 			items := make([]string, rows)
 			for i := range items {

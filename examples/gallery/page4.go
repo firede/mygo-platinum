@@ -35,9 +35,9 @@ func (g *gallery) page4(c *ui.Context) {
 		ui.Column(c).Width(482).Gap(12).AlignItems(ui.Stretch).Children(func() {
 			pt.GroupBox(c, "Combo box and color well", func() {
 				ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-					pt.ComboBox(c, &g.combo, fonts).Label("Font")
+					pt.Combobox(c, &g.combo, fonts).Label("Font")
 					pt.Label(c, "Color:")
-					pt.ColorWell(c, &g.color, "Highlight color")
+					pt.ColorWell(c, &g.color).Label("Highlight color")
 				})
 			})
 			pt.GroupBox(c, "Sheet", func() {

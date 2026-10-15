@@ -113,7 +113,7 @@ func findView(c *ui.Context, d *desk, f *finder) {
 			})
 		} else {
 			ui.Column(c).Grow(1).Padding(0, 10, 0, 10).AlignItems(ui.Stretch).Children(func() {
-				cols := []pt.Column{{Title: m.ColumnName(), Icon: func(r int) []string { return smallIcon(found[r]) }}, {Title: m.ColumnKind()}, {Title: m.ColumnWhere()}}
+				cols := []pt.TableColumn{{Title: m.ColumnName(), Icon: func(r int) []string { return smallIcon(found[r]) }}, {Title: m.ColumnKind()}, {Title: m.ColumnWhere()}}
 				t := pt.Table(c, f.table, cols, len(found), func(r, col int) string {
 					n := found[r]
 					switch col {
@@ -128,7 +128,7 @@ func findView(c *ui.Context, d *desk, f *finder) {
 					return ""
 				}).Label(m.ItemsFound())
 				t.Element().Grow(1).FillWidth()
-				if t.Activated() {
+				if t.Submitted() {
 					if r := t.Cursor(); r >= 0 && r < len(found) {
 						d.openNode(found[r])
 					}

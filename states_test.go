@@ -59,7 +59,7 @@ func TestSnapshotKeyboardFocus(t *testing.T) {
 			ListBox(c, &list, []string{"One", "Two"}).Element().Size(90, 38).Label("List")
 			TabControl(c, &tab, []string{"Tabs", "Two"}, func(int) {}).Element().Size(130, 50).Label("Tabs")
 			BevelButton(c, "Bevel").Toggle(&bold)
-			Segmented(c, &seg, []string{"Seg", "Two"}).Element().Label("Seg")
+			Segmented(c, &seg, "Seg", "Two").Element().Label("Seg")
 			Stepper(c, &num, 0, 9, 1).Label("Count")
 		})
 	}
@@ -129,7 +129,7 @@ func TestSnapshotInactiveWindow(t *testing.T) {
 					})
 					ui.Column(c).Gap(6).AlignItems(ui.Start).Children(func() {
 						GroupBox(c, "Group", func() { Label(c, "Inside") })
-						Table(c, ts, []Column{{Title: "Name", Width: 60}, {Title: "Size", Width: 40}}, 2, func(r, col int) string {
+						Table(c, ts, []TableColumn{{Title: "Name", Width: 60}, {Title: "Size", Width: 40}}, 2, func(r, col int) string {
 							return [][]string{{"Letter", "2 K"}, {"Recipes", "4 K"}}[r][col]
 						}).Element().Size(110, 60)
 					})

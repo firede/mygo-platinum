@@ -17,8 +17,8 @@ type bevelState struct {
 	rect ui.Rect
 }
 
-// BevelWidget is a bevel button being built.
-type BevelWidget struct {
+// BevelButtonWidget is a bevel button being built.
+type BevelButtonWidget struct {
 	inactive bool
 	c        *ui.Context
 	el       ui.Element
@@ -40,8 +40,8 @@ type BevelWidget struct {
 // a label, an icon above or beside it (Icon), stays pressed in as a toggle
 // (Toggle), or opens a menu (Menu). Space and Enter press it while it has
 // the keyboard focus.
-func BevelButton(c *ui.Context, label string) *BevelWidget {
-	b := &BevelWidget{c: c, label: label, th: ThemeOf(c), inactive: inactive(c)}
+func BevelButton(c *ui.Context, label string) *BevelButtonWidget {
+	b := &BevelButtonWidget{c: c, label: label, th: ThemeOf(c), inactive: inactive(c)}
 	b.el = ui.ButtonBase(c).FocusRing(false).Label(label)
 	b.st = ui.Local(b.el, "bevel", func() bevelState { return bevelState{} })
 	b.pressed = b.el.Pressed()
@@ -53,7 +53,7 @@ func BevelButton(c *ui.Context, label string) *BevelWidget {
 
 // IconButton builds a bevel button showing icon alone, labeled label for
 // assistive technology, as the buttons of a toolbar.
-func IconButton(c *ui.Context, icon []string, label string) *BevelWidget {
+func IconButton(c *ui.Context, icon []string, label string) *BevelButtonWidget {
 	b := BevelButton(c, label)
 	b.icon = icon
 	b.label = ""
@@ -64,7 +64,7 @@ func IconButton(c *ui.Context, icon []string, label string) *BevelWidget {
 
 // Icon shows a small picture in the button, left of its label, given as
 // rows for DrawIcon.
-func (b *BevelWidget) Icon(rows []string) *BevelWidget {
+func (b *BevelButtonWidget) Icon(rows []string) *BevelButtonWidget {
 	b.icon = rows
 	b.resize()
 	return b
@@ -72,7 +72,7 @@ func (b *BevelWidget) Icon(rows []string) *BevelWidget {
 
 // Toggle makes the button stay pressed in while *on, and turn *on over as
 // it is clicked.
-func (b *BevelWidget) Toggle(on *bool) *BevelWidget {
+func (b *BevelButtonWidget) Toggle(on *bool) *BevelButtonWidget {
 	b.on = on
 	b.el.Role(ui.RoleToggleButton)
 	if !b.disabled && b.el.Clicked() {
@@ -85,7 +85,7 @@ func (b *BevelWidget) Toggle(on *bool) *BevelWidget {
 
 // Menu makes the button open a menu of items below it as it is pressed,
 // with a small arrow at its right.
-func (b *BevelWidget) Menu(items []MenuItem) *BevelWidget {
+func (b *BevelButtonWidget) Menu(items []MenuItem) *BevelButtonWidget {
 	b.menu = items
 	b.el.Role(ui.RoleMenuButton)
 	b.resize()
@@ -94,14 +94,14 @@ func (b *BevelWidget) Menu(items []MenuItem) *BevelWidget {
 }
 
 // Size sets the button's size, which is otherwise as its content needs.
-func (b *BevelWidget) Size(w, h int) *BevelWidget {
+func (b *BevelButtonWidget) Size(w, h int) *BevelButtonWidget {
 	b.w, b.h = w, h
 	b.resize()
 	return b
 }
 
 // Disabled dims the button and makes it take no input while d is true.
-func (b *BevelWidget) Disabled(d bool) *BevelWidget {
+func (b *BevelButtonWidget) Disabled(d bool) *BevelButtonWidget {
 	b.disabled = d
 	b.el.Disabled(d)
 	return b
@@ -109,7 +109,7 @@ func (b *BevelWidget) Disabled(d bool) *BevelWidget {
 
 // Clicked reports whether the user clicked the button since the last
 // frame. A toggle has turned over by then.
-func (b *BevelWidget) Clicked() bool {
+func (b *BevelButtonWidget) Clicked() bool {
 	if b.clicked {
 		return report(b.el, true)
 	}
@@ -121,9 +121,9 @@ func (b *BevelWidget) Clicked() bool {
 }
 
 // Element returns the button's element.
-func (b *BevelWidget) Element() ui.Element { return b.el }
+func (b *BevelButtonWidget) Element() ui.Element { return b.el }
 
-func (b *BevelWidget) contentSize() (int, int) {
+func (b *BevelButtonWidget) contentSize() (int, int) {
 	return bevelContentSize(b.label, b.icon, b.menu != nil && !b.noArrow)
 }
 
@@ -146,7 +146,7 @@ func bevelContentSize(label string, icon []string, arrow bool) (int, int) {
 	return w, h
 }
 
-func (b *BevelWidget) resize() {
+func (b *BevelButtonWidget) resize() {
 	cw, ch := b.contentSize()
 	w, h := cw+2*bevelPadding, max(BevelHeight, ch+10)
 	if b.label == "" && b.icon != nil && b.menu == nil {
@@ -164,7 +164,7 @@ func (b *BevelWidget) resize() {
 	b.el.Size(float32(w), float32(h))
 }
 
-func (b *BevelWidget) trackMenu() {
+func (b *BevelButtonWidget) trackMenu() {
 	st := b.st
 	cw, ch := b.c.Size()
 	down := b.el.Shortcut(0, ui.KeyDown)
@@ -197,7 +197,7 @@ func (b *BevelWidget) trackMenu() {
 	}
 }
 
-func (b *BevelWidget) draw(p *ui.Painter, r ui.Rect) {
+func (b *BevelButtonWidget) draw(p *ui.Painter, r ui.Rect) {
 	resized(b.c, b.st.rect, r)
 	b.st.rect = r
 	pn := NewPen(p, r).Faded(b.disabled)
@@ -282,7 +282,7 @@ type SegmentedWidget struct {
 // Segmented builds a row of bevel buttons joined into one control, of which
 // one, *selected, is pressed in: a choice of a few views or modes. The
 // arrows move the choice while it has the keyboard focus.
-func Segmented(c *ui.Context, selected *int, labels []string) *SegmentedWidget {
+func Segmented(c *ui.Context, selected *int, labels ...string) *SegmentedWidget {
 	th := ThemeOf(c)
 	parts := ui.SegmentedBase(c, selected, len(labels))
 	w := &SegmentedWidget{el: parts.Track}

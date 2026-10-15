@@ -19,6 +19,8 @@ const (
 // ChasingArrows builds the chasing arrows: two arrows running round a
 // circle, which show that work of unknown length goes on, in less room than
 // a progress bar.
+//
+// The counterpart among MyGo's own controls is ui.Spinner.
 func ChasingArrows(c *ui.Context) ui.Element {
 	el := ui.Box(c).Size(ChasingArrowsSize, ChasingArrowsSize).Role(ui.RoleProgress)
 	el.Draw(func(p *ui.Painter, r ui.Rect) {

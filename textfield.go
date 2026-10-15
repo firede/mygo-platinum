@@ -51,6 +51,8 @@ type TextFieldWidget struct {
 // the arrows (with Shift to select, Option by words, Command to the ends),
 // Delete, the clipboard's Command-X, C and V, Command-Z to undo and
 // Command-Shift-Z to redo, and text from input methods. Return submits it.
+//
+// The counterpart among MyGo's own controls is ui.TextInput.
 func TextField(c *ui.Context, value *string) *TextFieldWidget {
 	return newTextWidget(c, value, false)
 }

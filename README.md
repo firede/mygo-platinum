@@ -59,12 +59,12 @@ tables, layout),
 | Tree view, sortable table, icon view | `TreeView`, `Table`, `IconView` |
 | Split, scroll view, utility window | `Split`, `ScrollView`, `Window` with `Utility` |
 | Calendar, date picker, time field | `Calendar`, `DatePicker`, `TimeField` |
-| Combo box, color well and color picker | `ComboBox`, `ColorWell` |
+| Combo box, color well and color picker | `Combobox`, `ColorWell` |
 | Spreadsheet sheet with formulas, formula bar | `Sheet`, `FormulaBar` |
 | Find and replace dialog, ruler | `FindReplace`, `Find`, `ReplaceAll`, `Ruler` |
 | Column view, document tabs, font picker, page setup | `ColumnView`, `DocumentTabs`, `FontPicker`, `PageSetup` |
 | Progress dialog, banner, toasts, empty state | `ProgressDialog`, `Banner`, `Toasts`, `EmptyState` |
-| Path pop-up, breadcrumb, pagination, card, status bar | `PathPopup`, `Breadcrumb`, `Pagination`, `Card`, `StatusBar` |
+| Path pop-up, breadcrumb, pagination, card, status bar | `PathPopup`, `Breadcrumbs`, `Pagination`, `Card`, `StatusBar` |
 | Rich text: styles, four sizes, paragraph alignment; format bar | `RichTextArea`, `FormatBar`, `SizeMenu` |
 | Pop-up window docked at the bottom edge | `PopupWindow`, `SpringOpen` |
 | Open and save dialogs | `OpenDialog`, `SaveDialog` |
@@ -76,6 +76,25 @@ keyboard, describes itself to screen readers through MyGo's accessibility
 support, and has a godoc example that compiles and runs. Those with a look
 of their own are drawn with an exported `Draw…` function too, for controls
 of your own that look like them.
+
+Controls MyGo has too go by MyGo's names and take what MyGo's take —
+`Button`, `Checkbox`, `Radio`, `Slider`, `Stepper`, `Segmented`, `Split`,
+`TextArea`, `SearchField`, `Combobox`, `ColorWell`, `Calendar`, `Badge`,
+`Breadcrumbs`, `Table` — and report what the user did as they do
+(`Clicked`, `Changed`, `Submitted`; `OnChange` on their elements). The others
+go by the names of the period:
+
+| This library | MyGo's own |
+|---|---|
+| `PopupMenu` | `ui.Select` |
+| `TabControl` | `ui.Tabs` |
+| `ListBox`, `TreeView` | `ui.List`, `ui.Tree` |
+| `TextField`, `NumberField`, `TimeField`, `DatePicker` | `ui.TextInput`, `ui.NumberInput`, `ui.TimeInput`, `ui.DateInput` |
+| `ProgressBar`, `ChasingArrows` | `ui.Progress`, `ui.Spinner` |
+| `GroupBox`, `Separator`, `Disclosure` | `ui.Fieldset`, `ui.Divider`, `ui.Collapsible` |
+| `Alert`, `Dialog` | `ui.AlertDialog`, `ui.Modal` |
+| `Balloon`, `ContextMenu` | `Element.Tooltip`, `Element.ContextMenu` |
+| `Toasts` | draws `c.Toast` in the look |
 
 ## Using it
 

@@ -50,7 +50,7 @@ func TestDatePickerAndCombo(t *testing.T) {
 		Use(c, nil)
 		ui.Column(c).Padding(10).Gap(10).Children(func() {
 			DatePicker(c, &day)
-			ComboBox(c, &font, []string{"Sans", "Serif", "Slab", "Mono"}).Label("Font")
+			Combobox(c, &font, []string{"Sans", "Serif", "Slab", "Mono"}).Label("Font")
 		})
 	}
 	tt := ui.NewTester(view, 260, 260)

@@ -24,7 +24,7 @@ type ColumnViewWidget struct {
 	st        *columnViewState
 	c         *ui.Context
 	changed   bool
-	activated *TreeNode
+	submitted bool
 }
 
 // ColumnView builds a browser of a tree in columns, as a list of roots and,
@@ -114,8 +114,9 @@ func ColumnView(c *ui.Context, roots []*TreeNode, path *[]*TreeNode) *ColumnView
 				if col == focus {
 					lb.Element().Focus()
 				}
-				if lb.Activated() && sel >= 0 {
-					w.activated = items[sel]
+				if lb.Submitted() && sel >= 0 {
+					*path = append((*path)[:col], items[sel])
+					w.submitted = true
 				}
 				if lb.Changed() && sel >= 0 {
 					*path = append((*path)[:col], items[sel])
@@ -150,7 +151,7 @@ func ColumnView(c *ui.Context, roots []*TreeNode, path *[]*TreeNode) *ColumnView
 			}
 		})
 	})
-	report(w.el, w.changed || w.activated != nil)
+	report(w.el, w.changed || w.submitted)
 	return w
 }
 
@@ -174,9 +175,6 @@ func (w *ColumnViewWidget) Element() ui.Element { return w.el }
 // Label names the column view.
 func (w *ColumnViewWidget) Label(s string) *ColumnViewWidget { w.el.Label(s); return w }
 
-// Activated returns the item the user double-clicked, or chose and pressed
-// Return on, since the last frame, or nil.
-func (w *ColumnViewWidget) Activated() *TreeNode {
-	report(w.el, w.activated != nil)
-	return w.activated
-}
+// Submitted reports whether the user double-clicked an item, or chose one
+// and pressed Return, since the last frame: the last of the path.
+func (w *ColumnViewWidget) Submitted() bool { return report(w.el, w.submitted) }

@@ -30,14 +30,14 @@ func (a *menuApp) menus() []Menu {
 		{Title: "File", Items: []MenuItem{
 			{Title: "New", Key: ui.KeyN, Action: func() { a.opened++ }},
 			{Title: "Open…", Key: ui.KeyO},
-			Divider(),
+			SeparatorItem(),
 			{Title: "Save", Key: ui.KeyS, Action: func() { a.saved++ }},
 			{Title: "Print…", Disabled: true},
 			{Title: "Recent", Submenu: []MenuItem{{Title: "Notes.txt"}, {Title: "Letter.txt"}}},
 		}},
 		{Title: "Edit", Items: []MenuItem{
 			{Title: "Undo", Key: ui.KeyZ},
-			Divider(),
+			SeparatorItem(),
 			{Title: "Wrap Lines", Checked: a.wrap, Action: func() { a.wrap = !a.wrap }},
 		}},
 	}

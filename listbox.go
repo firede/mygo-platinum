@@ -51,6 +51,8 @@ type ListBoxWidget struct {
 // and Down, Home and End move the choice, typing the start of an item
 // chooses it, and Return activates it. Give it a size; its height in rows
 // is its height divided by ListRowHeight.
+//
+// The counterpart among MyGo's own controls is ui.List.
 func ListBox(c *ui.Context, selected *int, items []string) *ListBoxWidget {
 	th := ThemeOf(c)
 	w := &ListBoxWidget{c: c}
@@ -330,9 +332,9 @@ func (w *ListBoxWidget) Disabled(d bool) *ListBoxWidget {
 // Changed reports whether the user chose another row since the last frame.
 func (w *ListBoxWidget) Changed() bool { return report(w.el, w.changed) }
 
-// Activated reports whether the user double-clicked a row, or pressed
-// Return, since the last frame.
-func (w *ListBoxWidget) Activated() bool { return report(w.el, w.activated) }
+// Submitted reports whether the user double-clicked a row, or pressed
+// Return, since the last frame, as MyGo's lists report it.
+func (w *ListBoxWidget) Submitted() bool { return report(w.el, w.activated) }
 
 // Element returns the list box's element, to size it.
 func (w *ListBoxWidget) Element() ui.Element { return w.el }

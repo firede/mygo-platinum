@@ -566,7 +566,7 @@ The look has no hover state: nothing changes as the pointer passes over.
 - *Extras.* Breadcrumbs and pagination belong to later, web-era designs
   and have no Platinum counterpart; the library draws them in its
   vocabulary for apps that need them, but the gallery and the desktop's
-  windows use the path pop-up and scrolling instead. Breadcrumb: the
+  windows use the path pop-up and scrolling instead. Breadcrumbs: the
   folders' names in the System face, Gray9 but the last (Black), with Gray8
   arrows 3×5 between them; pressed, a name inverts on the accent's Dark.
   Pagination: bevel buttons **22** square with arrows, "Page n of m"

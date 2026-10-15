@@ -17,6 +17,8 @@ const (
 // done: a sunken channel filled from the left with the accent. A negative
 // value shows work of unknown length, as diagonal stripes moving along the
 // bar.
+//
+// The counterpart among MyGo's own controls is ui.Progress.
 func ProgressBar(c *ui.Context, value float64) ui.Element {
 	th := ThemeOf(c)
 	el := ui.Box(c).Height(ProgressHeight).Width(160).Role(ui.RoleProgress)

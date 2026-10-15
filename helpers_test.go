@@ -61,7 +61,7 @@ func produceCell(r, col int) string {
 	return fmt.Sprintf("%.2f", f.price)
 }
 
-var produceCols = []Column{{Title: "Name", Width: 80}, {Title: "Color", Width: 70}, {Title: "Price", Width: 60, Right: true}}
+var produceCols = []TableColumn{{Title: "Name", Width: 80}, {Title: "Color", Width: 70}, {Title: "Price", Width: 60, Right: true}}
 
 func testIcon() *ui.Bitmap {
 	img := image.NewRGBA(image.Rect(0, 0, 32, 32))

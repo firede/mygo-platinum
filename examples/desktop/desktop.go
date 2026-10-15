@@ -544,7 +544,7 @@ func (d *desk) iconsView(c *ui.Context) {
 				d.springAt(c, d.disk)
 			}
 		}
-		pt.ContextMenu(c, e, []pt.MenuItem{{Title: d.say().Open(), Action: di.open}, pt.Divider(),
+		pt.ContextMenu(c, e, []pt.MenuItem{{Title: d.say().Open(), Action: di.open}, pt.SeparatorItem(),
 			{Title: d.say().CleanUpDesktop(), Action: func() {
 				for _, o := range d.icons {
 					o.placed = false
@@ -700,7 +700,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 	menus := []pt.Menu{
 		{Title: m.Desk(), Icon: deskLogo, Items: []pt.MenuItem{
 			{Title: m.AboutThisDeskMenu(), Action: func() { d.launch(appAbout) }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.AlarmClock(), Action: func() { d.launch(appClock) }},
 			{Title: m.Calculator(), Action: func() { d.launch(appCalculator) }},
 			{Title: m.Controls(), Action: func() { d.launch(appCatalog) }},
@@ -708,7 +708,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 			{Title: m.Ledger(), Action: func() { d.launch(appLedger) }},
 			{Title: m.Puzzle(), Action: func() { d.launch(appPuzzle) }},
 			{Title: m.Scribe(), Action: func() { d.launch(appScribe) }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.ControlPanels(), Submenu: []pt.MenuItem{
 				{Title: m.Appearance(), Action: func() { d.launch(appAppearance) }},
 				{Title: m.DateTime(), Action: func() { d.launch(appDateTime) }},
@@ -721,9 +721,9 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 			{Title: m.NewFolder(), Key: ui.KeyN, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.newFolder() }},
 			{Title: m.Open(), Key: ui.KeyO, Disabled: selected == nil, Action: func() { d.openNode(selected) }},
 			{Title: m.CloseWindow(), Key: ui.KeyW, Disabled: front == nil, Action: func() { d.close(front) }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.FindFileMenu(), Action: func() { d.launch(appFind) }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.MoveToWastebasket(), Key: ui.KeyBackspace, Disabled: selected == nil || front.folder.trash || selected.kind != kindDocument && selected.kind != kindFolder, Action: func() {
 				d.toTrash(selected)
 			}},
@@ -735,7 +735,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 				n := selected
 				d.later = append(d.later, func() { d.duplicate(n) }) // not while the folder is built
 			}},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.Quit(), Key: ui.KeyQ, Disabled: d.quit == nil, Action: func() {
 				// A document with changes asks first, as closing it does.
 				for _, w := range d.windows {
@@ -750,7 +750,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 		}},
 		{Title: m.MenuEdit(), Items: []pt.MenuItem{
 			{Title: m.Undo(), Key: ui.KeyZ, Action: func() { pt.EditCommand(c, "undo") }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.Cut(), Key: ui.KeyX, Action: func() { pt.EditCommand(c, "cut") }},
 			{Title: m.Copy(), Key: ui.KeyC, Action: func() {
 				// With no text to copy, the Calculator copies its display.
@@ -776,7 +776,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 			{Title: m.AsList(), Checked: inCabinet && front.folder.list, Disabled: !inCabinet, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = true, false, false }},
 			{Title: m.AsColumns(), Checked: inCabinet && front.folder.columns, Disabled: !inCabinet || front.folder.trash, Action: func() { front.folder.list, front.folder.columns, front.folder.buttons = false, true, false }},
 			{Title: m.SortList(), Disabled: !inCabinet || !front.folder.list || front.folder.table == nil, Submenu: d.sortItems(front)},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.AsPopupWindow(), Checked: inCabinet && front.popup, Disabled: !inCabinet, Action: func() {
 				if front.popup {
 					d.undock(front)
@@ -792,7 +792,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 				}
 			}},
 			{Title: m.EmptyWastebasketMenu(), Disabled: len(d.trash) == 0, Action: func() { d.emptying = true }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 			{Title: m.Restart(), Disabled: true},
 			{Title: m.ShutDown(), Disabled: true},
 		}},
@@ -809,7 +809,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 			{Title: m.PreviousPage(), Key: ui.KeyBracketLeft, Action: func() { front.jot.turn(-1) }},
 		}})
 	case appScribe:
-		menus[2].Items = append(menus[2].Items, pt.Divider(),
+		menus[2].Items = append(menus[2].Items, pt.SeparatorItem(),
 			pt.MenuItem{Title: m.FindMenu(), Key: ui.KeyF, Action: func() { front.doc.finding = true }})
 		for i, it := range menus[1].Items {
 			if it.Title == m.Open() { // documents, from the open dialog
@@ -819,7 +819,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 		menus[1].Items = append([]pt.MenuItem{
 			{Title: m.Save(), Key: ui.KeyS, Action: func() { front.doc.save(d) }},
 			{Title: m.SaveAsMenu(), Key: ui.KeyS, Mods: ui.Cmd | ui.Shift, Action: func() { front.doc.saveAsDialog(d) }},
-			pt.Divider(),
+			pt.SeparatorItem(),
 		}, menus[1].Items...)
 		menus = append(menus, pt.SizeMenu(front.doc.doc))
 	}

@@ -156,7 +156,7 @@ func fileBody(c *ui.Context, st *FileDialogState, roots []*TreeNode, saving bool
 			if !saving {
 				lb.Element().AutoFocus()
 			}
-			if lb.Activated() && st.sel >= 0 && st.sel < len(items) {
+			if lb.Submitted() && st.sel >= 0 && st.sel < len(items) {
 				if n := items[st.sel]; n.Children != nil {
 					enter(n)
 				} else {

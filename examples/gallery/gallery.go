@@ -47,7 +47,7 @@ type gallery struct {
 	table   *pt.TableState
 	icons   []pt.IconItem
 	iconSel int
-	split   float64
+	split   float32
 	scroll2 ui.ScrollState
 	palette pt.WindowState
 	// The fourth page.

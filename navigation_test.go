@@ -16,7 +16,7 @@ func TestPathsAndPages(t *testing.T) {
 			if i := PathPopup(c, path); i >= 0 {
 				popped = i
 			}
-			if i := Breadcrumb(c, path); i >= 0 {
+			if i := Breadcrumbs(c, path); i >= 0 {
 				crumbed = i
 			}
 			Pagination(c, &page, 5)

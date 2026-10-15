@@ -17,7 +17,7 @@ const (
 )
 
 // Column is a column of a table.
-type Column struct {
+type TableColumn struct {
 	Title string
 	// Width is the column's width when the table first shows; the user
 	// resizes it from there.
@@ -101,7 +101,7 @@ func lessCells(a, b string) bool {
 // away a row. With the keyboard focus, Up and Down move the selection
 // (Shift extends it), Command-A selects every row, Home and End go to the
 // ends. Give it a size.
-func Table(c *ui.Context, st *TableState, cols []Column, rows int, cell func(row, col int) string) *TableWidget {
+func Table(c *ui.Context, st *TableState, cols []TableColumn, rows int, cell func(row, col int) string) *TableWidget {
 	th := ThemeOf(c)
 	if st.Selected == nil {
 		st.Selected = map[int]bool{}
@@ -377,9 +377,10 @@ func Table(c *ui.Context, st *TableState, cols []Column, rows int, cell func(row
 // frame.
 func (w *TableWidget) Changed() bool { return report(w.el, w.changed) }
 
-// Activated reports whether the user double-clicked a row, or pressed
-// Return, with rows selected, since the last frame.
-func (w *TableWidget) Activated() bool { return report(w.el, w.activated) }
+// Submitted reports whether the user double-clicked a row, or pressed
+// Return, with rows selected, since the last frame, as MyGo's tables
+// report it.
+func (w *TableWidget) Submitted() bool { return report(w.el, w.activated) }
 
 // Cursor returns the model index of the row the arrows last moved to or a
 // click chose, or -1 with no rows.
@@ -410,7 +411,7 @@ var (
 
 // DrawTable draws a table in pn's box: its headers and the rows of order
 // from row top.
-func DrawTable(pn Pen, st *TableState, cols []Column, order []int, top int, cell func(row, col int) string, focused bool, a Accent) {
+func DrawTable(pn Pen, st *TableState, cols []TableColumn, order []int, top int, cell func(row, col int) string, focused bool, a Accent) {
 	w, h := pn.W, pn.H
 	pn.Rect(1, 1, w-2, h-2, White)
 	pn.Frame(0, 0, w, h, Black)

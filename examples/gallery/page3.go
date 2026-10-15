@@ -58,7 +58,7 @@ func (g *gallery) page3(c *ui.Context) {
 		})
 		ui.Column(c).Width(482).Gap(12).AlignItems(ui.Stretch).Children(func() {
 			pt.GroupBox(c, "Table", func() {
-				cols := []pt.Column{{Title: "Planet", Width: 150, Icon: func(int) []string { return planetIcon }}, {Title: "Moons", Width: 120, Right: true}, {Title: "Radius (km)", Width: 160, Right: true}}
+				cols := []pt.TableColumn{{Title: "Planet", Width: 150, Icon: func(int) []string { return planetIcon }}, {Title: "Moons", Width: 120, Right: true}, {Title: "Radius (km)", Width: 160, Right: true}}
 				pt.Table(c, g.table, cols, len(planets), func(r, col int) string {
 					p := planets[r]
 					switch col {
@@ -72,7 +72,7 @@ func (g *gallery) page3(c *ui.Context) {
 			})
 			pt.GroupBox(c, "Split and scroll view", func() {
 				ui.Box(c).Height(130).AlignSelf(ui.Stretch).Background(pt.Gray5).Children(func() {
-					pt.Split(c, &g.split, false, func() {
+					pt.Split(c, &g.split, func() {
 						ui.Column(c).Padding(6).Children(func() {
 							pt.TextIn(c, "A pane", pt.AppFont, pt.Black)
 						})

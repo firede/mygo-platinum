@@ -16,7 +16,7 @@ func TestListBoxKeyboard(t *testing.T) {
 		ui.Column(c).Padding(10).Children(func() {
 			lb := ListBox(c, &sel, fruits)
 			lb.Element().Size(140, 98)
-			if lb.Activated() {
+			if lb.Submitted() {
 				activated++
 			}
 		})

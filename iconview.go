@@ -112,9 +112,9 @@ func IconView(c *ui.Context, items []IconItem, selected *int) *IconViewWidget {
 // Changed reports whether the user chose another icon since the last frame.
 func (w *IconViewWidget) Changed() bool { return report(w.el, w.changed) }
 
-// Activated reports whether the user double-clicked an icon, or pressed
-// Return, since the last frame.
-func (w *IconViewWidget) Activated() bool { return report(w.el, w.activated) }
+// Submitted reports whether the user double-clicked an icon, or pressed
+// Return, since the last frame, as MyGo's lists report it.
+func (w *IconViewWidget) Submitted() bool { return report(w.el, w.activated) }
 
 // Element returns the icon view's element, to size it.
 func (w *IconViewWidget) Element() ui.Element { return w.el }

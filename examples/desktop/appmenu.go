@@ -260,7 +260,7 @@ func (d *desk) rightMenus() []pt.Menu {
 		{Title: m.HideApp(name), Action: shade(func(n string) bool { return n == name })},
 		{Title: m.HideOthers(), Action: shade(func(n string) bool { return n != name })},
 		{Title: m.ShowAll(), Action: shade(func(string) bool { return false })},
-		pt.Divider(),
+		pt.SeparatorItem(),
 	}, apps...)
 	return []pt.Menu{
 		{Title: d.clockTitle(), Right: true, Action: func() { d.showDate = !d.showDate }},

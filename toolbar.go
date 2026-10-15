@@ -92,7 +92,7 @@ func Toolbar(c *ui.Context, items []ToolItem) ui.Element {
 				ToolbarSeparator(c.Key(i))
 				continue
 			}
-			var b *BevelWidget
+			var b *BevelButtonWidget
 			if it.IconOnly {
 				b = IconButton(c.Key(i), it.Icon, it.Label)
 			} else {
@@ -110,7 +110,7 @@ func Toolbar(c *ui.Context, items []ToolItem) ui.Element {
 			var menu []MenuItem
 			for _, it := range items[shown:] {
 				if it.Separator {
-					menu = append(menu, Divider())
+					menu = append(menu, SeparatorItem())
 					continue
 				}
 				mi := MenuItem{Title: it.Label, Disabled: it.Disabled, Action: it.Action}

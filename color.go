@@ -13,7 +13,7 @@ const (
 	swatchSize = 14 // a swatch of the picker's palette
 )
 
-// pickerPalette is the color picker's palette: eight hues in six shades,
+// pickerPalette is the color picker's palette: eight hues in five shades,
 // and a row of grays.
 var pickerPalette = func() []ui.Color {
 	var p []ui.Color
@@ -105,7 +105,7 @@ func ColorWell(c *ui.Context, col *ui.Color, label string) *ColorWellWidget {
 				})
 				// The new color over the old.
 				old := st.old
-				ui.Box(c).Size(60, 50).Role(ui.RoleImage).Label("New and old").Draw(func(p *ui.Painter, r ui.Rect) {
+				ui.Box(c).Size(60, 50).Role(ui.RoleImage).Label(say(c, "newAndOld")).Draw(func(p *ui.Painter, r ui.Rect) {
 					pn := NewPen(p, r)
 					DrawWell(pn)
 					pn.Rect(3, 3, pn.W-6, (pn.H-6)/2, now)

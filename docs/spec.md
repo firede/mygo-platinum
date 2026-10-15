@@ -15,9 +15,10 @@ antialiased. Coordinates are from the top left corner of a control's box.
 
 ### 1.1 The gray ramp
 
-Everything is drawn from fourteen grays, black and white, plus the accent
-(1.2). Each gray has a job; a control that needs a shade uses the one named
-for it rather than a new one.
+Everything is drawn from twelve grays, black and white, plus the accent
+(1.2); only pictures — the alert icons, the color picker's palette — take
+colors of their own. Each gray has a job; a control that needs a shade uses
+the one named for it rather than a new one.
 
 | Name   | Value     | Used for |
 |--------|-----------|----------|
@@ -28,12 +29,12 @@ for it rather than a new one.
 | Gray4  | `#BBBBBB` | tracks of scroll bars and sliders, unselected tabs, inactive selection |
 | Gray5  | `#AAAAAA` | inner shadows; pressed small controls; default button rings |
 | Gray6  | `#999999` | frames of disabled controls; the pressed part of a scroll track |
-| Gray7  | `#888888` | **the shadow** of raised edges; etched lines; title bar stripes |
-| Gray8  | `#777777` | disabled text, placeholder-dim text |
+| Gray7  | `#888888` | **the shadow** of raised edges; etched lines; title bar stripes; placeholder text |
+| Gray8  | `#777777` | disabled text; outlines and labels of inactive controls |
 | Gray9  | `#666666` | **the face of a pressed button**; menu shadows |
-| Gray10 | `#555555` | inner shadow of a pressed button |
+| Gray10 | `#555555` | inner shadow of a pressed button; outlines of bevel buttons; zoom rectangles |
 | Gray11 | `#444444` | outer shadow of a pressed button; slider track outline |
-| Gray12 | `#222222` | reserved |
+| Gray12 | `#222222` | a gray of the color picker's palette |
 | Black  | `#000000` | outlines, text |
 
 ### 1.2 Accents
@@ -86,31 +87,35 @@ stays connected.
 
 ## 3. Type
 
-Two bitmap faces were drawn for this library (see `internal/pixfont`, and
-section 9 for their license). Neither copies the shapes of any existing
-system font.
+The two faces are those of the platinum-fonts module (section 10 for their
+license), drawn for it; neither copies the shapes of any existing system
+font.
 
 | Face | Use | Cell height | Ascent | Cap height | x-height | Strokes |
 |------|-----|-------------|--------|------------|----------|---------|
-| **System** (bold) | menus, buttons, labels, titles, tabs | 12 | 9 | 9 | 6 | 2 px vertical stems |
-| **App** (regular) | documents, text fields, lists, icon names | 11 | 8 | 8 | 5 | 1 px |
+| **System** (Platinum Sans Bold, `SystemFont`) | menus, buttons, labels, titles, tabs | 12 | 9 | 9 | 6 | 2 px vertical stems |
+| **App** (Platinum Sans Small Regular, `AppFont`) | documents, text fields, lists, icon names | 11 | 8 | 8 | 5 | 1 px |
 
 One pixel of tracking follows every glyph. Text in a control is placed by
 its **capitals**: a label is centered when its cap height is centered in the
-control's height (`(h − cap) / 2` from the top, rounded down). Æ, Ð, Ø, Þ,
-Œ, ß and their small forms are drawn whole, and the accented letters of
-Latin-1 (À to ÿ), and those of Latin Extended-A that Polish, Czech, Slovak,
-Hungarian and Turkish write most (with caron, breve, dot, double acute and
-ogonek; Ł drawn whole), are made in both faces of the letter and a mark
-drawn once for each face: over a small letter a row clear of it (an i losing
-its dot), over a capital standing on it, rising at most **2** rows above the
-cell into the leading; the cedilla hangs under the baseline. Characters
-outside the faces — other scripts, other accented letters — draw in the
-system's font at 12 (bold) or 11 points on the face's baseline, taking their
-own width, so that any text can be read and typed; only where the system has
-no glyph do they draw as a hollow box. They are the one thing not drawn on
-the pixel grid. Text never wraps inside a control; labels that do not fit
-end in an ellipsis (…).
+control's height (`(h − cap) / 2` from the top, rounded down). Bold text
+takes the faces' bold styles, a glyph drawn again a pixel to its right.
+The faces cover ASCII, Latin-1, the letters of Latin Extended-A that
+Polish, Czech, Slovak, Hungarian and Turkish write most, and typographic
+punctuation; a mark over a capital rises at most **2** rows above the cell
+into the leading.
+
+East Asian characters draw with the 12-pixel faces of platinum-fonts'
+`cjk12` that the app gives (`SetEastAsian`), in the forms of its language:
+the bold face for the System face and bold text. An ideograph is **11×11**
+of ink, from **1** under the baseline to **10** over it, advancing **12**.
+
+Characters no face has — other scripts — draw in the system's font at 12
+(bold) or 11 points on the face's baseline, taking their own width, so that
+any text can be read and typed; only where the system has no glyph either
+do they draw as a hollow box. They are the one thing not drawn on the pixel
+grid. Text never wraps inside a control; labels that do not fit end in an
+ellipsis (…).
 
 ## 4. States
 
@@ -189,7 +194,7 @@ The look has no hover state: nothing changes as the pointer passes over.
   convention); only the thumb carries the accent.
 - Thumb **11×16**, pointing down: Black outline, face the thumb face (1.2),
   White top/left edge, the accent's Dark bottom/right edges, three ridges
-  (Dark with White below).
+  (Dark with White below). Pressed: face Mid, edges Dark/Light.
 - Tick marks: Gray11 lines 4 tall, two pixels under the thumb's point.
 - The arrows, Page Up/Down, Home and End move it.
 
@@ -202,12 +207,14 @@ The look has no hover state: nothing changes as the pointer passes over.
   its bottom row Dark, and a Dark edge where it ends.
 - **Indeterminate:** stripes **8** pixels wide, Mid on Light, leaning right
   (each row one pixel to the left of the row above), moving right at **24**
-  pixels a second.
+  pixels a second, under a half-transparent White top row and a Dark bottom
+  row.
 
 ### 5.6 Disclosure triangle
 
 - Box **12×12**. Pointing right (closed) or down (open): a Black outline,
-  Gray6 fill, Gray4 along its upper edge.
+  Gray6 fill, Gray4 along its upper edge. Its label **5** to its right, row
+  **16**.
 - **Pressed:** filled Black. **Disabled:** outline Gray6, fill Gray3.
 - Click, Space or Enter turns it; Right opens and Left closes.
 
@@ -239,19 +246,28 @@ The look has no hover state: nothing changes as the pointer passes over.
   etched line and holds a Black arrow 7×4 pointing down.
 - The menu opens over the button with the chosen item on it, at least as wide
   as the button, and checks the chosen item.
-- A press, drag and release chooses; a quick click (no movement, released
-  within **400 ms**) leaves the menu open for a second click. Space, Return
-  and the arrows open it from the keyboard.
+- A press, drag and release chooses; a quick click (moving under **3**
+  pixels, released within **400 ms**) leaves the menu open for a second
+  click. Space, Return, Up and Down open it from the keyboard. A label may
+  stand **6** before the button.
 
 ### 5.10 Text field and text area
 
 - Text field height **22**. A sunken ring Gray7/White, a Black outline, a
-  White face; text in the App face, **5** pixels from the outline, its
+  White face; text in the App face, **5** in from the field's edge, its
   capitals centered.
 - Text area: the same frame, lines **14** tall from **4** below the top,
-  wrapping at its width, a scroll bar at its right.
-- Caret: a Black line one pixel wide, the line's height less two, blinking
-  every **530 ms**. Selection: Light while focused, Gray3 otherwise.
+  wrapping at its width, a scroll bar at its right. Each line centers the
+  ink of its glyphs — the face's ascent and descent, or as far as East
+  Asian glyphs reach (3), where further.
+- Caret: a Black line one pixel wide, a pixel short of the line at either
+  end, or as far as its glyphs reach where further, blinking every
+  **530 ms**. Selection: Light while focused, Gray3 otherwise.
+- An input method's composition shows in place of the selection,
+  underlined, the caret within it. A password field shows • for each
+  character and neither copies nor cuts.
+- Command-A, -C, -X, -V, -Z and Shift-Command-Z edit; `EditCommand` gives
+  the same commands to an app's Edit menu.
 - Placeholder text Gray7. **Disabled:** outline Gray6, face Gray2, text Gray8.
 - **Document content** is the exception to the focus ring of text: the text
   area that is a document window's content fills the window to its edges
@@ -289,6 +305,7 @@ The look has no hover state: nothing changes as the pointer passes over.
   Mid.
 - Nothing to scroll: the track is Gray2, the thumb hides and the arrows
   turn Gray6.
+- A pressed arrow: face Gray5, ring Gray7/Gray3.
 - Arrows and the track repeat after **300 ms**, every **60 ms**, while the
   pointer stays over the part pressed.
 
@@ -310,10 +327,13 @@ The look has no hover state: nothing changes as the pointer passes over.
   on its top and left, three ridges (Gray7 with White) rising to the right.
 - **Inactive:** no stripes, no boxes, no ridges, title Gray8, rings softened
   to Gray1/Gray5.
-- Dragging the title bar moves the window; double-clicking it rolls it up to
-  its title bar. A click in the content of a window in the background only
-  brings it to the front; the controls in it take the next one, though a
-  drag under way drops in it.
+- Dragging the title bar moves the window; double-clicking it, where it has
+  a collapse box, rolls it up to its title bar. The zoom box toggles the
+  window between the user's size and the app's; the corner resizes it,
+  down to **120×80** unless set. Command-W closes it. A click in the
+  content of a window in the background only brings it to the front, and
+  shows so in the frame of the click; the controls in it take the next
+  one, though a drag under way drops in it.
 - **Path menu:** a Command-press on the title of a folder's window drops a
   menu from under the title, **16** left of it: the window's folder,
   checked, then each folder it is in, out to the disk; releasing on one, or
@@ -326,23 +346,24 @@ The look has no hover state: nothing changes as the pointer passes over.
   edge: a clock (a title without a menu, which does not highlight; a click
   on it runs its action, showing the date in place of the time and back)
   and the application menu, its small picture and name side by side **4**
-  apart. Titles in the System face with **9** on each side, the
-  first **10** from the left. An open menu's title is highlighted in the
-  accent's Dark with White text.
+  apart, the picture centered by the rows it draws on. Titles in the System
+  face with **9** on each side, the first **10** from the left. An open
+  menu's title is highlighted in the accent's Dark with White text.
 - A menu: a Black outline, a raised ring (White/Gray7), face Gray2, a shadow
   one pixel deep along its right and bottom. Items **18** tall, titles **18**
   in from the outline, keyboard equivalents right-aligned **12** from the
   edge, separators **8** tall (an etched line at their middle). A check mark
-  ✓ sits **4** in. On a Mac, and in a browser on one, equivalents are
-  marked by symbols, as ↑⌘S; elsewhere by name, as Ctrl+Shift+S
-  (`MacKeys`).
+  ✓ sits **6** in from the outline. On a Mac, and in a browser on one,
+  equivalents are marked by symbols, as ↑⌘S (Control ^, Option ~, Return
+  ↵, Delete ⌫); elsewhere by name, as Ctrl+Shift+S, Command counting as
+  Ctrl (`MacKeys`).
 - Highlighted item: the accent's Dark, text White. Disabled items Gray8.
 - A chosen item blinks for **150 ms** before its action runs. Submenus open
   to the right, overlapping by 3 pixels, marked by a right-pointing triangle.
 - Menus open on press and choose on release; a click on a title leaves its
   menu open until the next click. Ctrl-F2 opens the first menu; arrows move
-  through items and menus; Return chooses; Escape closes. A keyboard
-  equivalent blinks its menu's title.
+  through items and menus; Return or Space chooses; Escape or Command-period
+  closes. A keyboard equivalent blinks its menu's title.
 
 ### 5.15 Alert box and dialog
 
@@ -350,14 +371,17 @@ The look has no hover state: nothing changes as the pointer passes over.
   second raised ring (the thick border), padding **15**. A **32×32** icon at
   the top left (note, caution, stop: original drawings), the message in the
   System face, detail in the App face, buttons at the bottom right **10**
-  apart, the last the default.
+  apart, the last the default. It shows centered in the window, with a
+  half-transparent Gray9 shadow a pixel deep.
 - Movable modal dialog: a window frame (5.13) without boxes or resize
-  corner, a thicker side frame, content inset **12**.
+  corner, a thicker side frame, content inset **12**. It first shows
+  centered across the window, a fifth of the way down; Escape closes it.
 
 ### 5.16 Bevel button, icon button, segmented control
 
 - Bevel button: height **22** (more for a tall icon), its content plus **8**
-  on each side; an icon and a label **4** apart. **Square corners** and a
+  on each side; an icon and a label **4** apart, the icon centered by the
+  rows it draws on. **Square corners** and a
   **Gray10** (dark gray) outline, two raised rings (White/Gray7,
   Gray1/Gray5), face Gray2. Bevel buttons of the period were square-cornered
   with a dark gray rather than black outline, which sets them apart from
@@ -381,6 +405,7 @@ The look has no hover state: nothing changes as the pointer passes over.
   6-wide slot.
 - Items that do not fit move into a menu opened by a **22**-wide » bevel
   button at the toolbar's right end.
+- The toolbar is one stop of Tab; the arrows move between its buttons.
 
 ### 5.18 Little arrows, number field, search field
 
@@ -389,7 +414,8 @@ The look has no hover state: nothing changes as the pointer passes over.
   5×3. The half pressed: face Gray6, ring Gray9/Gray4. They repeat as the
   scroll bar's arrows do. Up and Down step them from the keyboard.
 - Number field: a text field **56** wide and little arrows **3** to its
-  right.
+  right. Up and Down step it from the text too; Return, or leaving the
+  field, writes the number tidily.
 - Search field: a text field with a Gray9 magnifier 6×7 at its left (text
   moves **14** right) and, once there is text, a Gray7 clear button 7×7 at
   its right. Escape clears it.
@@ -413,7 +439,8 @@ The look has no hover state: nothing changes as the pointer passes over.
 - Help balloon: a White balloon with corners of radius 4, a Black outline
   and a half-transparent Gray9 shadow one pixel down and right; a tail **8**
   tall at its top left, its left edge upright, rising to the anchor. Text in
-  the App face, **10** in, wrapping at **200**.
+  the App face, **10** in, wrapping at **200**. It shows while the pointer
+  rests on its anchor, or the keyboard focus is on it.
 - Context menu: a menu (5.14) opening at the pointer on a secondary click or
   a Control-press, and from the keyboard with Shift-F10.
 
@@ -422,7 +449,8 @@ The look has no hover state: nothing changes as the pointer passes over.
 - Tree view: as a list box (5.11), each level indented **16**; a disclosure
   triangle (5.6) **3** in from the level's start, an optional icon, the
   title **5** after the triangle. The selected row's highlight starts after
-  its triangle.
+  its triangle. Right opens a row, or goes into it; Left closes it, or
+  goes to its parent.
 - Table: column headers **18** tall, raised (White/Gray7) on Gray2 with a
   Black line under them, titles in the App face; the sorted column's header
   Gray4 with a Black sort arrow 5×3 at its right (up ascending, down
@@ -435,7 +463,9 @@ The look has no hover state: nothing changes as the pointer passes over.
   window. Columns resize from **3** pixels either side of their
   right edge, down to **30** wide. Cells sort as numbers where both
   are numbers and as text otherwise, unless the column orders its rows
-  itself.
+  itself. A click on a header sorts by its column, a second the other way.
+  Shift-click and Shift with the arrows extend the selection, Command-click
+  toggles a row, Command-A selects all.
 - Icon view: cells **84×64**; the icon centered **4** down, the name under it
   **38** down on a White plate. A selected icon darkens by half and its name
   inverts (White on the accent's Dark while focused, on Black otherwise).
@@ -446,8 +476,8 @@ The look has no hover state: nothing changes as the pointer passes over.
   White line inside the first edge and a Gray7 one inside the second; a grip
   of five dots (Gray7 with White) 4 apart at its middle. Each pane keeps at
   least **40**; the arrows move the divider by **8**.
-- Scroll view: a Black outline round a White face, the content **6** in
-  from the sides and **4** from the top, a scroll bar (5.12) at its right.
+- Scroll view: the content frame (5.11), the content **6** in from the
+  sides and **4** from the top, a scroll bar (5.12) at its right.
 - Utility window: a title bar **13** tall with four pairs of stripes from
   y = 2, its title in the App face, a close box (and collapse box) **9×9**
   at y = 2, **4** from the sides; a frame **3** wide and a Black line round
@@ -462,14 +492,21 @@ The look has no hover state: nothing changes as the pointer passes over.
   Days of other months are Gray6; the chosen day takes the selection's
   colors (the accent's Dark while focused, Gray4 otherwise); today has a
   Black outline. Arrows move by a day or a week, Page Up/Down by a month.
-- Date picker: a pop-up button (5.9) showing the date, opening a calendar
-  two pixels under it.
-- Time field: one text field (5.10), as wide as "12:59 PM" plus **10**,
-  showing the time as "9:41 AM", with one pair of little arrows **3** to its
-  right. Its parts — hours, minutes, AM or PM — are chosen one at a time,
-  the part chosen highlighted in the accent's Light while the field has the
-  focus; Up, Down and the arrows step that part, digits type it, A and P
-  set the half of the day.
+  Weeks start on the user's first weekday; the month, the year and the
+  weekdays are written in the window's language (9).
+- Date picker: a pop-up button (5.9) showing the date as the window's
+  language writes it short, as wide as the widest date. Space, Return or
+  Down opens a calendar two pixels under it; choosing a day, Return,
+  Escape or a click elsewhere closes it.
+- Time field: one text field (5.10), as wide as the language's widest time
+  plus **18**, with one pair of little arrows **3** to its right. It counts
+  the hours as the user's regional formats do, as "9:41 AM" or "21:41",
+  its parts in the order and with the separators of the window's language
+  (the half of the day first where the language puts it first). Its parts
+  are chosen one at a time, by a click or Left and Right, the part chosen
+  highlighted in the accent's Light while the field has the focus; Up,
+  Down and the arrows step that part, digits type it, A and P set the half
+  of the day.
 - Combo box: a text field with a **20**-wide bevel button holding the pop-up
   arrow joined to its right; the menu under it lists the items that begin
   as the text does.
@@ -489,7 +526,9 @@ The look has no hover state: nothing changes as the pointer passes over.
   is a frame two pixels wide of the accent's Dark (Black unfocused).
   Formulas begin with "=" and take numbers, cells, + − × ÷, parentheses and
   SUM, AVERAGE, MIN and MAX of ranges; errors show as #DIV/0!, #CYCLE!,
-  #NAME?, #REF! and #SYNTAX!. Return commits and moves down, Tab right;
+  #NAME?, #REF! and #SYNTAX!. The arrows move the cursor and Shift with
+  them extends the range; typing replaces the cell, Escape cancels the
+  edit, Delete clears the range. Return commits and moves down, Tab right;
   Tab from the last column (Shift-Tab from the first) leaves the sheet for
   the next control, so that the keyboard is never trapped in it.
 - Formula bar: a band of Gray2 with an etched line under it; the cursor's
@@ -520,11 +559,12 @@ The look has no hover state: nothing changes as the pointer passes over.
   whose menu lists the folder and those it is in, outward.
 - *Extras.* Breadcrumbs and pagination belong to later, web-era designs
   and have no Platinum counterpart; the library draws them in its
-  vocabulary for apps that need them, but the gallery and the desktop use
-  the path pop-up and scrolling instead. Breadcrumb: the folders' names in
-  the System face, Gray9 but the last (Black), with Gray8 arrows 3×5
-  between them; pressed, a name inverts on the accent's Dark. Pagination:
-  bevel buttons **22** square with arrows, "Page n of m" between them.
+  vocabulary for apps that need them, but the gallery and the desktop's
+  windows use the path pop-up and scrolling instead. Breadcrumb: the
+  folders' names in the System face, Gray9 but the last (Black), with Gray8
+  arrows 3×5 between them; pressed, a name inverts on the accent's Dark.
+  Pagination: bevel buttons **22** square with arrows, "Page n of m"
+  between them.
 - Card: a Black outline round a raised Gray2 face, content inset **10**.
 - Status bar: placards (5.19) side by side, the last taking the room left.
 
@@ -538,12 +578,13 @@ The look has no hover state: nothing changes as the pointer passes over.
   them, its arrows dimmed while they fit; the newest column scrolls into
   view when the path changes.
 - Document tabs: tabs (5.8) **4** from the pane's edge, titled as tab
-  controls' are; a document closes with Command-W or its tab's context
-  menu, not a box on the tab. The pane's content inset **10**.
+  controls' are; a document closes with Command-W while the tabs have the
+  focus, or its tab's context menu, not a box on the tab. The pane's
+  content inset **10**; with no documents, an empty state (5.25).
 - Font picker: a list of families **140×98**, a size field and list
   **76** wide, the styles as check boxes, and a sample in a well **40**
   tall drawn in the regular face styled as rich text is (5.27); sizes of
-  18 and over draw at whole multiples.
+  18 and over draw at whole multiples, plain or underlined.
 - Page setup: a movable modal dialog **360** wide; the paper pop-up,
   orientation as two icon bevel buttons (portrait, landscape) that toggle,
   scale and margin number fields, and a picture of the page: White with a
@@ -557,15 +598,19 @@ The look has no hover state: nothing changes as the pointer passes over.
   pixel to its right, a pixel wider; *italic* slants each pair of rows a
   pixel right of the pair below (the top row leaning half the ascent, 4),
   and its run ends with that much more room, so the next run does not touch
-  it; underline is a line one pixel under the baseline. Each paragraph
+  it; underline is a line one pixel under the baseline. East Asian glyphs
+  take their bold face and stay upright in italic, as do characters in the
+  system's font, at their own size. Each paragraph
   aligns its lines left, centered or right within the wrapping width; a
   return makes a paragraph aligned as the one it splits, and joining two
   keeps the first one's alignment. Text comes in four sizes, 11, 22, 33 and
   44 points — the face at one to four times, each of its pixels drawn k by
   k, as a bitmap font was drawn at a size it had no bitmaps for; a line is
-  as tall as its largest text needs (14 plus 11 for each step), and all its
-  runs share that text's baseline. Command-Shift-. and -, step the size; a
-  Size menu checks the selection's.
+  as tall as its largest text needs (14 plus, for each step, the ink of a
+  line: 11, or 13 with East Asian glyphs), and all its runs share that
+  text's baseline. Command-B, -I and -U toggle the styles; Command-Shift-.
+  and -, step the size; a Size menu, its items named in the app's language
+  ("22 Point"), checks the selection's.
 - Format bar: a toolbar (5.17) of icon buttons — bold, italic and underline
   toggles that show the selection's style, and three alignment toggles
   that show and set the alignment of the paragraphs the selection touches.
@@ -578,9 +623,9 @@ The look has no hover state: nothing changes as the pointer passes over.
   the window's left. The tab is the title bar's Gray2 with the frame's
   bevel, Black outline with the top corners cut by a pixel; held down, its
   face is Gray5 with the bevel reversed. In the background its title is
-  Gray8.
+  Gray8 and its bevel softens to Gray1/Gray5.
 - Open, the window rises from the bottom edge under the tab, the tab's face
-  running into its frame: the frame of a window (5.1) without a title bar,
+  running into its frame: the frame of a window (5.13) without a title bar,
   **6** wide, its bottom and the sunken edge of its content running off the
   edge. Closed, the tab alone stands on the bottom edge.
 - A click on the tab, or Space or Enter while it has the keyboard focus
@@ -599,7 +644,7 @@ The look has no hover state: nothing changes as the pointer passes over.
 - The classic desktop's standard file dialogs: modal boxes with no title
   bar, in the alert's raised double frame, centered a fifth of the way
   down. At the top, the folder shown as a bevel button with its menu of
-  the folders it is in, out to "Desktop", with the small icon of what it
+  the folders it is in, out to the desktop, with the small icon of what it
   is (the desktop's, a disk's, a folder's).
 - Under it a list **220×150** of what the folder holds, each row with its
   **16×16** icon (folder, document or disk) and its name **19** after it,
@@ -611,9 +656,11 @@ The look has no hover state: nothing changes as the pointer passes over.
   bottom Cancel and the default button, Open or Save, its face lined up
   with the buttons above and its ring outside the column.
 - Opening a folder — a double click, Return, or Open — goes into it, and
-  Command-Up goes out of it. The open dialog gives the file opened.
+  Command-Up goes out of it; Escape cancels. The open dialog gives the
+  file opened.
 - The save dialog shows its files in Gray8, not to be chosen; under the
-  list its prompt ("Save as:") and the name's field **220** wide, the name
+  list its prompt, which the app gives ("Save as:"), and the name's field
+  **220** wide, the name
   selected and holding the keyboard so that typing replaces it. Saving
   over a file of the name asks first, in a caution alert: Replace existing
   “name”?
@@ -638,13 +685,19 @@ The look has no hover state: nothing changes as the pointer passes over.
 The look is quiet: there are no fades or slides. What moves is functional —
 a window opening from an icon is preceded by **zoom rectangles**: four
 dotted Gray10 outlines growing from the icon's box to the window's over
-**180 ms**, each trailing the one before by an eighth of the way;
+**180 ms**, each trailing the one before by **0.12** of the way;
 a chosen menu item blinks (150 ms), a keyboard-pressed button flashes
 (130 ms), the caret blinks (530 ms), indeterminate progress stripes move
 (24 px/s), and arrows of scroll bars repeat. A drag that rests **500 ms**
 on a folder, or on a pop-up window's closed tab, springs it open. With
-reduced motion asked for, the stripes still move (they show that work goes
-on).
+reduced motion asked for, zoom rectangles do not show; the stripes still
+move (they show that work goes on).
+
+Nothing lags a frame behind the input that changed it. A control reporting
+what the user did — a change, a window activated or closed, a menu item
+chosen — has MyGo build the view again in that frame, for the app's answer
+to show with it; a control painted at a new size, and a modal layer the
+first time it shows, ask for one frame more.
 
 ## 8. Accessibility
 
@@ -658,14 +711,30 @@ the keyboard does, an item is chosen.
 
 Every stop of the keyboard focus has a name: a control made of parts (a
 number field and its little arrows, a combo box and its button) names each
-part. Tab goes round every window without being kept: a control that takes
-Tab for itself (a sheet, moving between cells) lets it go on from its last
-cell, Shift-Tab from its first. News the keyboard focus does not bring —
-a banner, the note of find and replace, what a search found — is read out
-once. Tests tab round the gallery and the desk to hold all of this.
+part, in the window's language (9). Tab goes round every window without
+being kept: a control that takes Tab for itself (a sheet, moving between
+cells) lets it go on from its last cell, Shift-Tab from its first. News
+the keyboard focus does not bring — a banner, the note of find and
+replace, what a search found — is read out once. Tests tab round the
+gallery and the desktop to hold all of this.
 
-## 9. Assets
+## 9. Language
 
-The two bitmap faces, every icon and every picture in this repository were
-drawn for it and are under its MIT license. No system font, icon or image of
-any vendor is used, copied or traced.
+The controls' own words — Cancel, OK, Open, Save, the names screen readers
+read — are in English, Simplified and Traditional Chinese, Japanese and
+Korean, in the language of the window they show in (menus, built without a
+window: the app's). An app changes them, or adds languages, with keys
+`platinum.<key>` in its own catalogs. Dates and times follow the user's
+regional formats: the first day of the week, the 12- or 24-hour clock, and
+the order of hours, minutes and the half of the day; where the system
+says nothing of them, as in tests, those of the language. The look is
+written left to right.
+
+## 10. Assets
+
+Every icon and every picture in this repository was drawn for it and is
+under its MIT license. The faces are platinum-fonts', under the SIL Open
+Font License 1.1: its Latin faces drawn for it, its East Asian glyphs from
+the open fonts it lists. No vendor's font, icon or image is copied or
+traced; the system's font draws, at run time, only the characters no face
+has (3).

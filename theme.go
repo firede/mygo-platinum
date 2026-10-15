@@ -7,7 +7,7 @@ import (
 )
 
 // The gray ramp of the Platinum look. Every control is drawn from these
-// fourteen grays, black and white, and the theme's accent; docs/spec.md
+// twelve grays, black and white, and the theme's accent; docs/spec.md
 // says which part of which control takes which.
 var (
 	White  = ui.RGB(0xFF, 0xFF, 0xFF)
@@ -20,9 +20,9 @@ var (
 	Gray7  = ui.RGB(0x88, 0x88, 0x88) // outer shadows
 	Gray8  = ui.RGB(0x77, 0x77, 0x77) // disabled text
 	Gray9  = ui.RGB(0x66, 0x66, 0x66) // pressed faces of buttons
-	Gray10 = ui.RGB(0x55, 0x55, 0x55) // title bar stripes
+	Gray10 = ui.RGB(0x55, 0x55, 0x55) // bevel button outlines, zoom rectangles
 	Gray11 = ui.RGB(0x44, 0x44, 0x44) // pressed shadows
-	Gray12 = ui.RGB(0x22, 0x22, 0x22)
+	Gray12 = ui.RGB(0x22, 0x22, 0x22) // a gray of the color picker
 	Black  = ui.RGB(0x00, 0x00, 0x00)
 )
 

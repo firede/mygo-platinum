@@ -40,6 +40,8 @@
   "matchCase": "Match case",
   "menuBar": "Menu bar",
   "more": "More",
+  "newAndOld": "New and old",
+  "@newAndOld": { "description": "The well of the color picker showing the new color over the old, for assistive technology." },
   "newFolder": "New Folder",
   "nextPage": "Next page",
   "noDocuments": "No documents",

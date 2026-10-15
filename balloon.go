@@ -14,7 +14,11 @@ func Balloon(c *ui.Context, anchor ui.Element, text string) {
 		e.layout()
 		lineH := AppFont.Height() + 2
 		h := len(e.lines)*lineH + 12 + balloonTail
-		tip.Size(float32(width+20), float32(h)).Margin(2, 0, 0, 0)
+		// Under anchor, its tail's point under anchor's middle: MyGo puts
+		// a tip above, centered, where a balloon's tail rises from its
+		// top left.
+		tip.Size(float32(width+20), float32(h)).AttachTo(anchor, ui.AnchorBottom, ui.AnchorTopLeft).
+			Margin(2, 0, 0, 0).Left(-balloonTailX)
 		tip.Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := NewPen(p, r)
 			DrawBalloon(pn)
@@ -25,7 +29,10 @@ func Balloon(c *ui.Context, anchor ui.Element, text string) {
 	})
 }
 
-const balloonTail = 8
+const (
+	balloonTail  = 8  // the height of a balloon's tail
+	balloonTailX = 13 // where its point is, from the balloon's left
+)
 
 // DrawBalloon draws a help balloon filling pn's box, its tail at the top
 // left, balloonTail tall.

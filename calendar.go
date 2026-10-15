@@ -369,16 +369,21 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 	if st.seg >= n {
 		st.seg = 0 // the cycle changed under it
 	}
+	// atHour returns *t at hour h of its day: the time field sets the
+	// time, never the date.
+	atHour := func(h int) time.Time {
+		return time.Date(t.Year(), t.Month(), t.Day(), (h%24+24)%24, t.Minute(), t.Second(), 0, t.Location())
+	}
 	add := func(d int) {
 		switch st.seg {
 		case 0:
-			set(t.Add(time.Duration(d) * time.Hour))
+			set(atHour(t.Hour() + d))
 		case 1:
 			m := (t.Minute() + d*step + 60*step) % 60
 			m = m / step * step
 			set(time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), m, t.Second(), 0, t.Location()))
 		case 2:
-			set(t.Add(12 * time.Hour))
+			set(atHour(t.Hour() + 12))
 		}
 	}
 	join := func(parts [3]string) string {
@@ -449,7 +454,7 @@ func TimeField(c *ui.Context, t *time.Time, step int) ui.Element {
 				switch {
 				case twelve && st.seg == 2 && (r[0] == 'a' || r[0] == 'A') && t.Hour() >= 12,
 					twelve && st.seg == 2 && (r[0] == 'p' || r[0] == 'P') && t.Hour() < 12:
-					set(t.Add(12 * time.Hour))
+					set(atHour(t.Hour() + 12))
 				case r[0] >= '0' && r[0] <= '9' && st.seg < 2:
 					st.typed += string(r)
 					v := 0

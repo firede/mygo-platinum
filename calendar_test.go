@@ -123,4 +123,21 @@ func TestTimeField(t *testing.T) {
 	if at.Hour() != 10 {
 		t.Fatalf("the down arrow made %v", at)
 	}
+	// The field sets the time of its day: the hours go round it, past
+	// midnight either way, and the half of the day turns within it.
+	at = calDay
+	tt = ui.NewTester(view, 200, 60)
+	tt.Key(0, ui.KeyTab) // the hours
+	for range 15 {
+		tt.Key(0, ui.KeyUp)
+	}
+	tt.Frame()
+	if at.Hour() != 0 || at.Day() != calDay.Day() {
+		t.Fatalf("15 hours up from 9 made %v, want 0:41 of %v", at, calDay.Format(time.DateOnly))
+	}
+	tt.Key(0, ui.KeyDown)
+	tt.Frame()
+	if at.Hour() != 23 || at.Day() != calDay.Day() {
+		t.Fatalf("an hour down from 0 made %v, want 23:41 of the same day", at)
+	}
 }

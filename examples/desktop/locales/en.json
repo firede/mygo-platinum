@@ -362,5 +362,19 @@
   "languageSystem": "The system’s language",
   "languageNote": "Words, dates and the forms of East Asian characters follow the language chosen. The documents on the disk stay in the language the desk started in.",
   "error": "Error",
-  "display": "Display"
+  "display": "Display",
+  "controls": "Controls",
+  "catShow": "Show",
+  "catOne": "One",
+  "catTwo": "Two",
+  "catThree": "Three",
+  "catDisabled": "Disabled",
+  "catText": "The quick brown fox jumps over the lazy dog.",
+  "catMessage": "Something needs your attention.",
+  "catWindow": "Window",
+  "catEmpty": "Nothing here",
+  "@catText": {
+    "description": "A sentence the Controls application shows its text controls with."
+  },
+  "catContext": "Right-click or Control-click here"
 }

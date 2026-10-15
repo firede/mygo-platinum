@@ -193,5 +193,16 @@
   "languageSystem": "システムの言語",
   "languageNote": "言葉や日付、東アジアの文字の字形は選んだ言語に従います。ディスクの書類はデスクを起動したときの言語のままです。",
   "error": "エラー",
-  "display": "表示"
+  "display": "表示",
+  "controls": "コントロール",
+  "catShow": "表示",
+  "catOne": "一",
+  "catTwo": "二",
+  "catThree": "三",
+  "catDisabled": "使用不可",
+  "catText": "すばやい茶色の狐がのろまな犬を飛び越える。",
+  "catMessage": "確認が必要なことがあります。",
+  "catWindow": "ウインドウ",
+  "catEmpty": "何もありません",
+  "catContext": "ここを右クリックまたは Control キーを押しながらクリック"
 }

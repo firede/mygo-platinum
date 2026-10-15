@@ -282,6 +282,20 @@ var (
 		k.rect(22, 21, 4, 2, navy)
 		k.rect(14, 13, 4, 2, navy)
 	})
+	// A window of controls: a check box, a radio button, a slider and a
+	// button.
+	iconCatalog = newIcon(func(k canvas) {
+		k.box(3, 4, 26, 24, gray2)
+		k.rect(4, 5, 24, 4, gray4)
+		k.rect(3, 9, 26, 1, black)
+		k.box(7, 12, 6, 6, white)
+		k.rect(9, 14, 2, 2, black)
+		k.box(16, 12, 6, 6, white)
+		k.rect(18, 14, 2, 2, navy)
+		k.rect(7, 21, 18, 1, gray7)
+		k.box(15, 19, 3, 5, violet)
+		k.box(9, 25, 14, 1, black)
+	})
 	iconAbout = newIcon(func(k canvas) {
 		k.disc(32, 32, 28, violet)
 		k.rect(14, 8, 4, 4, white)

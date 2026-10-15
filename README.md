@@ -130,9 +130,10 @@ copies, Get Info, Duplicate, Put Away and a path menu in each window's
 title) with Find File, and applications built from the controls —
 Calculator, Jotter (a note pad), Scribe (a rich text editor with styles,
 sizes, a ruler, find and replace, and the standard open and save dialogs),
-Ledger (a spreadsheet), Puzzle, Alarm Clock, and the Appearance, Date &
-Time, Language, Sound and Mouse control panels. All of its names and
-pictures are its own.
+Ledger (a spreadsheet), Puzzle, Alarm Clock, Controls (every control of
+the library, live, by the name of its function), and the Appearance,
+Date & Time, Language, Sound and Mouse control panels. All of its names
+and pictures are its own.
 
 It speaks English, Simplified and Traditional Chinese, Japanese and
 Korean, the language of the system or the one its Language control panel

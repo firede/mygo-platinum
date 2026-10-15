@@ -193,5 +193,16 @@
   "languageSystem": "系统语言",
   "languageNote": "文字、日期和东亚文字的字形会跟随所选的语言。磁盘上的文稿保持桌面启动时的语言。",
   "error": "错误",
-  "display": "显示"
+  "display": "显示",
+  "controls": "控件",
+  "catShow": "显示",
+  "catOne": "一",
+  "catTwo": "二",
+  "catThree": "三",
+  "catDisabled": "停用",
+  "catText": "敏捷的棕色狐狸跳过了那只懒狗。",
+  "catMessage": "有件事需要你留意。",
+  "catWindow": "窗口",
+  "catEmpty": "这里什么也没有",
+  "catContext": "在这里右键点按或按住 Control 点按"
 }

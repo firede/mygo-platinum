@@ -33,7 +33,7 @@ func TestSitePictures(t *testing.T) {
 }
 
 // TestGreet checks the desk as a web page opens it: its disk's window
-// and, in front, the Read Me.
+// and, in front, the Controls.
 func TestGreet(t *testing.T) {
 	d := newDeskIn(func() time.Time { return sceneTime }, "en")
 	d.greet()
@@ -43,8 +43,8 @@ func TestGreet(t *testing.T) {
 	for _, w := range d.windows {
 		titles = append(titles, d.titleOf(w))
 	}
-	if !slices.Equal(titles, []string{"Platinum Disk", "Read Me"}) {
-		t.Errorf("windows %q, want the disk's and the Read Me", titles)
+	if !slices.Equal(titles, []string{"Platinum Disk", "Controls"}) {
+		t.Errorf("windows %q, want the disk's and the Controls", titles)
 	}
 }
 

@@ -30,6 +30,7 @@ const (
 	appLanguage
 	appFind
 	appInfo
+	appCatalog
 )
 
 func appIcon(a appKind) *icon {
@@ -58,6 +59,8 @@ func appIcon(a appKind) *icon {
 		return iconMouse
 	case appLanguage:
 		return iconLanguage
+	case appCatalog:
+		return iconCatalog
 	}
 	return iconFolder
 }
@@ -86,6 +89,7 @@ type win struct {
 	clock   *alarmClock
 	appear  *appearance
 	sheet   *pt.SheetState
+	catalog *catalog
 	desk    *desk
 	content func(c *ui.Context, w *win)
 }
@@ -284,6 +288,8 @@ func (d *desk) launch(app appKind) *win {
 		return d.open(newLanguageWindow(d))
 	case appFind:
 		return d.open(newFindWindow(d))
+	case appCatalog:
+		return d.open(newCatalogWindow(d))
 	}
 	return nil
 }
@@ -694,6 +700,7 @@ func (d *desk) menus(c *ui.Context) []pt.Menu {
 			pt.Divider(),
 			{Title: m.AlarmClock(), Action: func() { d.launch(appClock) }},
 			{Title: m.Calculator(), Action: func() { d.launch(appCalculator) }},
+			{Title: m.Controls(), Action: func() { d.launch(appCatalog) }},
 			{Title: m.Jotter(), Action: func() { d.launch(appJotter) }},
 			{Title: m.Ledger(), Action: func() { d.launch(appLedger) }},
 			{Title: m.Puzzle(), Action: func() { d.launch(appPuzzle) }},

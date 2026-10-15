@@ -22,6 +22,20 @@ var (
 		"............",
 		"............",
 	}
+	miniControls = []string{
+		"............",
+		".##########.",
+		".#wwwwwwww#.",
+		".#w##w:::w#.",
+		".#w##w:::w#.",
+		".#wwwwwwww#.",
+		".#w::::::w#.",
+		".#wooooo:w#.",
+		".#wwwwwwww#.",
+		".##########.",
+		"............",
+		"............",
+	}
 	miniCalc = []string{
 		".##########.",
 		".#::::::::#.",
@@ -169,6 +183,8 @@ func (d *desk) appTitle(a appKind) string {
 		return m.AboutThisDesk()
 	case appFind:
 		return m.FindFile()
+	case appCatalog:
+		return m.Controls()
 	}
 	return m.Desk()
 }
@@ -188,6 +204,8 @@ func appPic(a appKind) []string {
 		return miniClock
 	case appLedger:
 		return miniGrid
+	case appCatalog:
+		return miniControls
 	case appAppearance, appDateTime, appSound, appMouse, appLanguage:
 		return miniPanel
 	}
@@ -198,7 +216,7 @@ func appPic(a appKind) []string {
 // picture: the desk's for its own windows, folders and About.
 func (d *desk) appName(w *win) (string, []string) {
 	switch w.app {
-	case appCalculator, appJotter, appScribe, appPuzzle, appClock, appLedger,
+	case appCalculator, appJotter, appScribe, appPuzzle, appClock, appLedger, appCatalog,
 		appAppearance, appDateTime, appSound, appMouse, appLanguage:
 		return d.appTitle(w.app), appPic(w.app)
 	}

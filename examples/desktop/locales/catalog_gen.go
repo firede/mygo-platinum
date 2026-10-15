@@ -1975,3 +1975,117 @@ func Display() string { return In(i18n.Locale()).Display() }
 func (msgs Messages) Display() string {
 	return Catalog.Format(msgs.locale, "display", nil)
 }
+
+// Controls says "Controls"
+// in the language the app shows.
+func Controls() string { return In(i18n.Locale()).Controls() }
+
+// Controls says "Controls"
+// in the language of msgs.
+func (msgs Messages) Controls() string {
+	return Catalog.Format(msgs.locale, "controls", nil)
+}
+
+// CatShow says "Show"
+// in the language the app shows.
+func CatShow() string { return In(i18n.Locale()).CatShow() }
+
+// CatShow says "Show"
+// in the language of msgs.
+func (msgs Messages) CatShow() string {
+	return Catalog.Format(msgs.locale, "catShow", nil)
+}
+
+// CatOne says "One"
+// in the language the app shows.
+func CatOne() string { return In(i18n.Locale()).CatOne() }
+
+// CatOne says "One"
+// in the language of msgs.
+func (msgs Messages) CatOne() string {
+	return Catalog.Format(msgs.locale, "catOne", nil)
+}
+
+// CatTwo says "Two"
+// in the language the app shows.
+func CatTwo() string { return In(i18n.Locale()).CatTwo() }
+
+// CatTwo says "Two"
+// in the language of msgs.
+func (msgs Messages) CatTwo() string {
+	return Catalog.Format(msgs.locale, "catTwo", nil)
+}
+
+// CatThree says "Three"
+// in the language the app shows.
+func CatThree() string { return In(i18n.Locale()).CatThree() }
+
+// CatThree says "Three"
+// in the language of msgs.
+func (msgs Messages) CatThree() string {
+	return Catalog.Format(msgs.locale, "catThree", nil)
+}
+
+// CatDisabled says "Disabled"
+// in the language the app shows.
+func CatDisabled() string { return In(i18n.Locale()).CatDisabled() }
+
+// CatDisabled says "Disabled"
+// in the language of msgs.
+func (msgs Messages) CatDisabled() string {
+	return Catalog.Format(msgs.locale, "catDisabled", nil)
+}
+
+// CatText says "The quick brown fox jumps over the lazy dog."
+// in the language the app shows.
+//
+// A sentence the Controls application shows its text controls with.
+func CatText() string { return In(i18n.Locale()).CatText() }
+
+// CatText says "The quick brown fox jumps over the lazy dog."
+// in the language of msgs.
+//
+// A sentence the Controls application shows its text controls with.
+func (msgs Messages) CatText() string {
+	return Catalog.Format(msgs.locale, "catText", nil)
+}
+
+// CatMessage says "Something needs your attention."
+// in the language the app shows.
+func CatMessage() string { return In(i18n.Locale()).CatMessage() }
+
+// CatMessage says "Something needs your attention."
+// in the language of msgs.
+func (msgs Messages) CatMessage() string {
+	return Catalog.Format(msgs.locale, "catMessage", nil)
+}
+
+// CatWindow says "Window"
+// in the language the app shows.
+func CatWindow() string { return In(i18n.Locale()).CatWindow() }
+
+// CatWindow says "Window"
+// in the language of msgs.
+func (msgs Messages) CatWindow() string {
+	return Catalog.Format(msgs.locale, "catWindow", nil)
+}
+
+// CatEmpty says "Nothing here"
+// in the language the app shows.
+func CatEmpty() string { return In(i18n.Locale()).CatEmpty() }
+
+// CatEmpty says "Nothing here"
+// in the language of msgs.
+func (msgs Messages) CatEmpty() string {
+	return Catalog.Format(msgs.locale, "catEmpty", nil)
+}
+
+// CatContext says "Right-click or Control-click here"
+// in the language the app shows.
+func CatContext() string { return In(i18n.Locale()).CatContext() }
+
+// CatContext says "Right-click or Control-click here"
+// in the language of msgs.
+func (msgs Messages) CatContext() string {
+	return Catalog.Format(msgs.locale, "catContext", nil)
+}

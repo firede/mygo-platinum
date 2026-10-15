@@ -127,7 +127,7 @@ func newDisk(now time.Time, locale string) *node {
 	for _, a := range []struct {
 		key string
 		app appKind
-	}{{"calculator", appCalculator}, {"jotter", appJotter}, {"ledger", appLedger}, {"scribe", appScribe}, {"puzzle", appPuzzle}, {"alarmClock", appClock}} {
+	}{{"calculator", appCalculator}, {"jotter", appJotter}, {"ledger", appLedger}, {"scribe", appScribe}, {"puzzle", appPuzzle}, {"alarmClock", appClock}, {"controls", appCatalog}} {
 		apps.add(own(a.key, kindApp, a.app))
 	}
 	docs := d.add(own("documents", kindFolder, 0))

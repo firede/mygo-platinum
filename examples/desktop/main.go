@@ -1,8 +1,8 @@
 // Command desktop is a classic desktop built with the Platinum controls: a
 // menu bar, icons, windows that move, resize and roll up, a browser of the
 // desk's own little disk, and a few small applications — a calculator, a
-// note pad, a text editor, a sliding puzzle, an alarm clock, an appearance
-// control panel and an about box. It speaks English, Simplified and
+// note pad, a text editor, a sliding puzzle, an alarm clock, a catalog of
+// the library's controls, control panels and an about box. It speaks English, Simplified and
 // Traditional Chinese, Japanese and Korean, as its Language control panel
 // chooses.
 //
@@ -50,7 +50,7 @@ func main() {
 		d = scene("")
 	} else if runtime.GOOS == "js" {
 		// In a browser the desk is a web page's, seen once: it opens with
-		// its disk and its Read Me.
+		// its disk and the Controls.
 		d.greet()
 	}
 	d.setLocale = func(tag string) { mygo.App.SetLocale(tag) }
@@ -87,17 +87,12 @@ func main() {
 	}
 }
 
-// greet opens the disk's window and the Read Me in it.
+// greet opens the disk's window and, in front, the Controls.
 func (d *desk) greet() {
 	f := d.openFolder(d.disk)
 	f.frame.X, f.frame.Y = 24, 20
-	for _, n := range d.disk.children {
-		if n.kind == kindDocument {
-			d.openNode(n)
-			r := d.front()
-			r.frame.X, r.frame.Y = 200, 140
-		}
-	}
+	k := d.launch(appCatalog)
+	k.frame.X, k.frame.Y = 120, 70
 }
 
 // sceneTime is the time the scenes of the desk show, for pictures and

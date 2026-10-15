@@ -59,7 +59,7 @@
 | 带公式的电子表格、公式栏 | `Sheet`、`FormulaBar` |
 | 查找替换对话框、标尺 | `FindReplace`、`Find`、`ReplaceAll`、`Ruler` |
 | 分栏视图、文档标签页、字体选择器、页面设置 | `ColumnView`、`DocumentTabs`、`FontPicker`、`PageSetup` |
-| 进度对话框、横幅、空状态 | `ProgressDialog`、`Banner`、`EmptyState` |
+| 进度对话框、横幅、提示消息（toast）、空状态 | `ProgressDialog`、`Banner`、`Toasts`、`EmptyState` |
 | 路径弹出菜单、面包屑、分页、卡片、状态栏 | `PathPopup`、`Breadcrumb`、`Pagination`、`Card`、`StatusBar` |
 | 富文本：样式、四种字号、段落对齐；格式栏 | `RichTextArea`、`FormatBar`、`SizeMenu` |
 | 停靠在底边的弹出窗口 | `PopupWindow`、`SpringOpen` |

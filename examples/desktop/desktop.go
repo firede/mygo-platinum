@@ -367,6 +367,7 @@ func (d *desk) view(c *ui.Context) {
 	}
 	d.alarmCheck(c)
 	d.fileDialogs(c)
+	pt.Toasts(c)
 	if w := d.asking; w != nil {
 		open := true
 		switch pt.Alert(c, &open, pt.AlertCaution, m.SaveChanges(w.title), "", m.DontSave(), m.Cancel(), m.Save()) {

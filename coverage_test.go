@@ -71,6 +71,7 @@ var snapshotCoverage = map[string]struct {
 	"Ruler":            {"scale, margins dragged", []string{"ruler"}},
 	"ProgressDialog":   {"message, bar, detail, cancel", []string{"progress-dialog-banner"}},
 	"Banner":           {"note icon, text, close box", []string{"progress-dialog-banner"}},
+	"Toasts":           {"note, caution with an action, stop with a description", []string{"toasts"}},
 	"EmptyState":       {"empty folder, title, detail", []string{"paths-pages"}},
 	"PathPopup":        {"folder button with menu arrow", []string{"paths-pages"}},
 	"Breadcrumb":       {"path with arrows, last one black", []string{"paths-pages"}},

@@ -63,7 +63,7 @@ tables, layout),
 | Spreadsheet sheet with formulas, formula bar | `Sheet`, `FormulaBar` |
 | Find and replace dialog, ruler | `FindReplace`, `Find`, `ReplaceAll`, `Ruler` |
 | Column view, document tabs, font picker, page setup | `ColumnView`, `DocumentTabs`, `FontPicker`, `PageSetup` |
-| Progress dialog, banner, empty state | `ProgressDialog`, `Banner`, `EmptyState` |
+| Progress dialog, banner, toasts, empty state | `ProgressDialog`, `Banner`, `Toasts`, `EmptyState` |
 | Path pop-up, breadcrumb, pagination, card, status bar | `PathPopup`, `Breadcrumb`, `Pagination`, `Card`, `StatusBar` |
 | Rich text: styles, four sizes, paragraph alignment; format bar | `RichTextArea`, `FormatBar`, `SizeMenu` |
 | Pop-up window docked at the bottom edge | `PopupWindow`, `SpringOpen` |

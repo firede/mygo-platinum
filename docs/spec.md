@@ -547,13 +547,18 @@ The look has no hover state: nothing changes as the pointer passes over.
   margin and the indent from the left margin. The first line of each
   paragraph starts the indent further in.
 
-### 5.25 Progress dialog, banner, empty state, paths, pages, card, status bar
+### 5.25 Progress dialog, banner, toasts, empty state, paths, pages, card, status bar
 
 - Progress dialog: a movable modal dialog **320** wide: the message, a
   progress bar **290** long, a Gray9 detail, and a Cancel button.
-- Banner: the alert frame (5.15) **30** tall across the top of the window,
-  **6** down, centered: a 16×16 icon (small note, caution or stop), text in
-  the App face, and a close box (5.13).
+- Banner: the alert frame (5.15) **30** tall, laid out where the app
+  puts it — across the top of a window's content, as a rule, the content
+  under it moved down — as wide as its parent: a 16×16 icon (small note,
+  caution or stop), text in the App face, and a close box (5.13).
+- Toasts: MyGo's toasts (`c.Toast`), drawn by `Toasts` as banners as wide
+  as their text, centered **12** above the bottom of the window, **6**
+  apart, the newest lowest; an action as a push button (5.1) before the
+  close box. They show and go at once, without fading.
 - Empty state: one line of Gray8 text in the App face, centered in its
   room — no picture.
 - Path pop-up: a bevel button with a small folder and the folder's name,

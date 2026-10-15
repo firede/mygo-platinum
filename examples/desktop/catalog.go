@@ -393,11 +393,26 @@ func catalogPages() []catalogPage {
 			pt.ProgressDialog(c, &k.progress, m.CatWindow(), m.CatMessage(), 0.4, m.CatText())
 		}},
 		{"Banner", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
-			if pt.Button(c, m.CatShow()).Clicked() {
-				k.banner = true
-			}
-			ui.Column(c).Width(300).AlignItems(ui.Stretch).Children(func() {
+			ui.Column(c).Width(320).AlignItems(ui.Stretch).Gap(8).Children(func() {
 				pt.Banner(c, &k.banner, pt.AlertNote, m.CatMessage())
+				ui.Row(c).Children(func() {
+					if pt.Button(c, m.CatShow()).Clicked() {
+						k.banner = true
+					}
+				})
+			})
+		}},
+		{"Toasts", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
+			row(c, func() {
+				if pt.Button(c, m.CatOne()).Clicked() {
+					c.Toast(m.CatMessage())
+				}
+				if pt.Button(c, m.CatTwo()).Clicked() {
+					c.AddToast(ui.Toast{Title: m.CatMessage(), Type: "caution", Action: m.Ok(), OnAction: func() {}})
+				}
+				if pt.Button(c, m.CatThree()).Clicked() {
+					c.AddToast(ui.Toast{Title: m.CatMessage(), Description: m.CatText(), Type: "error"})
+				}
 			})
 		}},
 		{"EmptyState, Card", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {

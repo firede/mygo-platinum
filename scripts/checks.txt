@@ -139,6 +139,7 @@ test::ExampleTextArea
 test::ExampleTextField
 test::ExampleTextIn
 test::ExampleTimeField
+test::ExampleToasts
 test::ExampleToolbar
 test::ExampleToolbarSeparator
 test::ExampleTreeView
@@ -252,6 +253,7 @@ test::TestSnapshotSmallStatus
 test::TestSnapshotTabStates
 test::TestSnapshotTextFieldStates
 test::TestSnapshotTitleBoxes
+test::TestSnapshotToasts
 test::TestSnapshotWellAndBalloon
 test::TestSnapshotWindows
 test::TestSnapshotZoomRects

@@ -4,43 +4,44 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// Banner shows a notification along the top of the window while *open: a
-// raised panel with a small icon of kind and text, and a close box that
-// closes it, its text read out once by screen readers. It leaves Escape to
-// the dialogs and menus over the window.
-func Banner(c *ui.Context, open *bool, kind AlertKind, text string) {
-	said := ui.Local(c.Root(), "banner", func() string { return "" })
+// Banner builds a notification band where it is laid out while *open —
+// across the top of a window's content, as a rule, the content under it
+// moved down: a raised panel as wide as its parent, with a small icon of
+// kind, text and a close box that closes it, its text read out once by
+// screen readers as it shows. It returns the band, or a nil Element while
+// closed.
+func Banner(c *ui.Context, open *bool, kind AlertKind, text string) ui.Element {
 	if !*open {
-		*said = ""
-		return
+		return ui.Element{}
 	}
+	panel := ui.Row(c).Height(BannerHeight).AlignSelf(ui.Stretch).Shrink(0).
+		Role(ui.RoleStatus).Label(text).Padding(0, 8, 0, 8).Gap(8).AlignItems(ui.Center)
+	said := ui.Local(panel, "banner", func() string { return "" })
 	if *said != text {
 		c.Announce(text) // screen readers read it out once
 		*said = text
 	}
-	ui.Overlay(c, func() {
-		cw, _ := c.Size()
-		w := min(AppFont.Measure(text)+64, round(cw)-16)
-		panel := ui.Row(c).Absolute().Left(float32((round(cw)-w)/2)).Top(6).Size(float32(w), 30).
-			Role(ui.RoleStatus).Label(text).Padding(0, 8, 0, 8).Gap(8).AlignItems(ui.Center)
-		panel.Draw(func(p *ui.Painter, r ui.Rect) {
+	panel.Draw(func(p *ui.Painter, r ui.Rect) { DrawAlertFrame(NewPen(p, r)) })
+	panel.Children(func() {
+		ui.Box(c).Size(16, 16).Role(ui.RoleImage).Draw(func(p *ui.Painter, r ui.Rect) {
+			DrawSmallAlertIcon(NewPen(p, r), kind)
+		})
+		ui.Box(c).Grow(1).Height(float32(AppFont.Height())).Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := NewPen(p, r)
-			DrawAlertFrame(pn)
+			pn.Text(0, 0, AppFont.Truncate(text, pn.W), AppFont, Black)
 		})
-		panel.Children(func() {
-			ui.Box(c).Size(16, 16).Role(ui.RoleImage).Draw(func(p *ui.Painter, r ui.Rect) {
-				DrawSmallAlertIcon(NewPen(p, r), kind)
-			})
-			TextIn(c, AppFont.Truncate(text, w-64), AppFont, Black).Grow(1)
-			box := ui.ButtonBase(c).Size(TitleBoxSize, TitleBoxSize).FocusRing(false).Label(say(c, "close"))
-			pressed := box.Pressed()
-			box.Draw(func(p *ui.Painter, r ui.Rect) { DrawTitleBox(NewPen(p, r), PartClose, pressed) })
-			if box.Clicked() {
-				*open = false
-			}
-		})
+		box := ui.ButtonBase(c).Size(TitleBoxSize, TitleBoxSize).FocusRing(false).Label(say(c, "close"))
+		pressed := box.Pressed()
+		box.Draw(func(p *ui.Painter, r ui.Rect) { DrawTitleBox(NewPen(p, r), PartClose, pressed) })
+		if box.Clicked() {
+			*open = false
+		}
 	})
+	return panel
 }
+
+// BannerHeight is the height of a banner.
+const BannerHeight = 30
 
 // DrawSmallAlertIcon draws the 16×16 icon of an alert of kind, as banners
 // show it, in pn's corner.

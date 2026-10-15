@@ -827,12 +827,27 @@ func ExampleBanner() {
 	shown := true
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)
-		ui.Box(c).Fill().Children(func() {
+		ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
+			// Across the top of the content, which goes under it.
 			pt.Banner(c, &shown, pt.AlertNote, "The disk was backed up.")
+			pt.TextIn(c, "28 items", pt.AppFont, pt.Black)
 		})
 	})
 	fmt.Println(shown)
 	// Output: true
+}
+
+func ExampleToasts() {
+	saved := false
+	render(func(c *ui.Context) {
+		pt.Use(c, nil)
+		if !saved {
+			saved = true
+			c.Toast("Saved") // MyGo's toasts, in the Platinum look
+		}
+		pt.Toasts(c)
+	})
+	// Output:
 }
 
 func ExampleBreadcrumb() {

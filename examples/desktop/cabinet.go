@@ -338,20 +338,25 @@ func (d *desk) cabinetTable(c *ui.Context, cb *cabinet) {
 		}
 		return sa < sb
 	}}, {Title: m.ColumnKind()}}
-	tw := pt.Table(c, cb.table, cols, len(items), func(r, col int) string {
-		it := items[r]
-		switch col {
-		case 0:
-			return it.name
-		case 1:
-			if it.kind == kindFolder {
-				return "—"
+	var tw *pt.TableWidget
+	// Filling the window: its ring under the window's lines and the
+	// header's, its outline on them and on the resize corner's top edge.
+	ui.Row(c).Grow(1).Margin(-2, -2, pt.GrowBoxSize-2, -2).Children(func() {
+		tw = pt.Table(c, cb.table, cols, len(items), func(r, col int) string {
+			it := items[r]
+			switch col {
+			case 0:
+				return it.name
+			case 1:
+				if it.kind == kindFolder {
+					return "—"
+				}
+				return humanSize(m, it.size())
 			}
-			return humanSize(m, it.size())
-		}
-		return it.kindName(m)
+			return it.kindName(m)
+		})
+		tw.Element().Fill().Label(cb.dir.name)
 	})
-	tw.Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize, 0).Label(cb.dir.name)
 	if tw.Changed() {
 		cb.sel = -1
 		for r := range cb.table.Selected {

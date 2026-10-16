@@ -328,7 +328,10 @@ The look has no hover state: nothing changes as the pointer passes over.
   Black line: Black edges on its top and left, three ridges (Gray7 with
   White) rising to the right. A scroll bar at the window's side lies over
   the content's Black line and the lines at its ends, so that its outline,
-  the window's line and the corner's edges are one line each.
+  the window's line and the corner's edges are one line each. The corner is
+  drawn again over the content, as classic apps drew it after their own, so
+  a view filling the window, its outline on the window's lines, reaches the
+  corner's top edge and leaves the corner whole.
 - **Inactive:** no stripes, no boxes, no ridges, title Gray8, rings softened
   to Gray1/Gray5.
 - Dragging the title bar moves the window; double-clicking it, where it has
@@ -527,7 +530,9 @@ The look has no hover state: nothing changes as the pointer passes over.
 
 ### 5.24 Sheet, formula bar, find and replace, ruler
 
-- Sheet: cells **72×18**, row numbers **32** wide, in the content frame.
+- Sheet: cells **72×18**, row numbers **32** wide, in the content frame;
+  a sheet filling its window lies on the window's lines, its scroll bars
+  down to the resize corner, with no focus ring.
   Headers in the App face on raised Gray2 (White/Gray7, Gray9 lines between
   them), the headers of the selected rows and columns Gray4. Gray3 lines
   between cells; numbers right-aligned **4** from the edge, text left. The

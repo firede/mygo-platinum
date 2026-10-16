@@ -58,30 +58,31 @@ var dogEar = []string{
 func jotterView(c *ui.Context, w *win) {
 	m := w.desk.say()
 	j := w.jot
-	paper := ui.RGB(0xFF, 0xF6, 0xC8)
 	ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
-		pt.TextArea(c.Key(fmt.Sprint("page", j.page)), &j.pages[j.page]).Label(m.Page()).Element().Grow(1).FillWidth()
-		ui.Row(c).Height(jotterFoot).AlignItems(ui.Stretch).Children(func() {
-			jotterFooter(c, w, paper)
-			// The window's resize corner under the paper's edge.
-			ui.Column(c).Width(pt.GrowBoxSize).Children(func() {
-				ui.Box(c).Height(jotterFoot - pt.GrowBoxSize).Background(paper)
-			})
-		})
+		// The page fills the window, its scroll bar over the window's line
+		// down to the foot, as a document's.
+		pt.TextArea(c.Key(fmt.Sprint("page", j.page)), &j.pages[j.page]).Label(m.Page()).Document(5, 0).Element().Grow(1).FillWidth()
+		jotterFoot(c, w)
 	})
 }
 
-// The height of the pad's foot, under its page.
-const jotterFoot = 20
-
-// jotterFooter builds the pad's foot: the corner that turns the page, and
-// which page it is.
-func jotterFooter(c *ui.Context, w *win, paper ui.Color) {
+// jotterFoot builds the pad's foot, as tall as the resize corner at its
+// right end, under a Black line: the corner that turns the page, folded
+// up in the window's corner, and which page it is.
+func jotterFoot(c *ui.Context, w *win) {
 	m := w.desk.say()
 	j := w.jot
 	th := pt.ThemeOf(c)
-	ui.Row(c).Grow(1).Padding(0, 8, 0, 4).Gap(8).AlignItems(ui.Center).Background(paper).Children(func() {
-		corner := ui.Box(c).Size(16, 16).Role(ui.RoleButton).Label(m.TurnPage()).Focusable().FocusRing(false)
+	foot := ui.Row(c).Height(pt.GrowBoxSize).Padding(1, 0, 0, 0).Gap(8).AlignItems(ui.Center)
+	foot.Draw(func(p *ui.Painter, r ui.Rect) {
+		pn := pt.NewPen(p, r)
+		pn.Rect(0, 0, pn.W, pn.H, ui.RGB(0xFF, 0xF6, 0xC8))
+		pn.HLine(0, 0, pn.W, pt.Black)
+	})
+	foot.Children(func() {
+		// The corner's edges on the window's lines and the foot's.
+		corner := ui.Box(c).Size(16, 16).AlignSelf(ui.Start).Margin(-1, 0, 0, -1).
+			Role(ui.RoleButton).Label(m.TurnPage()).Focusable().FocusRing(false)
 		if corner.Clicked() {
 			if corner.ClickModifiers()&ui.Shift != 0 {
 				j.turn(-1)
@@ -107,7 +108,7 @@ func jotterFooter(c *ui.Context, w *win, paper ui.Color) {
 				}
 			}
 		})
-		pt.TextIn(c, m.PageOf(j.page+1, len(j.pages)), pt.AppFont, pt.Black).Height(jotterFoot)
+		pt.TextIn(c, m.PageOf(j.page+1, len(j.pages)), pt.AppFont, pt.Black).Height(pt.GrowBoxSize - 1)
 	})
 }
 
@@ -382,13 +383,17 @@ func newLedgerWindow(d *desk) *win {
 		}
 	}
 	st.Cursor, st.Anchor = pt.Cell{Col: 1, Row: 6}, pt.Cell{Col: 1, Row: 6}
+	st.NoFocusRing = true // the window shows where typing goes
 	w := &win{app: appLedger, sheet: st}
 	w.frame = pt.WindowState{W: 360, H: 240}
 	w.content = func(c *ui.Context, w *win) {
 		ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
 			pt.FormulaBar(c, w.sheet)
-			// Above the resize corner, its focus ring too.
-			pt.Sheet(c, w.sheet, 99, 26).Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize+3, 0)
+			// Filling the window: its ring under the window's lines, its
+			// outline on them and on the resize corner's top edge.
+			ui.Row(c).Grow(1).Margin(0, -2, pt.GrowBoxSize-2, -2).Children(func() {
+				pt.Sheet(c, w.sheet, 99, 26).Element().Fill()
+			})
 		})
 	}
 	return w

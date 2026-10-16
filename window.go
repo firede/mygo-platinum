@@ -233,6 +233,13 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 		d.parentX, d.parentY = r.X-float32(st.X), r.Y-float32(st.Y)
 		DrawWindowFrame(NewPen(p, r), title, opts, st.Collapsed, pressed)
 	})
+	if !st.Collapsed && !opts.NoGrow {
+		// The resize corner again over the content, as classic apps drew it
+		// after their own: whatever the content draws there.
+		w.el.DrawOver(func(p *ui.Painter, r ui.Rect) {
+			drawWindowGrowBox(NewPen(p, r), opts)
+		})
+	}
 	if !st.Collapsed {
 		w.el.Children(func() {
 			inner := ui.Column(c).Clip()
@@ -529,8 +536,15 @@ func DrawWindowFrame(pn Pen, title string, opts WindowOptions, collapsed bool, p
 		}
 	})
 	if !collapsed && !opts.NoGrow {
-		DrawGrowBox(pn.Sub(w-side-GrowBoxSize, h-side-GrowBoxSize, GrowBoxSize, GrowBoxSize), active)
+		drawWindowGrowBox(pn, opts)
 	}
+}
+
+// drawWindowGrowBox draws the resize corner of a window filling pn, in the
+// bottom right of its content.
+func drawWindowGrowBox(pn Pen, opts WindowOptions) {
+	side := opts.side()
+	DrawGrowBox(pn.Sub(pn.W-side-GrowBoxSize, pn.H-side-GrowBoxSize, GrowBoxSize, GrowBoxSize), opts.Active)
 }
 
 // DrawTitleBox draws the close, zoom or collapse box of a title bar

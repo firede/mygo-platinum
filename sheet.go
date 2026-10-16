@@ -63,6 +63,9 @@ type SheetState struct {
 	// IsEditing.
 	Editing   string
 	IsEditing bool
+	// NoFocusRing draws no ring around the sheet while it has the keyboard
+	// focus, as for a sheet that fills its window.
+	NoFocusRing bool
 
 	top, left float64
 	rect      ui.Rect
@@ -460,7 +463,7 @@ func Sheet(c *ui.Context, st *SheetState, rows, cols int) *SheetWidget {
 			dp.Clip(1, 1, dp.W-2, SheetCellH, func() { DrawSheet(dp, st, top, left, rows, cols, focused, th.Accent) })
 			dp.Clip(1, 1, SheetRowHeadW, dp.H-2, func() { DrawSheet(dp, st, top, left, rows, cols, focused, th.Accent) })
 		}
-		if focused {
+		if focused && !st.NoFocusRing {
 			DrawFocusRing(pn, 0, th.Accent.Dark)
 		}
 	})

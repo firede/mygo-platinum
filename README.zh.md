@@ -8,7 +8,8 @@
 一套为 [MyGo](https://mygo.egoist.dev) 原生 UI 编写的控件，风格取自上世纪
 90 年代末灰色、带斜面立体感的 "Platinum" 桌面外观。所有控件都在 GPU 上逐像素
 绘制，不使用 web view。仓库里还附带一个"经典桌面"示例，把这些控件实际用了
-起来。
+起来，可以在浏览器里试用：
+[mygo-platinum.firede.com](https://mygo-platinum.firede.com)。
 
 ![控件一览](docs/gallery@2x.png)
 
@@ -161,6 +162,10 @@ go run ./examples/gallery -png gallery.png   # 不开窗口，直接渲染成图
 go run ./examples/desktop                    # 经典桌面
 go run ./examples/desktop -png desk.png -lang ja   # 不开窗口渲染成图片，日文界面
 ```
+
+`./scripts/site.sh` 把经典桌面编译成 WebAssembly，连同网页一起构建到
+`site/dist`；`./scripts/deploy.sh` 按正式网址构建，并按 `wrangler.jsonc`
+的配置部署到 Cloudflare。
 
 ## 测试
 

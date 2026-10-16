@@ -8,7 +8,8 @@ English | [简体中文](README.zh.md)
 A set of controls for [MyGo](https://mygo.egoist.dev)'s native UI in the
 style of the gray, beveled late-1990s "Platinum" desktop look — drawn pixel
 by pixel on the GPU, with no web view — and a "classic desktop" example that
-puts them to work.
+puts them to work. Try the desktop in the browser at
+[mygo-platinum.firede.com](https://mygo-platinum.firede.com).
 
 ![The gallery of controls](docs/gallery@2x.png)
 
@@ -169,6 +170,10 @@ go run ./examples/gallery -png gallery.png   # the same, rendered without one
 go run ./examples/desktop                    # the classic desktop
 go run ./examples/desktop -png desk.png -lang ja   # a picture of it, in Japanese
 ```
+
+`./scripts/site.sh` builds the desktop's web page, compiled to WebAssembly,
+into `site/dist`; `./scripts/deploy.sh` builds it for its address and
+deploys it to Cloudflare, as `wrangler.jsonc` says.
 
 ## Testing
 

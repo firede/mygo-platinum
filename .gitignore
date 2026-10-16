@@ -5,5 +5,7 @@
 *.test
 *.out
 
-# The web page, as scripts/site.sh builds it.
+# The web page, as scripts/site.sh builds it, and wrangler's own files as
+# scripts/deploy.sh deploys it.
 /site/dist/
+/.wrangler/

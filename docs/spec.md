@@ -326,9 +326,10 @@ The look has no hover state: nothing changes as the pointer passes over.
   Pressed: face Gray6, ring Gray9/Gray4.
 - Resize corner **15×15** in the bottom right of the content, inside its
   Black line: Black edges on its top and left, three ridges (Gray7 with
-  White) rising to the right. A scroll bar at the window's side lies over
-  the content's Black line and the lines at its ends, so that its outline,
-  the window's line and the corner's edges are one line each. The corner is
+  White) rising to the right, inside the window's lines. A scroll bar at
+  the window's side lies over the content's Black line and the lines at its
+  ends, so that its outline, the window's line and the corner's edges are
+  one line each. The corner is
   drawn again over the content, as classic apps drew it after their own, so
   a view filling the window, its outline on the window's lines, reaches the
   corner's top edge and leaves the corner whole.

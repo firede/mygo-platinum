@@ -579,12 +579,13 @@ func DrawGrowBox(pn Pen, active bool) {
 	if !active {
 		return
 	}
-	// Three ridges across the corner, from the bottom left up to the right.
+	// Three ridges across the corner, from the bottom left up to the right,
+	// inside the window's lines at its right and bottom.
 	for k := 0; k < 3; k++ {
 		o := 4 + 3*k
 		for i := 0; i < o; i++ {
-			pn.Dot(n-o+i, n-2-i, Gray7)
-			pn.Dot(n-o+i+1, n-2-i, White)
+			pn.Dot(n-o+i-1, n-1-i, Gray7)
+			pn.Dot(n-o+i, n-1-i, White)
 		}
 	}
 }

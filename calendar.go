@@ -111,7 +111,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 	})
 	focused := w.el.Focused()
 	chosen := *day
-	today := wallNow()
+	today := frameNow(c)
 	dim := inactive(c)
 	w.el.Draw(func(p *ui.Painter, r ui.Rect) {
 		pn := NewPen(p, r).Dimmed(dim)

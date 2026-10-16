@@ -561,7 +561,7 @@ func trackerOverlay(c *ui.Context, t *menuTracker, a Accent, onPointer func(ev u
 			if onPointer != nil && onPointer(ev) {
 				return true
 			}
-			now := wallNow()
+			now := eventNow(ev)
 			switch ev.Kind {
 			case ui.InputPointerMove:
 				t.keyboard = false

@@ -99,7 +99,7 @@ func PopupMenu(c *ui.Context, selected *int, label string, items []string) *Popu
 			}
 			open(false)
 			if st.t != nil {
-				st.t.press(wallNow(), st.rect.X+ev.X, st.rect.Y+ev.Y)
+				st.t.press(eventNow(ev), st.rect.X+ev.X, st.rect.Y+ev.Y)
 			}
 			return true
 		case ui.InputPointerMove:
@@ -113,11 +113,11 @@ func PopupMenu(c *ui.Context, selected *int, label string, items []string) *Popu
 				return false
 			}
 			st.t.pressed = false
-			if st.t.quickClick(wallNow()) {
+			if st.t.quickClick(eventNow(ev)) {
 				st.sticky = true
 				return true
 			}
-			if st.t.release(wallNow(), wx, wy) {
+			if st.t.release(eventNow(ev), wx, wy) {
 				return true
 			}
 			if wx >= st.rect.X+float32(labelW) && wx < st.rect.X+st.rect.W && wy >= st.rect.Y && wy < st.rect.Y+st.rect.H {

@@ -373,7 +373,7 @@ func (w *TextFieldWidget) input(ev ui.InputEvent) bool {
 			return true
 		}
 	}
-	st.activity = wallNow()
+	st.activity = eventNow(ev)
 	if changed {
 		*w.value = ed.String()
 		st.changed = true

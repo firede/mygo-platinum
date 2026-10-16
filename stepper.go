@@ -80,7 +80,7 @@ func Stepper(c *ui.Context, value *float64, lo, hi, step float64) *StepperWidget
 			}
 			st.part, st.inside = half, true
 			s.add(float64(half))
-			st.next = wallNow().Add(scrollDelay)
+			st.next = eventNow(ev).Add(scrollDelay)
 			return false // and take the focus
 		case ui.InputPointerMove:
 			if st.part != 0 {

@@ -2,6 +2,7 @@ package platinum
 
 import (
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -49,5 +50,36 @@ func TestScrollBarArrowsAndDrag(t *testing.T) {
 	tt.Frame()
 	if v != 90 {
 		t.Fatalf("thumb dragged to %v", v)
+	}
+}
+
+// An arrow held down repeats by the time of the events and frames: the
+// Tester's clock, which only the test moves, in the tests of an app that
+// sets no clock of its own.
+func TestScrollBarRepeatsByTheFramesClock(t *testing.T) {
+	defer SetClock(SetClock(nil))
+	v := 0.0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, nil)
+		ui.Column(c).Padding(10).Children(func() {
+			ScrollBar(c, &v, 100, 1000).Step(10).Element().Height(120).Label("Bar")
+		})
+	}, 60, 160)
+	r, _ := tt.Find("Bar")
+	tt.Press(r.X+8, r.Y+r.H-8)
+	tt.Frame()
+	for _, step := range []struct {
+		d    time.Duration
+		want float64
+	}{{0, 10}, {scrollDelay - time.Millisecond, 10}, {time.Millisecond, 20}, {2 * scrollRepeat, 40}} {
+		tt.Advance(step.d)
+		if v != step.want {
+			t.Fatalf("held %v more: value %g, want %g", step.d, v, step.want)
+		}
+	}
+	tt.Release(r.X+8, r.Y+r.H-8)
+	tt.Advance(time.Second)
+	if v != 40 {
+		t.Fatalf("the arrow repeated after it was let go: %g", v)
 	}
 }

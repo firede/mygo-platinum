@@ -237,6 +237,7 @@ test::TestRichTextSizes
 test::TestRuler
 test::TestSaveDialog
 test::TestScrollBarArrowsAndDrag
+test::TestScrollBarRepeatsByTheFramesClock
 test::TestSearchFieldClears
 test::TestSegmentedKeys
 test::TestSheetEditing

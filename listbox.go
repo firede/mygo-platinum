@@ -161,7 +161,7 @@ func ListBox(c *ui.Context, selected *int, items []string) *ListBoxWidget {
 		case ui.InputPointerUp:
 			st.dragging = false
 		case ui.InputText:
-			now := wallNow()
+			now := eventNow(ev)
 			if now.Sub(st.typedAt) > typeSelectGap {
 				st.typed = ""
 			}

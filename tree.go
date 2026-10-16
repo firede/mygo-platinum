@@ -180,7 +180,7 @@ func TreeView(c *ui.Context, roots []*TreeNode, selected **TreeNode) *TreeViewWi
 			}
 			return false // and take the focus, and count clicks
 		case ui.InputText:
-			now := wallNow()
+			now := eventNow(ev)
 			if now.Sub(st.typedAt) > typeSelectGap {
 				st.typed = ""
 			}

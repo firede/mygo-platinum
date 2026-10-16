@@ -32,6 +32,7 @@ type scrollState struct {
 	inside   bool       // the pointer is over the part pressed
 	grab     float32    // where the thumb was grabbed, from its top
 	next     time.Time  // when the part pressed acts again
+	step     float64    // the arrows' step when it was pressed
 	length   float32    // the bar's length, as last painted
 	rect     ui.Rect
 	pointer  float32 // the pointer along the bar, from its start
@@ -72,6 +73,8 @@ func ScrollBar(c *ui.Context, value *float64, visible, total float64) *ScrollBar
 	// Arrows and the track repeat while held.
 	if st.part != ScrollNone && st.part != ScrollThumb && !st.dragging {
 		if st.inside && !now.Before(st.next) {
+			// Step has not been called yet: repeat by the step pressed with.
+			s.step = st.step
 			s.act(st.part)
 			st.next = now.Add(scrollRepeat)
 		}
@@ -199,7 +202,8 @@ func (s *ScrollBarWidget) input(ev ui.InputEvent) bool {
 			st.dragging = true
 		} else {
 			s.act(st.part)
-			st.next = wallNow().Add(scrollDelay)
+			st.step = s.step
+			st.next = eventNow(ev).Add(scrollDelay)
 		}
 		return true
 	case ui.InputPointerMove:

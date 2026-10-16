@@ -113,7 +113,7 @@ func MenuBar(c *ui.Context, menus []Menu) ui.Element {
 				}
 				return true
 			}
-			st.t.press(wallNow(), wx, wy)
+			st.t.press(eventNow(ev), wx, wy)
 			return true
 		case ui.InputPointerMove:
 			if st.t == nil || ev.Button != 0 {
@@ -130,7 +130,7 @@ func MenuBar(c *ui.Context, menus []Menu) ui.Element {
 				return true
 			}
 			st.t.pressed = false
-			if st.t.release(wallNow(), wx, wy) {
+			if st.t.release(eventNow(ev), wx, wy) {
 				return true
 			}
 			if titleAt(wx, wy) == st.open {

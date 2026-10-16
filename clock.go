@@ -54,7 +54,17 @@ func frozen() bool {
 	return clock != nil
 }
 
-// wallNow is the time for input handlers, which run between frames.
+// eventNow is when an input came, by the frames' clock (a Tester's in
+// tests), or the clock's.
+func eventNow(ev ui.InputEvent) time.Time {
+	if frozen() || ev.Time.IsZero() {
+		return wallNow()
+	}
+	return ev.Time
+}
+
+// wallNow is the time for what runs between frames without an input, as
+// the commands of the Edit menu.
 func wallNow() time.Time {
 	clockMu.Lock()
 	f := clock

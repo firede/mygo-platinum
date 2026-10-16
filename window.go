@@ -370,7 +370,7 @@ func (w *WindowWidget) input(ev ui.InputEvent, st *WindowState, opts WindowOptio
 			x := d.rect.X + float32((st.W-SystemFont.Measure(d.title))/2-16)
 			g := layoutMenu(items, round(x), round(d.rect.Y)+opts.bar(), 0)
 			d.path = newTracker(items, fitMenu(g, round(d.cw), round(d.ch)))
-			d.path.press(wallNow(), d.rect.X+ev.X, d.rect.Y+ev.Y)
+			d.path.press(eventNow(ev), d.rect.X+ev.X, d.rect.Y+ev.Y)
 			return true
 		}
 		d.part, d.inside = part, true
@@ -402,7 +402,7 @@ func (w *WindowWidget) input(ev ui.InputEvent, st *WindowState, opts WindowOptio
 			// Released on a folder, it is chosen; a quick click leaves the
 			// menu open to choose from; elsewhere, it closes.
 			d.path.pressed = false
-			if !d.path.release(wallNow(), d.rect.X+ev.X, d.rect.Y+ev.Y) && !d.path.quickClick(wallNow()) {
+			if !d.path.release(eventNow(ev), d.rect.X+ev.X, d.rect.Y+ev.Y) && !d.path.quickClick(eventNow(ev)) {
 				d.path.closed = true
 			}
 			return true

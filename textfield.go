@@ -125,7 +125,6 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 	ed := st.ed
 	focused := w.el.Focused()
 	th := w.th
-	now := frameNow(w.c)
 	// The caret, for input methods.
 	ed.layout()
 	show := ed.displayEditor()
@@ -185,6 +184,9 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 		if !focused {
 			sel = Gray3
 		}
+		// The time of this painting: the blink paints again, and builds
+		// nothing anew.
+		now := paintNow(p)
 		blinkOn := frozen() || (now.Sub(st.activity)/caretBlink)%2 == 0
 		if focused && !frozen() {
 			p.After(caretBlink - now.Sub(st.activity)%caretBlink)

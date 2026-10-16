@@ -26,9 +26,12 @@ func ZoomRects(c *ui.Context, from, to ui.Rect, start time.Time) bool {
 	}
 	now := frameNow(c)
 	t := float32(now.Sub(start)) / float32(ZoomDuration)
-	if t < 0 || t >= 1 {
+	if t >= 1 {
 		return false
 	}
+	// A start taken from the wall clock while the frame was built is a
+	// little after the frame's time: the rectangles start from there.
+	t = max(t, 0)
 	c.AnimationFrame()
 	ui.Overlay(c, func() {
 		ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).PassThrough().Role(ui.RoleNone).

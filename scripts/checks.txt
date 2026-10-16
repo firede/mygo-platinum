@@ -20,6 +20,7 @@ test:/examples/desktop:TestCatalogKeepsState
 test:/examples/desktop:TestCatalogNames
 test:/examples/desktop:TestCatalogPages
 test:/examples/desktop:TestCatalogWindowDrag
+test:/examples/desktop:TestCatalogZoomRects
 test:/examples/desktop:TestChosenLanguage
 test:/examples/desktop:TestDeskFramesShowInput
 test:/examples/desktop:TestDeskIconsFollowEdge
@@ -308,3 +309,4 @@ test::TestWindowBoxesUpdateGeometryImmediately
 test::TestWindowDragResizeBoxes
 test::TestWindowHeader
 test::TestWindowPathMenu
+test::TestZoomRectsStartAfterTheFrame

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+	pt "github.com/firede/mygo-platinum"
 )
 
 // TestCatalogNames checks the pages of the Controls against the library:
@@ -154,6 +156,35 @@ func TestCatalogWindowDrag(t *testing.T) {
 	}
 	if got, _ := tt.Find(d.say().Untitled()); got != r {
 		t.Fatalf("the untitled window's title moved from %+v to %+v", r, got)
+	}
+}
+
+// The ZoomRects page's button shows the rectangles, by the frames' clock,
+// which moves here as the test says.
+func TestCatalogZoomRects(t *testing.T) {
+	defer pt.SetClock(pt.SetClock(nil))
+	d := newDeskIn(func() time.Time { return sceneTime }, "en")
+	d.windows = nil
+	w := d.launch(appCatalog)
+	w.frame.X, w.frame.Y = 4, 4
+	for i, p := range catalogPages() {
+		if p.name == "ZoomRects" {
+			w.catalog.chosen = i
+		}
+	}
+	tt := ui.NewTester(d.view, 640, 410)
+	tt.Frame()
+	before := bytes.Clone(tt.Image().Pix)
+	if err := tt.Click(d.say().CatShow()); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(pt.ZoomDuration / 3)
+	if bytes.Equal(before, tt.Image().Pix) {
+		t.Fatal("no rectangles showed a third of the way")
+	}
+	tt.Advance(pt.ZoomDuration)
+	if !bytes.Equal(before, tt.Image().Pix) {
+		t.Fatal("the rectangles stayed after they were done")
 	}
 }
 

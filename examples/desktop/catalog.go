@@ -537,7 +537,7 @@ func catalogPages() []catalogPage {
 			b := pt.Button(c, m.CatShow())
 			if b.Clicked() {
 				x, y := b.Element().LocalToWindow(0, 0)
-				k.zoomFrom, k.zoomStart = ui.Rect{X: x, Y: y, W: 60, H: 20}, time.Now()
+				k.zoomFrom, k.zoomStart = ui.Rect{X: x, Y: y, W: 60, H: 20}, c.Now()
 			}
 			if !k.zoomStart.IsZero() {
 				x, y := b.Element().LocalToWindow(0, 0)

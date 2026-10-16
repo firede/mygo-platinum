@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/draw"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -91,6 +92,32 @@ func TestSnapshotZoomRects(t *testing.T) {
 			DrawZoomRects(pn, from, ui.Rect{X: 170, Y: 10, W: 120, H: 100}, 0.7)
 		})
 	})
+}
+
+// ZoomRects started a little after the frame's time, by the wall clock
+// while the frame was built, draws from the start and goes on.
+func TestZoomRectsStartAfterTheFrame(t *testing.T) {
+	defer SetClock(SetClock(nil))
+	var start time.Time
+	going := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		if start.IsZero() {
+			start = c.Now().Add(5 * time.Millisecond)
+		}
+		if ZoomRects(c, ui.Rect{X: 10, Y: 60, W: 20, H: 20}, ui.Rect{X: 60, Y: 10, W: 80, H: 60}, start) {
+			going++
+		}
+	}, 160, 100)
+	tt.Frame()
+	if going == 0 {
+		t.Fatal("the rectangles did not start")
+	}
+	tt.Advance(ZoomDuration + 5*time.Millisecond)
+	n := going
+	tt.Frame()
+	if going != n {
+		t.Fatal("the rectangles went on after they were done")
+	}
 }
 
 // TestSnapshotInactiveWindow puts a control of each kind in a window in

@@ -86,6 +86,38 @@ func TestCatalogPages(t *testing.T) {
 	}
 }
 
+// The compact IconView page clips its second row and lets the user scroll
+// its icon and name fully into view in either language.
+func TestCatalogIconViewScroll(t *testing.T) {
+	for _, lang := range []string{"en", "zh-Hans"} {
+		t.Run(lang, func(t *testing.T) {
+			d := newDeskIn(func() time.Time { return sceneTime }, lang)
+			d.windows = nil
+			w := d.launch(appCatalog)
+			w.frame.X, w.frame.Y = 4, 4
+			for i, p := range catalogPages() {
+				if p.name == "IconView" {
+					w.catalog.chosen = i
+				}
+			}
+			tt := ui.NewTester(d.view, 640, 410)
+			tt.SetLocale(lang)
+			before, ok := tt.Find(d.say().Puzzle())
+			if !ok || before.H >= 64 {
+				t.Fatalf("the compact view should show part of its second row: %+v", before)
+			}
+			golden(t, "controls-iconview-"+strings.ToLower(lang), tt.Image())
+			tt.Scroll(before.X+20, before.Y+10, 0, 1000)
+			settled(t, tt, "the catalog's icons scrolled")
+			after, ok := tt.Find(d.say().Puzzle())
+			if !ok || after.H != 64 || after.Y >= before.Y || w.catalog.icon != 1 {
+				t.Fatalf("scroll did not reveal the second row: before=%+v after=%+v choice=%d", before, after, w.catalog.icon)
+			}
+			golden(t, "controls-iconview-scrolled-"+strings.ToLower(lang), tt.Image())
+		})
+	}
+}
+
 // TestCatalogKeepsState works the controls of a few pages, which keep what
 // the user did — a folder of the tree opened, a window brought forward, the
 // mixed check box chosen — and shows an alert, in front of every window.

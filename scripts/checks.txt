@@ -13,6 +13,9 @@ package:/internal/verify
 test:/examples/desktop:TestAboutSourceLink
 test:/examples/desktop:TestCalculatorCopyPaste
 test:/examples/desktop:TestCalculatorPhysicalOperators
+test:/examples/desktop:TestCatalogIconViewScroll
+test:/examples/desktop:TestCatalogIconViewScroll/en
+test:/examples/desktop:TestCatalogIconViewScroll/zh-Hans
 test:/examples/desktop:TestCatalogKeepsState
 test:/examples/desktop:TestCatalogNames
 test:/examples/desktop:TestCatalogPages
@@ -180,6 +183,14 @@ test::TestFramesShowInput/focus_taken_by_a_menu
 test::TestFramesShowInput/list_chosen
 test::TestFramesShowInput/window_raised
 test::TestIconViewAndUtility
+test::TestIconViewClipping
+test::TestIconViewClipping/drawing-280x110
+test::TestIconViewClipping/drawing-48x48
+test::TestIconViewClipping/widget-280x110
+test::TestIconViewClipping/widget-48x48
+test::TestIconViewKeyboardScroll
+test::TestIconViewResizeAndShrink
+test::TestIconViewScrolling
 test::TestListBoxKeyboard
 test::TestListsRandomInput
 test::TestLocalCopyBindings

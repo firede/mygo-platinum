@@ -469,6 +469,10 @@ The look has no hover state: nothing changes as the pointer passes over.
 - Icon view: cells **84×64**; the icon centered **4** down, the name under it
   **38** down on a White plate. A selected icon darkens by half and its name
   inverts (White on the accent's Dark while focused, on Black otherwise).
+  Rows start **4** down and leave **4** under the last. When they do not
+  all fit, a scroll bar (5.12) stands at the right and the columns fill
+  what is left. The arrows, Page Up/Down, Home and End move the choice and
+  scroll it into view.
 
 ### 5.22 Split, scroll view, utility window
 

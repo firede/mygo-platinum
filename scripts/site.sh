@@ -7,6 +7,8 @@
 #	./scripts/site.sh
 #	SITE=https://example.com ./scripts/site.sh out
 #	python3 -m http.server -d site/dist   # then open http://localhost:8000
+#
+# scripts/deploy.sh builds it for its address and deploys it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

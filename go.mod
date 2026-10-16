@@ -3,7 +3,7 @@ module github.com/firede/mygo-platinum
 go 1.27.1
 
 require (
-	github.com/egoist/mygo v0.5.1
+	github.com/egoist/mygo v0.5.5
 	github.com/firede/platinum-fonts v0.2.0
 )
 

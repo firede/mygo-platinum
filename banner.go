@@ -26,9 +26,9 @@ func Banner(c *ui.Context, open *bool, kind AlertKind, text string) ui.Element {
 		ui.Box(c).Size(16, 16).Role(ui.RoleImage).Draw(func(p *ui.Painter, r ui.Rect) {
 			DrawSmallAlertIcon(NewPen(p, r), kind)
 		})
-		ui.Box(c).Grow(1).Height(float32(AppFont.Height())).Draw(func(p *ui.Painter, r ui.Rect) {
+		ui.Box(c).Grow(1).AlignSelf(ui.Stretch).Draw(func(p *ui.Painter, r ui.Rect) {
 			pn := NewPen(p, r)
-			pn.Text(0, 0, AppFont.Truncate(text, pn.W), AppFont, Black)
+			pn.TextMiddle(0, 0, pn.H, AppFont.Truncate(text, pn.W), AppFont, Black)
 		})
 		box := ui.ButtonBase(c).Size(TitleBoxSize, TitleBoxSize).FocusRing(false).Label(say(c, "close"))
 		pressed := box.Pressed()

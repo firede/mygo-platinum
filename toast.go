@@ -28,9 +28,9 @@ func Toasts(c *ui.Context) ui.Element {
 				ui.Box(c).Size(16, 16).Draw(func(p *ui.Painter, r ui.Rect) {
 					DrawSmallAlertIcon(NewPen(p, r), toastKind(t.Type))
 				})
-				ui.Box(c).Size(float32(w), float32(AppFont.Height())).Draw(func(p *ui.Painter, r ui.Rect) {
+				ui.Box(c).Width(float32(w)).AlignSelf(ui.Stretch).Draw(func(p *ui.Painter, r ui.Rect) {
 					pn := NewPen(p, r)
-					pn.Text(0, 0, AppFont.Truncate(text, pn.W), AppFont, Black)
+					pn.TextMiddle(0, 0, pn.H, AppFont.Truncate(text, pn.W), AppFont, Black)
 				})
 				if t.Action != "" {
 					b := toast.ActionButton().Label(t.Action)

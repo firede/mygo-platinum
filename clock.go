@@ -74,3 +74,12 @@ func wallNow() time.Time {
 	}
 	return time.Now()
 }
+
+// untilStep is how long from t until the next of rate steps a second, as
+// an animation counts them from t's milliseconds: frames asked for then
+// show each step for as long, whatever else asks for frames between.
+func untilStep(t time.Time, rate int64) time.Duration {
+	ms := t.UnixMilli()
+	next := ((ms*rate/1000+1)*1000 + rate - 1) / rate
+	return time.Duration(next-ms)*time.Millisecond - time.Duration(t.Nanosecond()%1e6)
+}

@@ -1,8 +1,6 @@
 package platinum
 
 import (
-	"time"
-
 	"github.com/egoist/mygo/ui"
 )
 
@@ -30,7 +28,7 @@ func ProgressBar(c *ui.Context, value float64) ui.Element {
 		if value < 0 {
 			t := paintNow(p)
 			if !frozen() {
-				p.After(time.Second / stripeSpeed)
+				p.After(untilStep(t, stripeSpeed))
 			}
 			DrawProgressIndeterminate(pn, int(t.UnixMilli()*stripeSpeed/1000), th.Accent)
 			return

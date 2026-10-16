@@ -2,7 +2,6 @@ package platinum
 
 import (
 	"math"
-	"time"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -26,7 +25,7 @@ func ChasingArrows(c *ui.Context) ui.Element {
 	el.Draw(func(p *ui.Painter, r ui.Rect) {
 		t := paintNow(p)
 		if !frozen() {
-			p.After(time.Second / chasingRate)
+			p.After(untilStep(t, chasingRate))
 		}
 		step := int(t.UnixMilli()*chasingRate/1000) % chasingSteps
 		DrawChasingArrows(NewPen(p, r), step)

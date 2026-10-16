@@ -243,22 +243,26 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 			if background {
 				enterInactive(c)
 			}
-			inner.Children(fn)
+			inner.Children(func() {
+				fn()
+				if !opts.Active && !opts.Interactive && !opts.Dragging {
+					// A window in the background takes no click in its
+					// content: the first only brings it to the front, as on
+					// the classic desktop. A transparent shield over the
+					// content, and not the title bar, which still drags it,
+					// takes it.
+					shield := ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Role(ui.RoleNone)
+					shield.HandleInput(func(ev ui.InputEvent) bool {
+						if ev.Kind == ui.InputPointerDown {
+							d.activate = true
+							return true
+						}
+						return ev.Kind == ui.InputPointerUp || ev.Kind == ui.InputPointerMove && ev.Button >= 0
+					})
+				}
+			})
 			if background {
 				leaveInactive(c)
-			}
-			if !opts.Active && !opts.Interactive && !opts.Dragging {
-				// A window in the background takes no click in its content:
-				// the first only brings it to the front, as on the classic
-				// desktop. A transparent shield over the content takes it.
-				shield := ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Role(ui.RoleNone)
-				shield.HandleInput(func(ev ui.InputEvent) bool {
-					if ev.Kind == ui.InputPointerDown {
-						d.activate = true
-						return true
-					}
-					return ev.Kind == ui.InputPointerUp || ev.Kind == ui.InputPointerMove && ev.Button >= 0
-				})
 			}
 		})
 	}

@@ -118,6 +118,45 @@ func TestCatalogIconViewScroll(t *testing.T) {
 	}
 }
 
+// The Window page's windows follow the pointer all the way while dragged,
+// and keep their titles as they change places.
+func TestCatalogWindowDrag(t *testing.T) {
+	d := newDeskIn(func() time.Time { return sceneTime }, "en")
+	d.windows = nil
+	w := d.launch(appCatalog)
+	w.frame.X, w.frame.Y = 4, 4
+	for i, p := range catalogPages() {
+		if p.name == "Window" {
+			w.catalog.chosen = i
+		}
+	}
+	tt := ui.NewTester(d.view, 640, 410)
+	tt.Frame()
+	back, front := w.catalog.windows[0], w.catalog.windows[1]
+	r, _ := tt.Find(d.say().Untitled())
+	// The window in front, by its title bar, from where the one behind is.
+	x := r.X - float32(back.X) + float32(front.X) + 100
+	y := r.Y - float32(back.Y) + float32(front.Y) + 6
+	tt.Press(x, y)
+	for i := 1; i <= 6; i++ {
+		tt.Move(x+float32(5*i), y+float32(3*i))
+		tt.Frame()
+	}
+	tt.Release(x+30, y+18)
+	tt.Frame()
+	if front.X != 60 || front.Y != 26 {
+		t.Fatalf("the drag stopped short: the window is at %d,%d", front.X, front.Y)
+	}
+	tt.ClickAt(r.X+8, r.Y+r.H/2) // brings the untitled window forward
+	tt.Frame()
+	if w.catalog.windows[1] != back {
+		t.Fatal("the click did not bring the untitled window forward")
+	}
+	if got, _ := tt.Find(d.say().Untitled()); got != r {
+		t.Fatalf("the untitled window's title moved from %+v to %+v", r, got)
+	}
+}
+
 // TestCatalogKeepsState works the controls of a few pages, which keep what
 // the user did — a folder of the tree opened, a window brought forward, the
 // mixed check box chosen — and shows an alert, in front of every window.

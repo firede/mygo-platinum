@@ -25,7 +25,7 @@ type catalog struct {
 	text, area     string
 	list           int
 	scroll         float64
-	windows        []*pt.WindowState // back to front
+	windows        []*catalogWindow // back to front
 	alert, dialog  bool
 	toggle         bool
 	segment        int
@@ -73,7 +73,7 @@ type catalogPage struct {
 func newCatalogWindow(d *desk) *win {
 	k := &catalog{
 		on: true, mixed: true, mixedShown: true, radio: "two", slider: 40, open: true,
-		windows: []*pt.WindowState{{X: 6, Y: 30, W: 150, H: 80}, {X: 30, Y: 8, W: 170, H: 90}},
+		windows: []*catalogWindow{{pt.WindowState{X: 6, Y: 30, W: 150, H: 80}, true}, {pt.WindowState{X: 30, Y: 8, W: 170, H: 90}, false}},
 		toggle:  true, segment: 1, number: 2, steps: 4,
 		table: pt.NewTableState(), icon: 1, split: 120, splitV: 40,
 		day: d.now(), color: pt.Lavender.Mid,
@@ -142,6 +142,12 @@ func row(c *ui.Context, fn func()) {
 // windows.
 func box(c *ui.Context, w, h float32, fn func()) {
 	ui.Box(c).Size(w, h).Background(pt.Gray5).Clip().Children(fn)
+}
+
+// catalogWindow is a window of the Window page, and which of the two.
+type catalogWindow struct {
+	pt.WindowState
+	untitled bool
 }
 
 // catalogPages are the pages of the catalog, in the order of the README's
@@ -222,13 +228,17 @@ func catalogPages() []catalogPage {
 		}},
 		{"Window", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			box(c, 300, 140, func() {
-				titles := []string{m.Untitled(), m.CatWindow()}
-				for i, st := range k.windows {
+				for i, cw := range k.windows {
 					front := i == len(k.windows)-1
-					w := pt.Window(c.Key(st), st, titles[i], pt.WindowOptions{Active: front, ZoomTo: [4]int{4, 4, 292, 132}}, func() {})
+					title := m.CatWindow()
+					if cw.untitled {
+						title = m.Untitled()
+					}
+					// Keyed by title: a key of another kind is its value
+					// printed, which a pointer's is what it points to.
+					w := pt.Window(c.Key(title), &cw.WindowState, title, pt.WindowOptions{Active: front, ZoomTo: [4]int{4, 4, 292, 132}}, func() {})
 					if w.Activated() && !front {
-						k.windows = append(append(append([]*pt.WindowState{}, k.windows[:i]...), k.windows[i+1:]...), st)
-						titles = append(append(append([]string{}, titles[:i]...), titles[i+1:]...), titles[i])
+						k.windows = append(append(append([]*catalogWindow{}, k.windows[:i]...), k.windows[i+1:]...), cw)
 					}
 				}
 			})

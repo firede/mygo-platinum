@@ -19,6 +19,7 @@ test:/examples/desktop:TestCatalogIconViewScroll/zh-Hans
 test:/examples/desktop:TestCatalogKeepsState
 test:/examples/desktop:TestCatalogNames
 test:/examples/desktop:TestCatalogPages
+test:/examples/desktop:TestCatalogWindowDrag
 test:/examples/desktop:TestChosenLanguage
 test:/examples/desktop:TestDeskFramesShowInput
 test:/examples/desktop:TestDeskIconsFollowEdge
@@ -156,6 +157,7 @@ test::TestAccentedLetters
 test::TestAlertButtons
 test::TestBackgroundWindowFirstClick
 test::TestBackgroundWindowTakesDrops
+test::TestBackgroundWindowTitleDrags
 test::TestBevelMenuHighlight
 test::TestBevelToggleAndMenu
 test::TestCalendarKeysAndClicks

@@ -170,6 +170,35 @@ func TestBackgroundWindowFirstClick(t *testing.T) {
 	}
 }
 
+// A window in the background is dragged by its title bar at once, as it
+// comes to the front: only its content keeps the first click.
+func TestBackgroundWindowTitleDrags(t *testing.T) {
+	front := 1
+	frames := [2]WindowState{{X: 10, Y: 10, W: 160, H: 100}, {X: 120, Y: 60, W: 160, H: 100}}
+	view := func(c *ui.Context) {
+		Use(c, nil)
+		ui.Box(c).Fill().Children(func() {
+			for i := range frames {
+				w := Window(c.Key(i), &frames[i], fmt.Sprint("Window ", i), WindowOptions{Active: i == front}, func() {})
+				if w.Activated() {
+					front = i
+				}
+			}
+		})
+	}
+	tt := ui.NewTester(view, 300, 200)
+	tt.Press(30, 16)
+	for i := 1; i <= 4; i++ {
+		tt.Move(30+float32(5*i), 16+float32(3*i))
+		tt.Frame()
+	}
+	tt.Release(50, 28)
+	tt.Frame()
+	if front != 0 || frames[0].X != 30 || frames[0].Y != 22 {
+		t.Fatalf("dragged from the background: front %d, window at %d,%d", front, frames[0].X, frames[0].Y)
+	}
+}
+
 // TestBackgroundWindowTakesDrops drags a value from the window in front to
 // one in the background: told a drag is under way (Dragging), the window
 // in the background lets it drop in its content, and stays behind.

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -26,6 +27,10 @@ type node struct {
 	comment  string // what Get Info's Comments say
 	modified time.Time
 }
+
+// id is the node's identity, as a key of its elements: MyGo keys by
+// value, and a pointer's value printed is what it points to.
+func (n *node) id() string { return fmt.Sprintf("%p", n) }
 
 type kind int
 

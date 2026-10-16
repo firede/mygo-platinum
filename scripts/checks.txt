@@ -163,7 +163,9 @@ test::TestBackgroundWindowTakesDrops
 test::TestBackgroundWindowTitleDrags
 test::TestBevelMenuHighlight
 test::TestBevelToggleAndMenu
+test::TestButtonFlashes
 test::TestCalendarKeysAndClicks
+test::TestCaretBlinks
 test::TestCatalogs
 test::TestColorWell
 test::TestColumnView
@@ -198,6 +200,7 @@ test::TestIconViewKeyboardScroll
 test::TestIconViewResizeAndShrink
 test::TestIconViewScrolling
 test::TestListBoxKeyboard
+test::TestListTypeSelectGap
 test::TestListsRandomInput
 test::TestLocalCopyBindings
 test::TestLocalCopyBindings/Calendar
@@ -223,12 +226,14 @@ test::TestMenuBarClickChoose
 test::TestMenuBarDragChoose
 test::TestMenuBarEmptyMenu
 test::TestMenuBarKeyboard
+test::TestMenuFlashesBeforeItsAction
 test::TestOnChange
 test::TestOpenDialog
 test::TestPasswordNeverCopies
 test::TestPathsAndPages
 test::TestPixelExactRendering
 test::TestPopupMenu
+test::TestPopupMenuClickHold
 test::TestPopupWindow
 test::TestProgressDialogAndBanner
 test::TestRadioGroupArrows
@@ -297,7 +302,10 @@ test::TestSpecWindowAndMenus
 test::TestSplitAndScrollView
 test::TestSplitKeepsItsWidth
 test::TestSplitPercent
+test::TestSpringOpen
+test::TestStatusAnimates
 test::TestStepperAndNumberField
+test::TestStepperRepeats
 test::TestTabControlEmpty
 test::TestTableLess
 test::TestTableShrinks

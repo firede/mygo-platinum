@@ -57,7 +57,7 @@ tables, layout),
 | Chasing arrows, placard, window header, badge, tag, image well | `ChasingArrows`, `Placard`, `WindowHeader`, `Badge`, `Tag`, `ImageWell` |
 | Help balloon, context menu | `Balloon`, `ContextMenu` |
 | Tree view, sortable table, icon view | `TreeView`, `Table`, `IconView` |
-| Split, scroll view, utility window | `Split`, `ScrollView`, `Window` with `Utility` |
+| Split, scroll view, utility window | `Split`, `SplitPercent`, `ScrollView`, `Window` with `Utility` |
 | Calendar, date picker, time field | `Calendar`, `DatePicker`, `TimeField` |
 | Combo box, color well and color picker | `Combobox`, `ColorWell` |
 | Spreadsheet sheet with formulas, formula bar | `Sheet`, `FormulaBar` |
@@ -79,8 +79,8 @@ of your own that look like them.
 
 Controls MyGo has too go by MyGo's names and take what MyGo's take —
 `Button`, `Checkbox`, `Radio`, `Slider`, `Stepper`, `Segmented`, `Split`,
-`TextArea`, `SearchField`, `Combobox`, `ColorWell`, `Calendar`, `Badge`,
-`Breadcrumbs`, `Table` — and report what the user did as they do
+`SplitPercent`, `TextArea`, `SearchField`, `Combobox`, `ColorWell`,
+`Calendar`, `Badge`, `Breadcrumbs`, `Table` — and report what the user did as they do
 (`Clicked`, `Changed`, `Submitted`; `OnChange` on their elements). The others
 go by the names of the period:
 

@@ -397,6 +397,32 @@ func ExampleSplitVertical() {
 	// Output:
 }
 
+func ExampleSplitPercent() {
+	sidebar := float32(25) // a quarter of the room, however wide
+	render(func(c *ui.Context) {
+		pt.Use(c, nil)
+		pt.SplitPercent(c, &sidebar, func() {
+			pt.Label(c, "Folders")
+		}, func() {
+			pt.Label(c, "Files")
+		}).Size(360, 200)
+	})
+	// Output:
+}
+
+func ExampleSplitVerticalPercent() {
+	top := float32(60)
+	render(func(c *ui.Context) {
+		pt.Use(c, nil)
+		pt.SplitVerticalPercent(c, &top, func() {
+			pt.Label(c, "Messages")
+		}, func() {
+			pt.Label(c, "Preview")
+		}).Size(240, 200)
+	})
+	// Output:
+}
+
 func ExampleEditCommand() {
 	render(func(c *ui.Context) {
 		pt.Use(c, nil)

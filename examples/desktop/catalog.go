@@ -16,51 +16,52 @@ import (
 type catalog struct {
 	chosen int
 	// What the controls show and change.
-	on, off, mixed bool
-	mixedShown     bool // the third check box shows mixed, until clicked
-	radio          string
-	slider         float64
-	open           bool
-	tab, pick      int
-	text, area     string
-	list           int
-	scroll         float64
-	windows        []*catalogWindow // back to front
-	alert, dialog  bool
-	toggle         bool
-	segment        int
-	number, steps  float64
-	query          string
-	tree           *pt.TreeNode
-	disk           []*pt.TreeNode // the disk's tree, as the views show it
-	diskIn         string         // and the language it was made in
-	table          *pt.TableState
-	icon           int
-	split, splitV  float32
-	scrollView     ui.ScrollState
-	day            time.Time
-	combo          string
-	color          ui.Color
-	sheet          *pt.SheetState
-	sheetIn        string // the language of the sheet's words
-	find           bool
-	findState      pt.FindState
-	ruler          pt.RulerState
-	columns        []*pt.TreeNode
-	docTab         int
-	font           pt.FontChoice
-	pageSetup      bool
-	pageState      pt.PageSetupState
-	progress       bool
-	banner         bool
-	page           int
-	doc            *pt.RichText
-	dock           pt.PopupWindowState
-	opening        bool
-	saving         bool
-	files          pt.FileDialogState
-	zoomFrom       ui.Rect
-	zoomStart      time.Time
+	on, off, mixed  bool
+	mixedShown      bool // the third check box shows mixed, until clicked
+	radio           string
+	slider          float64
+	open            bool
+	tab, pick       int
+	text, area      string
+	list            int
+	scroll          float64
+	windows         []*catalogWindow // back to front
+	alert, dialog   bool
+	toggle          bool
+	segment         int
+	number, steps   float64
+	query           string
+	tree            *pt.TreeNode
+	disk            []*pt.TreeNode // the disk's tree, as the views show it
+	diskIn          string         // and the language it was made in
+	table           *pt.TableState
+	icon            int
+	split, splitV   float32
+	splitP, splitVP float32 // percentages
+	scrollView      ui.ScrollState
+	day             time.Time
+	combo           string
+	color           ui.Color
+	sheet           *pt.SheetState
+	sheetIn         string // the language of the sheet's words
+	find            bool
+	findState       pt.FindState
+	ruler           pt.RulerState
+	columns         []*pt.TreeNode
+	docTab          int
+	font            pt.FontChoice
+	pageSetup       bool
+	pageState       pt.PageSetupState
+	progress        bool
+	banner          bool
+	page            int
+	doc             *pt.RichText
+	dock            pt.PopupWindowState
+	opening         bool
+	saving          bool
+	files           pt.FileDialogState
+	zoomFrom        ui.Rect
+	zoomStart       time.Time
 }
 
 // catalogPage is a page of the catalog: the functions it shows, and what
@@ -75,7 +76,7 @@ func newCatalogWindow(d *desk) *win {
 		on: true, mixed: true, mixedShown: true, radio: "two", slider: 40, open: true,
 		windows: []*catalogWindow{{pt.WindowState{X: 6, Y: 30, W: 150, H: 80}, true}, {pt.WindowState{X: 30, Y: 8, W: 170, H: 90}, false}},
 		toggle:  true, segment: 1, number: 2, steps: 4,
-		table: pt.NewTableState(), icon: 1, split: 120, splitV: 40,
+		table: pt.NewTableState(), icon: 1, split: 120, splitV: 40, splitP: 40, splitVP: 30,
 		day: d.now(), color: pt.Lavender.Mid,
 		sheet: pt.NewSheetState(), ruler: pt.RulerState{Left: 9, Right: 270},
 		font: pt.FontChoice{Family: "Sans", Size: 12}, page: 2,
@@ -391,6 +392,19 @@ func catalogPages() []catalogPage {
 						pt.TextIn(c, m.CatTwo(), pt.AppFont, pt.Black)
 					})
 				}).Fill()
+			})
+		}},
+		{"SplitPercent, SplitVerticalPercent", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
+			pane := func(s string) func() {
+				return func() {
+					ui.Column(c).Padding(6).Children(func() { pt.TextIn(c, s, pt.AppFont, pt.Black) })
+				}
+			}
+			ui.Box(c).Size(300, 100).Children(func() {
+				pt.SplitPercent(c, &k.splitP, pane(fmt.Sprintf("%.0f%%", k.splitP)), pane(fmt.Sprintf("%.0f%%", 100-k.splitP))).Fill()
+			})
+			ui.Box(c).Size(300, 100).Children(func() {
+				pt.SplitVerticalPercent(c, &k.splitVP, pane(fmt.Sprintf("%.0f%%", k.splitVP)), pane(fmt.Sprintf("%.0f%%", 100-k.splitVP))).Fill()
 			})
 		}},
 		{"Calendar", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {

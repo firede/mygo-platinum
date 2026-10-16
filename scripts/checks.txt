@@ -137,7 +137,9 @@ test::ExampleSeparator
 test::ExampleSheet
 test::ExampleSlider
 test::ExampleSplit
+test::ExampleSplitPercent
 test::ExampleSplitVertical
+test::ExampleSplitVerticalPercent
 test::ExampleStatusBar
 test::ExampleStepper
 test::ExampleTabControl
@@ -270,6 +272,7 @@ test::TestSnapshotSaveDialogChinese
 test::TestSnapshotScrollBar
 test::TestSnapshotSlider
 test::TestSnapshotSmallStatus
+test::TestSnapshotSplitPercent
 test::TestSnapshotSplitVertical
 test::TestSnapshotTabStates
 test::TestSnapshotTextFieldStates
@@ -292,6 +295,8 @@ test::TestSpecStatusControls
 test::TestSpecUtilityWindow
 test::TestSpecWindowAndMenus
 test::TestSplitAndScrollView
+test::TestSplitKeepsItsWidth
+test::TestSplitPercent
 test::TestStepperAndNumberField
 test::TestTabControlEmpty
 test::TestTableLess

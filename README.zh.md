@@ -53,7 +53,7 @@
 | 旋转箭头、标牌、窗口头部、徽标、标签、图像槽 | `ChasingArrows`、`Placard`、`WindowHeader`、`Badge`、`Tag`、`ImageWell` |
 | 帮助气球、右键菜单 | `Balloon`、`ContextMenu` |
 | 树视图、可排序表格、图标视图 | `TreeView`、`Table`、`IconView` |
-| 分栏、滚动视图、工具窗口 | `Split`、`ScrollView`、带 `Utility` 的 `Window` |
+| 分栏、滚动视图、工具窗口 | `Split`、`SplitPercent`、`ScrollView`、带 `Utility` 的 `Window` |
 | 日历、日期选择器、时间输入框 | `Calendar`、`DatePicker`、`TimeField` |
 | 组合框、颜色槽与取色器 | `Combobox`、`ColorWell` |
 | 带公式的电子表格、公式栏 | `Sheet`、`FormulaBar` |
@@ -72,8 +72,9 @@
 `Draw…` 函数，方便你画出外观一致的自定义控件。
 
 MyGo 自带的控件，本库沿用 MyGo 的名字和参数：`Button`、`Checkbox`、`Radio`、
-`Slider`、`Stepper`、`Segmented`、`Split`、`TextArea`、`SearchField`、
-`Combobox`、`ColorWell`、`Calendar`、`Badge`、`Breadcrumbs`、`Table`；报告用户
+`Slider`、`Stepper`、`Segmented`、`Split`、`SplitPercent`、`TextArea`、
+`SearchField`、`Combobox`、`ColorWell`、`Calendar`、`Badge`、`Breadcrumbs`、
+`Table`；报告用户
 操作的方式也一样（`Clicked`、`Changed`、`Submitted`，以及元素上的 `OnChange`）。
 其余控件用那个年代的叫法：
 

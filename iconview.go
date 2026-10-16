@@ -33,6 +33,8 @@ type iconViewState struct {
 // *selected (-1 for none): a click chooses an icon, darkening it and
 // inverting its name, and a double click activates it; with the keyboard
 // focus, the arrows move the choice and Return activates. Give it a size.
+//
+// The counterpart among MyGo's own controls is ui.GridView.
 func IconView(c *ui.Context, items []IconItem, selected *int) *IconViewWidget {
 	th := ThemeOf(c)
 	w := &IconViewWidget{}

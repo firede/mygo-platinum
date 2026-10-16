@@ -89,6 +89,7 @@ go by the names of the period:
 | `PopupMenu` | `ui.Select` |
 | `TabControl` | `ui.Tabs` |
 | `ListBox`, `TreeView` | `ui.List`, `ui.Tree` |
+| `IconView` | `ui.GridView` |
 | `TextField`, `NumberField`, `TimeField`, `DatePicker` | `ui.TextInput`, `ui.NumberInput`, `ui.TimeInput`, `ui.DateInput` |
 | `ProgressBar`, `ChasingArrows` | `ui.Progress`, `ui.Spinner` |
 | `GroupBox`, `Separator`, `Disclosure` | `ui.Fieldset`, `ui.Divider`, `ui.Collapsible` |

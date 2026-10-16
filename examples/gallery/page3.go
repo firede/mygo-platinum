@@ -53,7 +53,7 @@ func (g *gallery) page3(c *ui.Context) {
 				pt.TreeView(c, g.tree, &g.treeSel).Element().Size(206, 116).Label("Files")
 			})
 			pt.GroupBox(c, "Icon view", func() {
-				pt.IconView(c, g.icons, &g.iconSel).Element().Size(206, 130).Label("Icons")
+				pt.IconView(c, g.icons, &g.iconSel).Element().Size(206, 140).Label("Icons")
 			})
 		})
 		ui.Column(c).Width(482).Gap(12).AlignItems(ui.Stretch).Children(func() {
@@ -71,7 +71,7 @@ func (g *gallery) page3(c *ui.Context) {
 				}).Element().Size(456, 116).Label("Planets")
 			})
 			pt.GroupBox(c, "Split and scroll view", func() {
-				ui.Box(c).Height(130).AlignSelf(ui.Stretch).Background(pt.Gray5).Children(func() {
+				ui.Box(c).Height(140).AlignSelf(ui.Stretch).Background(pt.Gray5).Children(func() {
 					pt.Split(c, &g.split, func() {
 						ui.Column(c).Padding(6).Children(func() {
 							pt.TextIn(c, "A pane", pt.AppFont, pt.Black)
@@ -82,7 +82,7 @@ func (g *gallery) page3(c *ui.Context) {
 								pt.TextIn(c, fmt.Sprintf("%d. %s", i+1, p.name), pt.AppFont, pt.Black)
 							}
 						}).Grow(1)
-					}).Size(300, 130)
+					}).Size(300, 140)
 					pt.Window(c, &g.palette, "Palette", pt.WindowOptions{Utility: true, Active: true}, func() {
 						ui.Row(c).Padding(6).Gap(4).Children(func() {
 							pt.IconButton(c, pt.IconBold, "Bold")

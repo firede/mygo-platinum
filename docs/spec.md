@@ -511,9 +511,9 @@ The look has no hover state: nothing changes as the pointer passes over.
   highlighted in the accent's Light while the field has the focus; Up,
   Down and the arrows step that part, digits type it, A and P set the half
   of the day.
-- Combo box: a text field with a **20**-wide bevel button holding the pop-up
-  arrow joined to its right; the menu under it lists the items that begin
-  as the text does.
+- Combo box: a text field with a **20×20** bevel button holding the pop-up
+  arrow joined to its right, within the field's ring like its outline; the
+  menu under it lists the items that begin as the text does.
 - Color well: a bevel button **44×22** holding a swatch in a Black outline,
   **5** in. It opens a color picker: a movable modal dialog with a palette of
   eight hues in five shades and a row of grays (swatches **14** square in a

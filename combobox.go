@@ -60,7 +60,7 @@ func Combobox(c *ui.Context, value *string, items []string) *ComboboxWidget {
 		if f.Element().Shortcut(0, ui.KeyDown) && st.t == nil {
 			open()
 		}
-		btn := ui.ButtonBase(c).Size(PopupArrowBox+2, TextFieldHeight).FocusRing(false).Label(say(c, "choices")).Margin(0, 0, 0, -1)
+		btn := ui.ButtonBase(c).Size(PopupArrowBox+2, TextFieldHeight-2).FocusRing(false).Label(say(c, "choices")).Margin(0, 0, 0, -1)
 		w.button = btn
 		if btn.Clicked() && st.t == nil {
 			open()

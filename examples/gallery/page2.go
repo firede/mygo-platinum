@@ -64,11 +64,11 @@ func (g *gallery) page2(c *ui.Context) {
 			ui.Column(c).Width(232).Gap(12).AlignItems(ui.Stretch).Children(func() {
 				pt.GroupBox(c, "Numbers and search", func() {
 					ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-						pt.Label(c, "Copies:")
+						pt.Label(c, "Copies:").Height(pt.TextFieldHeight)
 						pt.NumberField(c, &g.copies, 1, 99, 1, 0).Label("Copies")
 					})
 					ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-						pt.Label(c, "Level:")
+						pt.Label(c, "Level:").Height(pt.StepperHeight)
 						pt.Stepper(c, &g.level, 0, 10, 1).Label("Level")
 					})
 					pt.SearchField(c, &g.query).Width(200).Label("Search")

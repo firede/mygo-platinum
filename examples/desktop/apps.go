@@ -58,38 +58,56 @@ var dogEar = []string{
 func jotterView(c *ui.Context, w *win) {
 	m := w.desk.say()
 	j := w.jot
-	th := pt.ThemeOf(c)
-	ui.Column(c).Fill().AlignItems(ui.Stretch).Background(ui.RGB(0xFF, 0xF6, 0xC8)).Children(func() {
+	paper := ui.RGB(0xFF, 0xF6, 0xC8)
+	ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
 		pt.TextArea(c.Key(fmt.Sprint("page", j.page)), &j.pages[j.page]).Label(m.Page()).Element().Grow(1).FillWidth()
-		ui.Row(c).Height(20).Padding(0, 8, 0, 4).Gap(8).AlignItems(ui.Center).Children(func() {
-			corner := ui.Box(c).Size(16, 16).Role(ui.RoleButton).Label(m.TurnPage()).Focusable().FocusRing(false)
-			if corner.Clicked() {
-				if corner.ClickModifiers()&ui.Shift != 0 {
-					j.turn(-1)
-				} else {
-					j.turn(1)
-				}
+		ui.Row(c).Height(jotterFoot).AlignItems(ui.Stretch).Children(func() {
+			jotterFooter(c, w, paper)
+			// The window's resize corner under the paper's edge.
+			ui.Column(c).Width(pt.GrowBoxSize).Children(func() {
+				ui.Box(c).Height(jotterFoot - pt.GrowBoxSize).Background(paper)
+			})
+		})
+	})
+}
+
+// The height of the pad's foot, under its page.
+const jotterFoot = 20
+
+// jotterFooter builds the pad's foot: the corner that turns the page, and
+// which page it is.
+func jotterFooter(c *ui.Context, w *win, paper ui.Color) {
+	m := w.desk.say()
+	j := w.jot
+	th := pt.ThemeOf(c)
+	ui.Row(c).Grow(1).Padding(0, 8, 0, 4).Gap(8).AlignItems(ui.Center).Background(paper).Children(func() {
+		corner := ui.Box(c).Size(16, 16).Role(ui.RoleButton).Label(m.TurnPage()).Focusable().FocusRing(false)
+		if corner.Clicked() {
+			if corner.ClickModifiers()&ui.Shift != 0 {
+				j.turn(-1)
+			} else {
+				j.turn(1)
 			}
-			pressed := corner.Pressed()
-			corner.Draw(func(p *ui.Painter, r ui.Rect) {
-				pn := pt.NewPen(p, r)
-				for y, row := range dogEar {
-					for x := 0; x < len(row); x++ {
-						switch row[x] {
-						case '#':
-							pn.Dot(x, y, pt.Black)
-						case ':':
-							if pressed {
-								pn.Dot(x, y, th.Accent.Mid)
-							} else {
-								pn.Dot(x, y, ui.RGB(0xEE, 0xDD, 0x99))
-							}
+		}
+		pressed := corner.Pressed()
+		corner.Draw(func(p *ui.Painter, r ui.Rect) {
+			pn := pt.NewPen(p, r)
+			for y, row := range dogEar {
+				for x := 0; x < len(row); x++ {
+					switch row[x] {
+					case '#':
+						pn.Dot(x, y, pt.Black)
+					case ':':
+						if pressed {
+							pn.Dot(x, y, th.Accent.Mid)
+						} else {
+							pn.Dot(x, y, ui.RGB(0xEE, 0xDD, 0x99))
 						}
 					}
 				}
-			})
-			pt.TextIn(c, m.PageOf(j.page+1, len(j.pages)), pt.AppFont, pt.Black)
+			}
 		})
+		pt.TextIn(c, m.PageOf(j.page+1, len(j.pages)), pt.AppFont, pt.Black).Height(jotterFoot)
 	})
 }
 

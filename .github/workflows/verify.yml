@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, windows-2025]
+        os: [macos-15, windows-2025, ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     defaults:
@@ -32,4 +32,11 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+      # MyGo draws the characters our faces lack with Pango on Linux, which
+      # needs a font that has them: TestFallbackCharacters draws 中.
+      - name: Install Pango and a CJK font
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpangocairo-1.0-0 fonts-noto-cjk
       - run: ./scripts/verify.sh

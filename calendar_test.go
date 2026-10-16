@@ -90,6 +90,43 @@ func TestDatePickerAndCombo(t *testing.T) {
 	}
 }
 
+// The arrows of a date picker's calendar turn the month and leave it open;
+// a day closes it.
+func TestDatePickerArrows(t *testing.T) {
+	freeze(t)
+	day := calDay
+	view := func(c *ui.Context) {
+		Use(c, nil)
+		ui.Column(c).Padding(10).Children(func() { DatePicker(c, &day) })
+	}
+	tt := ui.NewTester(view, 260, 260)
+	if err := tt.Click("Oct 14, 2026"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	r, ok := tt.Find("Calendar")
+	if !ok {
+		t.Fatal("the calendar did not open")
+	}
+	tt.ClickAt(r.X+r.W-10, r.Y+calendarHeader/2) // the next month
+	tt.Frame()
+	if _, ok := tt.Find("Calendar"); !ok {
+		t.Fatal("the arrow closed the calendar")
+	}
+	if !day.Equal(calDay) {
+		t.Fatalf("the arrow chose %v", day)
+	}
+	// The Wednesday of the second week shown.
+	tt.ClickAt(r.X+float32(calendarPad+2+3*CalendarCellW+CalendarCellW/2), r.Y+float32(calendarHeader+calendarDays+2+CalendarCellH+CalendarCellH/2))
+	tt.Frame()
+	if _, ok := tt.Find("Calendar"); ok {
+		t.Fatal("a day did not close the calendar")
+	}
+	if day.Month() != time.November {
+		t.Fatalf("chose %v, not a day of November", day)
+	}
+}
+
 func TestTimeField(t *testing.T) {
 	at := calDay // 9:41 AM
 	view := func(c *ui.Context) {

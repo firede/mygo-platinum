@@ -29,12 +29,14 @@ type calendarState struct {
 	month   time.Time // the first of the month shown
 	changed bool
 	picked  time.Time // the day clicked between builds, for the next one
+	onDay   bool      // the last press was on a day, not an arrow
 }
 
 // CalendarWidget is a calendar being built.
 type CalendarWidget struct {
-	el      ui.Element
-	changed bool
+	el         ui.Element
+	changed    bool
+	dayClicked bool
 }
 
 // Calendar builds a month of days choosing *day: the month and year
@@ -86,6 +88,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 			return false
 		}
 		x, y := int(ev.X), int(ev.Y)
+		st.onDay = false
 		if y < calendarHeader {
 			if x < 22 {
 				st.month = st.month.AddDate(0, -1, 0)
@@ -99,6 +102,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 		if row < 0 || row > 5 || col < 0 || col > 6 || y < calendarHeader+calendarDays+2 {
 			return false
 		}
+		st.onDay = true
 		t := gridStart(month, firstDay).AddDate(0, 0, row*7+col)
 		t = time.Date(t.Year(), t.Month(), t.Day(), day.Hour(), day.Minute(), day.Second(), 0, day.Location())
 		if !t.Equal(*day) {
@@ -109,6 +113,7 @@ func Calendar(c *ui.Context, day *time.Time) *CalendarWidget {
 		st.month = first(t)
 		return false // and take the focus
 	})
+	w.dayClicked = st.onDay && w.el.Clicked()
 	focused := w.el.Focused()
 	chosen := *day
 	today := frameNow(c)
@@ -249,9 +254,10 @@ func DatePicker(c *ui.Context, day *time.Time) *DatePickerWidget {
 				if cal.Changed() {
 					w.changed = true
 				}
-				// A click on a day chooses it and closes the calendar; the
-				// keys move the choice until Return.
-				if cal.Element().Clicked() || cal.Element().Shortcut(0, ui.KeyEnter) {
+				// A click on a day chooses it and closes the calendar, one on
+				// an arrow turns the month; the keys move the choice until
+				// Return.
+				if cal.dayClicked || cal.Element().Shortcut(0, ui.KeyEnter) {
 					st.open = false
 				}
 			})

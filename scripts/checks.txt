@@ -167,6 +167,7 @@ test::TestColumnView
 test::TestCompositionReplacesSelection
 test::TestContextMenu
 test::TestDatePickerAndCombo
+test::TestDatePickerArrows
 test::TestDialogMovable
 test::TestDocumentTabs
 test::TestEastAsianCaret

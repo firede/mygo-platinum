@@ -227,12 +227,13 @@ The look has no hover state: nothing changes as the pointer passes over.
 
 ### 5.8 Tab control
 
-- Tabs **22** tall, the selected one **24** and joined to the pane; each as
-  wide as its label plus **12** on each side; the first **8** in from the
+- Tabs **22** tall, the selected one **24** and joined to the pane, both
+  standing on the pane's top edge; each as wide as its label plus **12** on
+  each side, sharing its side with the next; the first **8** in from the
   pane's edge.
 - Tab: Black outline, top corners radius 3, White left and top edge, Gray7
-  right edge; face Gray4, the selected tab Gray2. Unselected tabs have a
-  Black bottom edge; the selected tab has none.
+  right edge; face Gray4, the selected tab Gray2. The pane's top edge is
+  the bottom edge of the unselected tabs; the selected tab has none.
 - Pane: raised (White/Gray7 inside a Black outline), face Gray2, its top edge
   open under the selected tab. Content inset **12**.
 - The keyboard focus shows as a bar 2 pixels tall of the accent's Dark under
@@ -323,8 +324,11 @@ The look has no hover state: nothing changes as the pointer passes over.
   raised button (Black outline, White/Gray7) in a sunken well. The zoom box
   shows a 5×5 square in its top left, the collapse box two horizontal lines.
   Pressed: face Gray6, ring Gray9/Gray4.
-- Resize corner **15×15** in the bottom right of the content: Black edges
-  on its top and left, three ridges (Gray7 with White) rising to the right.
+- Resize corner **15×15** in the bottom right of the content, inside its
+  Black line: Black edges on its top and left, three ridges (Gray7 with
+  White) rising to the right. A scroll bar at the window's side lies over
+  the content's Black line and the lines at its ends, so that its outline,
+  the window's line and the corner's edges are one line each.
 - **Inactive:** no stripes, no boxes, no ridges, title Gray8, rings softened
   to Gray1/Gray5.
 - Dragging the title bar moves the window; double-clicking it, where it has
@@ -379,8 +383,9 @@ The look has no hover state: nothing changes as the pointer passes over.
 
 ### 5.16 Bevel button, icon button, segmented control
 
-- Bevel button: height **22** (more for a tall icon), its content plus **8**
-  on each side; an icon and a label **4** apart, the icon centered by the
+- Bevel button: height **22**, or its content plus **3** above and below
+  where that is taller (an icon over 16); its content plus **8** on each
+  side; an icon and a label **4** apart, the icon centered by the
   rows it draws on. **Square corners** and a
   **Gray10** (dark gray) outline, two raised rings (White/Gray7,
   Gray1/Gray5), face Gray2. Bevel buttons of the period were square-cornered
@@ -574,7 +579,7 @@ The look has no hover state: nothing changes as the pointer passes over.
   folders' names in the System face, Gray9 but the last (Black), with Gray8
   arrows 3×5 between them; pressed, a name inverts on the accent's Dark.
   Pagination: bevel buttons **22** square with arrows, "Page n of m"
-  between them.
+  between them, its capitals centered on theirs.
 - Card: a Black outline round a raised Gray2 face, content inset **10**.
 - Status bar: placards (5.19) side by side, the last taking the room left.
 

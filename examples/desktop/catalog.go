@@ -306,7 +306,7 @@ func catalogPages() []catalogPage {
 		{"Stepper, NumberField", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
 			row(c, func() {
 				pt.Stepper(c, &k.steps, 0, 10, 1)
-				pt.TextIn(c, fmt.Sprint(int(k.steps)), pt.AppFont, pt.Black)
+				pt.TextIn(c, fmt.Sprint(int(k.steps)), pt.AppFont, pt.Black).Height(pt.StepperHeight)
 			})
 			pt.NumberField(c, &k.number, 1, 99, 1, 0)
 		}},

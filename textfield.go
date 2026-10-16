@@ -40,6 +40,7 @@ type TextFieldWidget struct {
 	// its text starts docLeft in and wraps at docWrap (0: at its width).
 	doc              bool
 	docLeft, docWrap int
+	bar              ui.Element // a text area's scroll bar
 	changed          bool
 	submitted        bool
 	th               *Theme
@@ -142,8 +143,8 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 		width := pn.W
 		if w.doc {
 			// A document's content: white to the window's edges, its scroll
-			// bar against the window's right side.
-			width = pn.W - ScrollBarWidth
+			// bar over the window's line at its right.
+			width = pn.W - ScrollBarWidth + 1
 			pn.Rect(0, 0, width, pn.H, White)
 		} else if w.multi {
 			// The ring goes round the text and its scroll bar, which shares
@@ -214,7 +215,8 @@ func (w *TextFieldWidget) finish() *TextFieldWidget {
 		total := float64(len(show.lines))
 		w.el.Children(func() {
 			ui.Box(w.c).Grow(1).PassThrough()
-			ui.Column(w.c).Width(ScrollBarWidth).Children(func() {
+			w.bar = ui.Column(w.c).Width(ScrollBarWidth)
+			w.bar.Children(func() {
 				ScrollBar(w.c, &st.top, float64(lines), total).Step(1).Element().Grow(1)
 			})
 		})
@@ -399,13 +401,17 @@ func (w *TextFieldWidget) offsetAt(x, y float32) int {
 }
 
 // Document makes a text area the content of a document window: white to
-// the window's edges with its scroll bar against the window's right side,
+// the window's edges, its scroll bar laid over the window's line at its
+// right and the lines above and below it as a window's own scroll bar is,
 // no ring or outline of its own, and no focus ring — the window shows where
 // typing goes. Its text starts left pixels in and wraps at width (0: at the
 // area's width), as a ruler's margins set them.
 func (w *TextFieldWidget) Document(left, width int) *TextFieldWidget {
 	w.doc, w.docLeft, w.docWrap = true, left, width
 	w.el.Padding(0)
+	if w.multi {
+		w.bar.Margin(-1, -1, -1, 0)
+	}
 	return w
 }
 

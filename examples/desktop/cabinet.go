@@ -187,7 +187,9 @@ func (d *desk) cabinetView(c *ui.Context, w *win) {
 					d.cabinetItem(c, cb, i, it, cols, focused, th.Accent)
 				}
 			})
-			ui.Column(c).Width(pt.ScrollBarWidth).Children(func() {
+			// The scroll bar over the lines above it and at the window's right,
+			// as a window's own, down to the resize corner's edge.
+			ui.Column(c).Width(pt.ScrollBarWidth).Margin(-1, -1, 0, 0).Children(func() {
 				pt.ScrollBar(c, &cb.scroll, float64(visible), float64(contentH)).Step(cellH / 4).Element().Grow(1)
 				ui.Box(c).Height(pt.GrowBoxSize - 1)
 			})
@@ -349,7 +351,7 @@ func (d *desk) cabinetTable(c *ui.Context, cb *cabinet) {
 		}
 		return it.kindName(m)
 	})
-	tw.Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize-2, 0).Label(cb.dir.name)
+	tw.Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize, 0).Label(cb.dir.name)
 	if tw.Changed() {
 		cb.sel = -1
 		for r := range cb.table.Selected {
@@ -435,7 +437,7 @@ func (d *desk) cabinetButtons(c *ui.Context, w *win) {
 	cols := max((ww-2*pt.FrameWidth-16)/cellW, 1)
 	// Room under it for the resize corner, as the list view leaves.
 	box := ui.Box(c).Grow(1).AlignSelf(ui.Stretch).Clip().Role(ui.RoleGroup).Label(cb.dir.name).
-		Margin(0, 0, pt.GrowBoxSize-2, 0)
+		Margin(0, 0, pt.GrowBoxSize, 0)
 	box.Draw(func(p *ui.Painter, r ui.Rect) {
 		pn := pt.NewPen(p, r)
 		pn.Rect(0, 0, pn.W, pn.H, pt.White)

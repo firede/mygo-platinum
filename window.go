@@ -529,7 +529,7 @@ func DrawWindowFrame(pn Pen, title string, opts WindowOptions, collapsed bool, p
 		}
 	})
 	if !collapsed && !opts.NoGrow {
-		DrawGrowBox(pn.Sub(w-side-GrowBoxSize+1, h-side-GrowBoxSize+1, GrowBoxSize, GrowBoxSize), active)
+		DrawGrowBox(pn.Sub(w-side-GrowBoxSize, h-side-GrowBoxSize, GrowBoxSize, GrowBoxSize), active)
 	}
 }
 

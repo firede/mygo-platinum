@@ -92,7 +92,7 @@ func Pagination(c *ui.Context, page *int, pages int) ui.Element {
 		if back.Clicked() || row.Shortcut(0, ui.KeyLeft) && *page > 0 {
 			*page--
 		}
-		TextIn(c, sayWith(c, "pageOf", map[string]any{"page": *page + 1, "pages": pages}), SystemFont, Black)
+		TextIn(c, sayWith(c, "pageOf", map[string]any{"page": *page + 1, "pages": pages}), SystemFont, Black).Height(BevelHeight)
 		next := BevelButton(c, "").Icon(monthNext).Size(BevelHeight, BevelHeight).Disabled(*page >= pages-1)
 		next.Element().Label(say(c, "nextPage"))
 		if next.Clicked() || row.Shortcut(0, ui.KeyRight) && *page < pages-1 {

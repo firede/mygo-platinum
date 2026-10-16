@@ -40,10 +40,15 @@ func TabControl(c *ui.Context, selected *int, labels []string, fn func(i int)) *
 	t.el = ui.Column(c).AlignItems(ui.Stretch)
 	t.el.Children(func() {
 		t.parts = ui.TabsBase(c, selected, n)
-		t.parts.List.Height(TabHeight+TabRaise).Padding(0, 0, 0, tabInset).AlignItems(ui.End)
+		// The tabs over the pane's top edge, which is the bottom edge of
+		// those not selected; each over the side of the one before.
+		t.parts.List.Height(TabHeight+TabRaise).Padding(0, 0, 0, tabInset).Margin(0, 0, -1, 0).AlignItems(ui.End)
 		t.parts.List.Children(func() {
 			for i, l := range labels {
 				tab := t.parts.Tab(i).FocusRing(false).Label(l).Width(float32(widths[i]))
+				if i > 0 {
+					tab.Margin(0, 0, 0, -1)
+				}
 				sel := i == *selected
 				h := TabHeight
 				if sel {
@@ -62,7 +67,7 @@ func TabControl(c *ui.Context, selected *int, labels []string, fn func(i int)) *
 		})
 		x := tabInset
 		for i := 0; i < *selected; i++ {
-			x += widths[i]
+			x += widths[i] - 1
 		}
 		var gap [2]int // no tabs, no opening in the pane
 		if n > 0 {
@@ -178,13 +183,16 @@ func DocumentTabs(c *ui.Context, selected *int, titles []string, fn func(i int))
 	w.el.Children(func() {
 		parts := ui.TabsBase(c, selected, n)
 		w.parts = parts
-		parts.List.Height(TabHeight+TabRaise).Padding(0, 0, 0, 4).AlignItems(ui.End)
+		parts.List.Height(TabHeight+TabRaise).Padding(0, 0, 0, 4).Margin(0, 0, -1, 0).AlignItems(ui.End)
 		if parts.List.Shortcut(ui.Cmd, ui.KeyW) && n > 0 {
 			w.closed = *selected
 		}
 		parts.List.Children(func() {
 			for i, title := range titles {
 				tab := parts.Tab(i).FocusRing(false).Label(title).Width(float32(widths[i]))
+				if i > 0 {
+					tab.Margin(0, 0, 0, -1)
+				}
 				sel := i == *selected
 				h := TabHeight
 				if sel {
@@ -204,7 +212,7 @@ func DocumentTabs(c *ui.Context, selected *int, titles []string, fn func(i int))
 		})
 		x := 4
 		for i := 0; i < *selected && i < n; i++ {
-			x += widths[i]
+			x += widths[i] - 1
 		}
 		var gap [2]int
 		if n > 0 {

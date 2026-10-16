@@ -148,7 +148,9 @@ func bevelContentSize(label string, icon []string, arrow bool) (int, int) {
 
 func (b *BevelButtonWidget) resize() {
 	cw, ch := b.contentSize()
-	w, h := cw+2*bevelPadding, max(BevelHeight, ch+10)
+	// Three pixels round the content, as round an icon button's icon, and
+	// at least as tall as a label alone makes it.
+	w, h := cw+2*bevelPadding, max(BevelHeight, ch+6)
 	if b.label == "" && b.icon != nil && b.menu == nil {
 		// Icon buttons are square, three pixels round their icon: 22×22
 		// for the 16×16 icons of a toolbar.

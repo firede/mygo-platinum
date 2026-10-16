@@ -204,11 +204,18 @@ func Label(c *ui.Context, text string) ui.Element {
 	return TextIn(c, text, SystemFont, Black)
 }
 
-// TextIn builds a line of text in font f and color ink, sized to it.
+// TextIn builds a line of text in font f and color ink, sized to it. Made
+// taller, as tall as a control beside it, it centers its capitals on its
+// middle, as the control centers its own text.
 func TextIn(c *ui.Context, text string, f Font, ink ui.Color) ui.Element {
 	el := ui.Box(c).Size(float32(f.Measure(text)), float32(f.Height())).Role(ui.RoleText).Label(text)
 	el.Draw(func(p *ui.Painter, r ui.Rect) {
-		NewPen(p, r).Text(0, 0, text, f, ink)
+		pn := NewPen(p, r)
+		if pn.H > f.Height() {
+			pn.TextMiddle(0, 0, pn.H, text, f, ink)
+			return
+		}
+		pn.Text(0, 0, text, f, ink)
 	})
 	return el
 }

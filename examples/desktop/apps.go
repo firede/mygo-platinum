@@ -369,7 +369,8 @@ func newLedgerWindow(d *desk) *win {
 	w.content = func(c *ui.Context, w *win) {
 		ui.Column(c).Fill().AlignItems(ui.Stretch).Children(func() {
 			pt.FormulaBar(c, w.sheet)
-			pt.Sheet(c, w.sheet, 99, 26).Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize-2, 0)
+			// Above the resize corner, its focus ring too.
+			pt.Sheet(c, w.sheet, 99, 26).Element().Grow(1).FillWidth().Margin(0, 0, pt.GrowBoxSize+3, 0)
 		})
 	}
 	return w

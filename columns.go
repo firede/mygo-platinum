@@ -143,7 +143,14 @@ func ColumnView(c *ui.Context, roots []*TreeNode, path *[]*TreeNode) *ColumnView
 				lb.Arrows(arrows)
 			}
 		})
-		ui.Row(c).Height(ScrollBarWidth).Margin(-1, 0, 0, 0).AlignItems(ui.Stretch).Children(func() {
+		bar := ui.Row(c).Height(ScrollBarWidth).Margin(-1, 0, 0, 0).AlignItems(ui.Stretch)
+		if st.room > 0 {
+			// Filling a window: over its lines at the left and bottom, as
+			// the window's own scroll bar, its end at the resize corner's
+			// edge.
+			bar.Margin(-1, 0, -1, -1)
+		}
+		bar.Children(func() {
 			sb := ScrollBar(c, &st.left, float64(st.width), total).Horizontal().Step(ColumnViewWidth / 2)
 			sb.Element().Grow(1)
 			if st.room > 0 {
@@ -156,7 +163,8 @@ func ColumnView(c *ui.Context, roots []*TreeNode, path *[]*TreeNode) *ColumnView
 }
 
 // ScrollBarRoom leaves px pixels at the right of the horizontal scroll bar,
-// as for the resize corner of the window it fills.
+// as for the resize corner of the window it fills, and lays the bar over
+// that window's lines at its left and bottom.
 func (w *ColumnViewWidget) ScrollBarRoom(px int) *ColumnViewWidget {
 	if w.st.room != px {
 		w.st.room = px

@@ -173,7 +173,8 @@ go run ./examples/desktop -png desk.png -lang ja   # a picture of it, in Japanes
 
 `./scripts/site.sh` builds the desktop's web page, compiled to WebAssembly,
 into `site/dist`; `./scripts/deploy.sh` builds it for its address and
-deploys it to Cloudflare, as `wrangler.jsonc` says.
+deploys it to Cloudflare, as `wrangler.jsonc` says, which publishing a
+release on GitHub does too.
 
 ## Testing
 

@@ -1,8 +1,10 @@
 // The web page of the desk, served by Cloudflare as a Worker of static
 // assets alone, without a script. scripts/deploy.sh builds it into
-// site/dist and deploys it.
+// site/dist and deploys it, by hand or as a release is published
+// (.github/workflows/site.yml).
 {
   "name": "mygo-platinum",
+  "account_id": "1fbbff6fac21a592f99d42ad9920f4a6",
   "compatibility_date": "2026-10-16",
   "assets": { "directory": "./site/dist" },
   "routes": [{ "pattern": "mygo-platinum.firede.com", "custom_domain": true }],

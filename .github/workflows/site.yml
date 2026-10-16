@@ -1,0 +1,36 @@
+name: site
+
+# Builds the desk's web page and deploys it to Cloudflare as a release is
+# published, from the release's tag, or by hand, from the branch chosen.
+# Needs the repository's secret CLOUDFLARE_API_TOKEN: a token that may edit
+# Workers (Cloudflare's "Edit Cloudflare Workers" template).
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: site
+      url: https://mygo-platinum.firede.com
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      # The desk draws the page's pictures, as the tests draw theirs, with
+      # Pango for the characters our faces lack.
+      - name: Install Pango and a CJK font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpangocairo-1.0-0 fonts-noto-cjk
+      - run: ./scripts/deploy.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

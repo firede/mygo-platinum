@@ -165,7 +165,7 @@ go run ./examples/desktop -png desk.png -lang ja   # 不开窗口渲染成图片
 
 `./scripts/site.sh` 把经典桌面编译成 WebAssembly，连同网页一起构建到
 `site/dist`；`./scripts/deploy.sh` 按正式网址构建，并按 `wrangler.jsonc`
-的配置部署到 Cloudflare。
+的配置部署到 Cloudflare。在 GitHub 上发布 Release 时也会自动部署。
 
 ## 测试
 

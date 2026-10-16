@@ -584,8 +584,8 @@ func DrawGrowBox(pn Pen, active bool) {
 	for k := 0; k < 3; k++ {
 		o := 4 + 3*k
 		for i := 0; i < o; i++ {
-			pn.Dot(n-o+i-1, n-1-i, Gray7)
-			pn.Dot(n-o+i, n-1-i, White)
+			pn.Dot(n-o+i-1, n-2-i, Gray7)
+			pn.Dot(n-o+i, n-2-i, White)
 		}
 	}
 }

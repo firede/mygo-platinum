@@ -163,30 +163,43 @@ func mix(a, b ui.Color, t float64) ui.Color {
 
 // ends draws an edge's markers in the color of its line: an arrowhead along a run across
 // or down as the pixel arrowheads of old, growing a pixel each side every other row; any
-// other as its outline falls on pixels.
+// other as its parts fall on pixels, painted as scene.Marker.Outline says.
 func (d *drawer) ends() {
 	c := d.color(d.s.Stroke)
 	if c.A == 0 {
 		return
 	}
-	px := pixels{}
+	px, under := pixels{}, pixels{}
 	for _, m := range d.it.Ends {
 		if m.Type == "arrow_point" && (m.DX == 0) != (m.DY == 0) {
 			arrowhead(px, m)
 			continue
 		}
-		path, filled := m.Outline()
-		if path == nil {
-			continue
-		}
-		if filled {
-			for q := range fill(path.Flatten(0.25)) {
-				px[q] = struct{}{}
+		for _, part := range m.Outline() {
+			path := part.Path
+			if path == nil {
+				path = new(scene.Path).RoundRect(part.Box, 0)
 			}
-		} else {
-			stroke{width: 1, at: floorAt}.lines(px, path.Flatten(0.25))
+			lines := path.Flatten(0.25)
+			switch part.Paint {
+			case scene.StrokeOnly:
+				stroke{width: 1, at: floorAt}.lines(px, lines)
+			case scene.Hollow:
+				region := fill(lines)
+				for q := range region.border() {
+					px[q] = struct{}{}
+				}
+				for q := range region {
+					under[q] = struct{}{}
+				}
+			default:
+				for q := range fill(lines) {
+					px[q] = struct{}{}
+				}
+			}
 		}
 	}
+	under.without(px).draw(d.pn, d.color(d.s.Bg))
 	px.draw(d.pn, c)
 }
 

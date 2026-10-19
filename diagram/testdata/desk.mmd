@@ -1,0 +1,14 @@
+flowchart LR
+  subgraph Desk [The desk]
+    direction TB
+    N[Notes<br>two lines] --o P[(Papers)]
+    subgraph Drawer
+      K[/Keys/] --x L[Lamp]
+    end
+  end
+  S((Start)) -->|"`**bold** and _italic_`"| N
+  P <--> Q{Sort?}
+  Q -- yes --> R>Archive] & T[[Trash]]
+  Q -. later .-> S
+  L ==> Q
+  style T fill:#bbddff

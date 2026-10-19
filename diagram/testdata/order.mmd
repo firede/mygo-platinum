@@ -1,0 +1,21 @@
+---
+title: Order flow
+---
+flowchart TD
+  A([Customer]) -->|places| B[Order received]
+  B --> C{In stock?}
+  C -->|yes| D[[Pack items]]
+  C -->|no| E[(Backorder DB)]
+  E -.-> F>Notify customer]
+  D ==> G((Ship))
+  subgraph Warehouse
+    D
+    G
+    H{{Quality check}}
+  end
+  G --> H
+  H --> H
+  B --> I[/Invoice/]
+  I --> J[\Archive\]
+  classDef hot fill:#f96,stroke:#333,stroke-width:2px
+  class C hot

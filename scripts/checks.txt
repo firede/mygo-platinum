@@ -221,6 +221,7 @@ test::TestLocalCopyBindings/Stepper
 test::TestLocalCopyBindings/TabControl
 test::TestLocalCopyBindings/TextArea
 test::TestLocalCopyBindings/TextField
+test::TestMeasureStyled
 test::TestMenuBarAccessibility
 test::TestMenuBarClickChoose
 test::TestMenuBarDragChoose

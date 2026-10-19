@@ -43,6 +43,29 @@ func (f Font) Measure(s string) int {
 	return w
 }
 
+// MeasureStyled returns the width of s on one line in a style, as
+// TextStyled draws it: bold glyphs, the room italic takes at the end of the
+// run, and the scale; without the tracking after the last glyph, as Measure.
+func (f Font) MeasureStyled(s string, style TextStyle) int {
+	bold := style&Bold != 0
+	k := style.Scale()
+	w := 0
+	for _, r := range s {
+		if g, ok := f.glyph(r, bold); ok {
+			w += g.advance * k
+		} else {
+			w += (f.advance(r) + boolInt(bold)) * k
+		}
+	}
+	if w == 0 {
+		return 0
+	}
+	if style&Italic != 0 {
+		w += ItalicSlant(f) * k
+	}
+	return w - f.face().Tracking*k
+}
+
 // advance returns how far the pen moves after r: its glyph's advance, or
 // for a character no face draws, the advance of the system's font that
 // draws it instead.

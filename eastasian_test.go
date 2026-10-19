@@ -168,3 +168,34 @@ func TestEastAsianWrap(t *testing.T) {
 		t.Errorf("Latin text wrapped as %q", got)
 	}
 }
+
+// MeasureStyled measures what TextStyled draws, in every style, in both
+// faces, East Asian text and text no face draws among it; nothing for an
+// empty run.
+func TestMeasureStyled(t *testing.T) {
+	useEastAsian(t)
+	texts := []string{"", " ", "Ani", "Wide WWW", "粗体 mixed", "→ ✓ ∑", "ไทย"}
+	styles := []TextStyle{0, Bold, Italic, Underline, Bold | Italic, Bold.Scaled(2), (Italic | Bold).Scaled(3)}
+	ui.Render(func(c *ui.Context) {
+		ui.Box(c).Size(400, 40).Draw(func(p *ui.Painter, r ui.Rect) {
+			pn := NewPen(p, r)
+			for _, f := range []Font{SystemFont, AppFont} {
+				for _, s := range texts {
+					if got, want := f.MeasureStyled(s, 0), f.Measure(s); got != want {
+						t.Errorf("font %d: MeasureStyled(%q, 0) = %d, Measure %d", f, s, got, want)
+					}
+					for _, st := range styles {
+						// TextStyled leaves italic's room after an empty run too.
+						want := 0
+						if s != "" {
+							want = pn.TextStyled(0, 0, s, f, Black, st) - f.face().Tracking*st.Scale()
+						}
+						if got := f.MeasureStyled(s, st); got != want {
+							t.Errorf("font %d: MeasureStyled(%q, %d) = %d, drawn %d", f, s, st, got, want)
+						}
+					}
+				}
+			}
+		})
+	}, 400, 40, 1)
+}

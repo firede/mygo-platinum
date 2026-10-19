@@ -4,18 +4,18 @@ import (
 	"math"
 
 	"github.com/egoist/mygo/ui"
-	"github.com/firede/limu/mygoui"
+	"github.com/firede/limu/limumygo"
 	"github.com/firede/limu/scene"
 	"github.com/firede/limu/style"
 	"github.com/firede/limu/text"
 	platinum "github.com/firede/mygo-platinum"
 )
 
-// Draw draws an item of a scene in the Platinum look, as mygoui's Options.Draw: on whole
+// Draw draws an item of a scene in the Platinum look, as limumygo's Options.Draw: on whole
 // pixels with a Pen, a node's box as a button and a group's as a group box, every other
-// outline, line and arrowhead a pixel at a time, and text in AppFont. It draws as mygoui
+// outline, line and arrowhead a pixel at a time, and text in AppFont. It draws as limumygo
 // does where the scene is not drawn a DIP to its unit, as the Pen's pixels are DIPs.
-func Draw(p *mygoui.Painter, it *scene.Item, s style.Resolved, next func()) {
+func Draw(p *limumygo.Painter, it *scene.Item, s style.Resolved, next func()) {
 	if p.Len(1) != 1 {
 		next()
 		return
@@ -29,13 +29,13 @@ func Draw(p *mygoui.Painter, it *scene.Item, s style.Resolved, next func()) {
 }
 
 type drawer struct {
-	p  *mygoui.Painter
+	p  *limumygo.Painter
 	pn platinum.Pen
 	it *scene.Item
 	s  style.Resolved
 }
 
-func (d *drawer) color(c style.Color) ui.Color { return mygoui.Color(c, d.s.Opacity) }
+func (d *drawer) color(c style.Color) ui.Color { return limumygo.Color(c, d.s.Opacity) }
 
 // stroke is how the item's lines go on pixels: an edge's fall where they are, the lines of
 // a shape toward its middle.

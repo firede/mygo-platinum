@@ -15,7 +15,7 @@ package diagram
 import (
 	"github.com/egoist/mygo/ui"
 	"github.com/firede/limu/layout"
-	"github.com/firede/limu/mygoui"
+	"github.com/firede/limu/limumygo"
 	"github.com/firede/limu/scene"
 	"github.com/firede/limu/style"
 	"github.com/firede/limu/text"
@@ -87,21 +87,21 @@ func Theme(th *platinum.Theme) *style.Theme {
 	}
 }
 
-// Options returns mygoui's options for the look, in a Platinum theme: its
+// Options returns limumygo's options for the look, in a Platinum theme: its
 // colors, and the drawing of its own. Overrides of roles may be added to
 // its Look.
-func Options(th *platinum.Theme) *mygoui.Options {
-	return &mygoui.Options{Look: style.Look{Theme: Theme(th)}, Scale: 1, Draw: Draw}
+func Options(th *platinum.Theme) *limumygo.Options {
+	return &limumygo.Options{Look: style.Look{Theme: Theme(th)}, Scale: 1, Draw: Draw}
 }
 
 // Paint draws a scene laid out with Layout on p, its top left corner at x,
 // y, in the look of th.
 func Paint(p *ui.Painter, sc *scene.Scene, x, y float32, th *platinum.Theme) {
-	mygoui.Paint(p, sc, x, y, Options(th))
+	limumygo.Paint(p, sc, x, y, Options(th))
 }
 
 // View shows a scene laid out with Layout, in the theme of the window, and
 // reports what the pointer is over and what was clicked.
-func View(c *ui.Context, sc *scene.Scene) *mygoui.Widget {
-	return mygoui.View(c, sc, Options(platinum.ThemeOf(c)))
+func View(c *ui.Context, sc *scene.Scene) *limumygo.Widget {
+	return limumygo.View(c, sc, Options(platinum.ThemeOf(c)))
 }

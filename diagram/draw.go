@@ -60,6 +60,14 @@ func (d *drawer) parts() {
 			line = ui.Color{}
 		case scene.Solid:
 			face = d.color(d.s.Line)
+		case scene.Hollow:
+			face = d.color(d.s.Bg)
+		case scene.Shade:
+			// The background, or over a fill the author set, the background at 60% over it.
+			face, line = d.color(d.s.Bg), ui.Color{}
+			if f := d.color(d.s.Fill); d.it.Author.Fill.Visible() && f.A > 0 {
+				face = mix(f, face, 0.6)
+			}
 		}
 		if part.Path == nil {
 			d.box(part, face, line)
@@ -235,17 +243,26 @@ func (d *drawer) label() {
 	if c.A == 0 {
 		return
 	}
-	if halo := d.color(d.s.Halo); halo.A > 0 && d.s.HaloWidth > 0 {
-		r := max(1, int(d.s.HaloWidth/2))
-		for oy := -r; oy <= r; oy++ {
-			for ox := -r; ox <= r; ox++ {
-				if (ox != 0 || oy != 0) && abs(ox)+abs(oy) <= r+r/2 {
-					d.text(l, ox, oy, halo)
+	draw := func() {
+		if halo := d.color(d.s.Halo); halo.A > 0 && d.s.HaloWidth > 0 {
+			r := max(1, int(d.s.HaloWidth/2))
+			for oy := -r; oy <= r; oy++ {
+				for ox := -r; ox <= r; ox++ {
+					if (ox != 0 || oy != 0) && abs(ox)+abs(oy) <= r+r/2 {
+						d.text(l, ox, oy, halo)
+					}
 				}
 			}
 		}
+		d.text(l, 0, 0, c)
 	}
-	d.text(l, 0, 0, c)
+	if d.it.Rotate == 0 {
+		draw()
+		return
+	}
+	// Turned about At, a quarter turn keeping the glyphs' pixels whole.
+	x, y := d.p.Point(d.it.At)
+	d.p.Transform(ui.Rotation(float32(d.it.Rotate)), x, y, draw)
 }
 
 func (d *drawer) text(l *text.Label, ox, oy int, c ui.Color) {

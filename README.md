@@ -116,7 +116,7 @@ go by the names of the period:
 It needs Go 1.27.1 or later and MyGo v0.5.5.
 
 ```sh
-go get github.com/firede/mygo-platinum@v0.1.0
+go get github.com/firede/mygo-platinum@v0.2.0
 ```
 
 ```go

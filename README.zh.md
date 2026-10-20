@@ -66,11 +66,23 @@
 | 停靠在底边的弹出窗口 | `PopupWindow`、`SpringOpen` |
 | 打开与保存对话框 | `OpenDialog`、`SaveDialog` |
 | 窗口打开时的缩放矩形动画 | `ZoomRects` |
+| Mermaid 图表，由 [limu](https://limu.firede.com) 布局 | `diagram.View` |
 
 每个控件都具备完整的状态（按下、禁用、聚焦、默认、选中、选定，以及位于后台
 窗口时的非活动状态），可以完全用键盘操作，通过 MyGo 的无障碍支持向屏幕阅读器
 描述自己，并且都有一个能编译运行的 godoc 示例。有独特外观的控件还导出了对应的
 `Draw…` 函数，方便你画出外观一致的自定义控件。
+
+`diagram` 包用这套外观画 Mermaid 图表。limu 用本库的点阵字体把图表布局在整像素上，
+包里的代码像画控件一样画框，线条则一个像素一个像素地画。
+
+```go
+sc, err := limu.Layout(src, diagram.Layout())
+if err != nil {
+	return err
+}
+diagram.View(c, sc)
+```
 
 MyGo 自带的控件，本库沿用 MyGo 的名字和参数：`Button`、`Checkbox`、`Radio`、
 `Slider`、`Stepper`、`Segmented`、`Split`、`SplitPercent`、`TextArea`、
@@ -97,7 +109,7 @@ MyGo 自带的控件，本库沿用 MyGo 的名字和参数：`Button`、`Checkb
 需要 Go 1.27.1 或更高版本，以及 MyGo v0.5.5。
 
 ```sh
-go get github.com/firede/mygo-platinum@v0.1.0
+go get github.com/firede/mygo-platinum@v0.2.0
 ```
 
 ```go
@@ -161,6 +173,7 @@ go run ./examples/gallery                    # 在窗口中展示所有控件
 go run ./examples/gallery -png gallery.png   # 不开窗口，直接渲染成图片
 go run ./examples/desktop                    # 经典桌面
 go run ./examples/desktop -png desk.png -lang ja   # 不开窗口渲染成图片，日文界面
+go run ./examples/diagrams                   # 用这套外观展示每种图表
 ```
 
 `./scripts/site.sh` 把经典桌面编译成 WebAssembly，连同网页一起构建到

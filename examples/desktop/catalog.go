@@ -6,7 +6,11 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+	limudiagram "github.com/firede/limu/diagram"
+	"github.com/firede/limu/diagram/flowchart"
+	limuscene "github.com/firede/limu/scene"
 	pt "github.com/firede/mygo-platinum"
+	"github.com/firede/mygo-platinum/diagram"
 	"github.com/firede/mygo-platinum/examples/desktop/locales"
 )
 
@@ -62,6 +66,8 @@ type catalog struct {
 	files           pt.FileDialogState
 	zoomFrom        ui.Rect
 	zoomStart       time.Time
+	diagram         *limuscene.Scene // the diagram page's, laid out once
+	diagramIn       string           // for the language it is in
 }
 
 // catalogPage is a page of the catalog: the functions it shows, and what
@@ -560,5 +566,40 @@ func catalogPages() []catalogPage {
 				}
 			}
 		}},
+		{"diagram.View", func(c *ui.Context, k *catalog, d *desk, m locales.Messages) {
+			if k.diagram == nil || k.diagramIn != d.lang {
+				k.diagram, k.diagramIn = deskDiagram(m), d.lang
+			}
+			diagram.View(c, k.diagram)
+		}},
 	}
+}
+
+// deskDiagram lays out a flowchart of the desk's applications, in the
+// desk's language: the desk opens Scribe and Jotter, Scribe saves to the
+// desk, and what is not kept goes to the Wastebasket.
+func deskDiagram(m locales.Messages) *limuscene.Scene {
+	label := func(s string) string { return `"` + strings.ReplaceAll(s, `"`, "#quot;") + `"` }
+	src := "flowchart LR\n" +
+		"  desk([" + label(m.Desk()) + "]) -->|" + label(m.Open()) + "| scribe[" + label(m.Scribe()) + "]\n" +
+		"  scribe -->|" + label(m.Save()) + "| desk\n" +
+		"  desk -->|" + label(m.Open()) + "| jotter[" + label(m.Jotter()) + "]\n" +
+		"  jotter -.-> waste[(" + label(m.Wastebasket()) + ")]\n"
+	// The page is about 400 pixels wide; a diagram wider turns to fit it.
+	o := diagram.Layout()
+	o.MaxWidth = 390
+	// The flowchart is laid out by limu's flowchart package alone, not by
+	// limu.Layout, which would build every type of diagram into the desk's
+	// WebAssembly; so it is snapped here, as limu.Layout would snap it.
+	p, err := limudiagram.Prepare(src, limudiagram.Options{})
+	if err != nil {
+		panic(err) // the source is the desk's own
+	}
+	db, err := flowchart.ParsePrepared(p)
+	if err != nil {
+		panic(err)
+	}
+	sc := flowchart.Layout(db, p.Config, o)
+	sc.Snap(o.Snap)
+	return sc
 }

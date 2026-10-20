@@ -70,6 +70,7 @@ tables, layout),
 | Pop-up window docked at the bottom edge | `PopupWindow`, `SpringOpen` |
 | Open and save dialogs | `OpenDialog`, `SaveDialog` |
 | Zoom rectangles of a window opening | `ZoomRects` |
+| Mermaid diagram, laid out by [limu](https://limu.firede.com) | `diagram.View` |
 
 Every control has its states (pressed, disabled, focused, default, checked,
 selected, and inactive in a window in the background), is operated from the
@@ -77,6 +78,18 @@ keyboard, describes itself to screen readers through MyGo's accessibility
 support, and has a godoc example that compiles and runs. Those with a look
 of their own are drawn with an exported `Draw…` function too, for controls
 of your own that look like them.
+
+The `diagram` package draws Mermaid diagrams in the look. limu lays a
+diagram out on whole pixels with the library's bitmap faces, and the package
+draws its boxes as the controls are drawn and its lines a pixel at a time.
+
+```go
+sc, err := limu.Layout(src, diagram.Layout())
+if err != nil {
+	return err
+}
+diagram.View(c, sc)
+```
 
 Controls MyGo has too go by MyGo's names and take what MyGo's take —
 `Button`, `Checkbox`, `Radio`, `Slider`, `Stepper`, `Segmented`, `Split`,
@@ -169,6 +182,7 @@ go run ./examples/gallery                    # every control, in a window
 go run ./examples/gallery -png gallery.png   # the same, rendered without one
 go run ./examples/desktop                    # the classic desktop
 go run ./examples/desktop -png desk.png -lang ja   # a picture of it, in Japanese
+go run ./examples/diagrams                   # every type of diagram, in the look
 ```
 
 `./scripts/site.sh` builds the desktop's web page, compiled to WebAssembly,

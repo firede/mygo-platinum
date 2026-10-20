@@ -17,31 +17,36 @@ import (
 
 // TestCatalogNames checks the pages of the Controls against the library:
 // every function a page names is one of its controls, and every control —
-// an exported function taking a *ui.Context first — has a page.
+// an exported function taking a *ui.Context first, in the library or in its
+// diagram package — has a page.
 func TestCatalogNames(t *testing.T) {
 	notControls := []string{"Use", "ThemeOf", "EditCommand"}
-	files, err := filepath.Glob("../../*.go")
-	if err != nil {
-		t.Fatal(err)
-	}
 	var controls []string
 	fset := token.NewFileSet()
-	for _, f := range files {
-		if strings.HasSuffix(f, "_test.go") {
-			continue
-		}
-		file, err := parser.ParseFile(fset, f, nil, 0)
+	// The library's controls by their names, and those of its diagram
+	// package by the package's name and theirs.
+	for dir, prefix := range map[string]string{"../..": "", "../../diagram": "diagram."} {
+		files, err := filepath.Glob(dir + "/*.go")
 		if err != nil {
 			t.Fatal(err)
 		}
-		for _, decl := range file.Decls {
-			fn, ok := decl.(*ast.FuncDecl)
-			if !ok || fn.Recv != nil || !fn.Name.IsExported() || slices.Contains(notControls, fn.Name.Name) || len(fn.Type.Params.List) == 0 {
+		for _, f := range files {
+			if strings.HasSuffix(f, "_test.go") {
 				continue
 			}
-			if star, ok := fn.Type.Params.List[0].Type.(*ast.StarExpr); ok {
-				if sel, ok := star.X.(*ast.SelectorExpr); ok && sel.Sel.Name == "Context" {
-					controls = append(controls, fn.Name.Name)
+			file, err := parser.ParseFile(fset, f, nil, 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, decl := range file.Decls {
+				fn, ok := decl.(*ast.FuncDecl)
+				if !ok || fn.Recv != nil || !fn.Name.IsExported() || slices.Contains(notControls, fn.Name.Name) || len(fn.Type.Params.List) == 0 {
+					continue
+				}
+				if star, ok := fn.Type.Params.List[0].Type.(*ast.StarExpr); ok {
+					if sel, ok := star.X.(*ast.SelectorExpr); ok && sel.Sel.Name == "Context" {
+						controls = append(controls, prefix+fn.Name.Name)
+					}
 				}
 			}
 		}

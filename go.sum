@@ -2,10 +2,10 @@ github.com/ebitengine/purego v0.11.1 h1:2zpWRSQNVKN4eKsKO9eM1ILDgWfYMY9GwqRmK6Xe
 github.com/ebitengine/purego v0.11.1/go.mod h1:DCHPP08djqhNSoTfImcnHYQRZmd0qhakvrozqaEYhGQ=
 github.com/egoist/mygo v0.5.5 h1:3pvlEwumsck/L99cbDpay/Eqcf51B7zhKNXekiodLOw=
 github.com/egoist/mygo v0.5.5/go.mod h1:daHGetyAlBkHhIZOOIcAI7C82yLUY7HgeT2+Z6w2VPU=
-github.com/firede/limu v0.1.1 h1:WP1RbLAQS0xG+J1SfLtNBRG7IIDfakGTsfKvx9z32og=
-github.com/firede/limu v0.1.1/go.mod h1:vPSswABi3Jlw18HeH3nBThCXvNC9TsYlEVUn5+2SYRo=
-github.com/firede/limu/limumygo v0.1.1 h1:ylck1cg8RuRpF5cG8Hr+FUAJQEU7xNl8mgiiWLy1jT0=
-github.com/firede/limu/limumygo v0.1.1/go.mod h1:hUqZ70k/VdckE5JPHHTgf+KfVf2h8+9bhHq0UMY0fck=
+github.com/firede/limu v0.2.0 h1:joHRxLY9Gfbocfa+T3cMXRpRNAM3BafUXmbS0634pdo=
+github.com/firede/limu v0.2.0/go.mod h1:vPSswABi3Jlw18HeH3nBThCXvNC9TsYlEVUn5+2SYRo=
+github.com/firede/limu/limumygo v0.2.0 h1:RZ1PpUbftaat1MUrKyVLjVOz1zcynlvQfyZpnerD5Cw=
+github.com/firede/limu/limumygo v0.2.0/go.mod h1:yY68RqUERnGQ5l0vLSDWlwZfBXTvaPqBHg775jWcv68=
 github.com/firede/platinum-fonts v0.2.0 h1:VyajZqG33p82lL+HzkC5JneNtNUqZVNIY79ugl85y/4=
 github.com/firede/platinum-fonts v0.2.0/go.mod h1:bZkeVVqt5dHr5iu3HakQufpYCaP59b0Z2ckH+90VPx0=
 github.com/go-text/typesetting v0.3.5 h1:XZPUooClHY0Vf/rFyUyuPRNEkawARaFzLMQcXLSEyPk=

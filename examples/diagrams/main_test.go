@@ -5,6 +5,7 @@ import (
 	"flag"
 	"image"
 	"image/png"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -54,7 +55,10 @@ func TestSamples(t *testing.T) {
 }
 
 // The first example of each type, drawn at scale 1, compared pixel by pixel
-// with testdata/golden.
+// with testdata/golden, but for the labels turned by other than a quarter
+// turn. MyGo resamples such a label, and its arithmetic rounds otherwise where
+// Go fuses a multiply and an add, as on arm64, so those pixels differ by
+// platform and are left out.
 func TestSnapshots(t *testing.T) {
 	for _, typ := range samples() {
 		name := strings.ToLower(strings.ReplaceAll(typ.title, " ", "-"))
@@ -63,9 +67,26 @@ func TestSnapshots(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			golden(t, name, draw(sc))
+			golden(t, name, draw(sc), turned(sc))
 		})
 	}
+}
+
+// turned is where draw puts the labels of the scene turned by other than a
+// quarter turn, with 2 pixels about each for what resampling spreads.
+func turned(sc *scene.Scene) []image.Rectangle {
+	var out []image.Rectangle
+	for i := range sc.Items {
+		it := &sc.Items[i]
+		if math.Mod(it.Rotate, 90) == 0 {
+			continue
+		}
+		b := it.LabelBox()
+		out = append(out, image.Rect(
+			int(math.Floor(b.X))+8-2, int(math.Floor(b.Y))+8-2,
+			int(math.Ceil(b.X+b.W))+8+2, int(math.Ceil(b.Y+b.H))+8+2))
+	}
+	return out
 }
 
 // draw renders a scene in the look, on white paper with a margin of 8.
@@ -76,7 +97,8 @@ func draw(sc *scene.Scene) *image.RGBA {
 	}, int(sc.Width)+16, int(sc.Height)+16, 1)
 }
 
-func golden(t *testing.T, name string, img *image.RGBA) {
+// golden compares the image with its golden, but in the rectangles left out.
+func golden(t *testing.T, name string, img *image.RGBA, out []image.Rectangle) {
 	t.Helper()
 	path := filepath.Join("testdata", "golden", name+".png")
 	var buf bytes.Buffer
@@ -100,7 +122,7 @@ func golden(t *testing.T, name string, img *image.RGBA) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n, at := differ(want, img); n > 0 {
+	if n, at := differ(want, img, out); n > 0 {
 		out := filepath.Join(os.TempDir(), "platinum-diagrams-"+name+".png")
 		if err := os.WriteFile(out, buf.Bytes(), 0o644); err != nil {
 			t.Fatal(err)
@@ -109,9 +131,10 @@ func golden(t *testing.T, name string, img *image.RGBA) {
 	}
 }
 
-// differ counts the pixels that differ between two images, and gives the
-// first; images of other sizes differ everywhere.
-func differ(a, b image.Image) (int, image.Point) {
+// differ counts the pixels that differ between two images, but in the
+// rectangles left out, and gives the first; images of other sizes differ
+// everywhere.
+func differ(a, b image.Image, out []image.Rectangle) (int, image.Point) {
 	if a.Bounds() != b.Bounds() {
 		return a.Bounds().Dx() * a.Bounds().Dy(), a.Bounds().Min
 	}
@@ -119,7 +142,7 @@ func differ(a, b image.Image) (int, image.Point) {
 	r := a.Bounds()
 	for y := r.Min.Y; y < r.Max.Y; y++ {
 		for x := r.Min.X; x < r.Max.X; x++ {
-			if a.At(x, y) != b.At(x, y) {
+			if a.At(x, y) != b.At(x, y) && !within(image.Pt(x, y), out) {
 				if n == 0 {
 					first = image.Point{x, y}
 				}
@@ -128,4 +151,13 @@ func differ(a, b image.Image) (int, image.Point) {
 		}
 	}
 	return n, first
+}
+
+func within(p image.Point, rs []image.Rectangle) bool {
+	for _, r := range rs {
+		if p.In(r) {
+			return true
+		}
+	}
+	return false
 }

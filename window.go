@@ -222,7 +222,13 @@ func Window(c *ui.Context, st *WindowState, title string, opts WindowOptions, fn
 	w.el.HandleInput(func(ev ui.InputEvent) bool {
 		return w.input(ev, st, opts)
 	})
-	w.el.Padding(float32(opts.bar()), float32(side), float32(side), float32(side))
+	// A rolled-up window is its title bar alone, with no frame below it:
+	// MyGo, as CSS does, makes no box shorter than its padding.
+	bottom := side
+	if st.Collapsed {
+		bottom = 0
+	}
+	w.el.Padding(float32(opts.bar()), float32(side), float32(bottom), float32(side))
 	pressed := PartNone
 	if d.inside {
 		pressed = d.part

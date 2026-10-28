@@ -8,7 +8,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-version=v0.2.0
+version=v0.3.0
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 zip=platinum-fonts-$version-woff2.zip

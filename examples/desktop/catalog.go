@@ -241,9 +241,7 @@ func catalogPages() []catalogPage {
 					if cw.untitled {
 						title = m.Untitled()
 					}
-					// Keyed by title: a key of another kind is its value
-					// printed, which a pointer's is what it points to.
-					w := pt.Window(c.Key(title), &cw.WindowState, title, pt.WindowOptions{Active: front, ZoomTo: [4]int{4, 4, 292, 132}}, func() {})
+					w := pt.Window(c.Key(cw), &cw.WindowState, title, pt.WindowOptions{Active: front, ZoomTo: [4]int{4, 4, 292, 132}}, func() {})
 					if w.Activated() && !front {
 						k.windows = append(append(append([]*catalogWindow{}, k.windows[:i]...), k.windows[i+1:]...), cw)
 					}

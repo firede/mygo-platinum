@@ -28,7 +28,8 @@ const FontSize = 12
 
 // Measurer measures text in AppFont, as the drawing sets it: bold and italic
 // as TextStyled draws them, and code in the same face, as it has no
-// monospaced one.
+// monospaced one. Sub and sup are set at the faces' one size too, so their
+// width does not depend on the size they are measured at.
 var Measurer text.Measurer = measurer{}
 
 type measurer struct{}
@@ -44,6 +45,9 @@ func textStyle(f text.Face) platinum.TextStyle {
 	}
 	if f&text.Italic != 0 {
 		st |= platinum.Italic
+	}
+	if f&text.Underline != 0 {
+		st |= platinum.Underline
 	}
 	return st
 }

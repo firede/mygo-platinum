@@ -18,6 +18,7 @@ test:/diagram:TestLines
 test:/diagram:TestMeasurer
 test:/diagram:TestSnapshots
 test:/diagram:TestSnapshots/desk
+test:/diagram:TestSnapshots/fills
 test:/diagram:TestSnapshots/order
 test:/examples/desktop:TestAboutSourceLink
 test:/examples/desktop:TestCalculatorCopyPaste

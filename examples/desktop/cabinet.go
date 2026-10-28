@@ -265,7 +265,7 @@ func (cb *cabinet) itemAt(x, y float32, cols int) int {
 // Wastebasket, another folder's window or a folder's icon.
 func (d *desk) cabinetItem(c *ui.Context, cb *cabinet, i int, it *node, cols int, focused bool, a pt.Accent) {
 	x, y := cb.itemBox(i, cols)
-	e := ui.Box(c.Key(it.id())).Absolute().Left(float32(x)).Top(float32(y)-float32(cb.scroll)).Size(cellW, cellH).
+	e := ui.Box(c.Key(it)).Absolute().Left(float32(x)).Top(float32(y)-float32(cb.scroll)).Size(cellW, cellH).
 		Role(ui.RoleListItem).Label(it.name)
 	if !cb.trash && it.kind != kindApp && it.kind != kindPanel {
 		e.Drag(it)
@@ -451,7 +451,7 @@ func (d *desk) cabinetButtons(c *ui.Context, w *win) {
 		for i, it := range cb.dir.children {
 			x := 8 + (i%cols)*cellW + 2
 			y := 8 + (i/cols)*(bh+22)
-			b := ui.ButtonBase(c.Key(it.id())).Absolute().Left(float32(x)).Top(float32(y)).Size(cellW-4, bh+18).
+			b := ui.ButtonBase(c.Key(it)).Absolute().Left(float32(x)).Top(float32(y)).Size(cellW-4, bh+18).
 				FocusRing(false).Label(it.name)
 			if b.Clicked() {
 				n := it

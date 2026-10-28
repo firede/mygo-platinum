@@ -22,7 +22,7 @@ var update = flag.Bool("update", false, "write the golden images of failing snap
 // The flowcharts in testdata, laid out and drawn at scale 1, compared pixel by pixel with
 // testdata/golden.
 func TestSnapshots(t *testing.T) {
-	for _, name := range []string{"order", "desk"} {
+	for _, name := range []string{"order", "desk", "fills"} {
 		t.Run(name, func(t *testing.T) {
 			src, err := os.ReadFile(filepath.Join("testdata", name+".mmd"))
 			if err != nil {

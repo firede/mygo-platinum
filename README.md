@@ -29,7 +29,7 @@ tables, layout),
 > [!WARNING]
 > **An early, personal project.** It was made for its author's own use and
 > is shared as it is, with no promise of support. Its API may change in any
-> 0.x release, and it is built on MyGo v0.6.2, itself young and changing.
+> 0.x release, and it is built on MyGo v0.7.1, itself young and changing.
 > Pin a version, and expect to adapt.
 
 ## What is in it
@@ -113,10 +113,10 @@ go by the names of the period:
 
 ## Using it
 
-It needs Go 1.27.1 or later and MyGo v0.6.2.
+It needs Go 1.27.3 or later and MyGo v0.7.1.
 
 ```sh
-go get github.com/firede/mygo-platinum@v0.2.1
+go get github.com/firede/mygo-platinum@v0.2.2
 ```
 
 ```go
